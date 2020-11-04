@@ -1,3 +1,5 @@
+@echo off
+
 @REM set GOARCH=arm64
 set GOARCH=arm
 set GOOS=linux

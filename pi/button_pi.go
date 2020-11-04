@@ -3,12 +3,15 @@
 package pi
 
 import (
-	"log"
 	"time"
 
 	"periph.io/x/periph/conn/gpio"
 	"periph.io/x/periph/conn/gpio/gpioreg"
+
+	log "github.com/sirupsen/logrus"
 )
+
+const DEBOUNCE_NS = 50 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/
 
 func (self *PiButton) register() {
 	p := gpioreg.ByName(self.gpio)
@@ -24,36 +27,86 @@ func (self *PiButton) register() {
 }
 
 func (self *PiButton) listen(p gpio.PinIO) {
-	var risingMs, fallingMs int64
+	var passedTimeNs, risingNs, fallingNs int64
+	var inTime bool
+	lastActionNs := int64(0)
+	for {
+		// Initial press can be triggered anywhere in time
+		// button press should set the pin to High
+		// Caused by debouncing behaviour, action has a timeout of {{DEBOUNCE_NS}}
+		p.WaitForEdge(-1)
+		log.Trace("1_%s", p.Read())
 
-	lastState := p.Read()
-	for p.WaitForEdge(-1) {
-		currentState := p.Read()
-		if lastState == currentState {
+		if p.Read() != gpio.High {
 			continue
 		}
-		nowMs := time.Now().UnixNano() / 1000 /*us*/ / 1000 /*ns*/
-		switch currentState {
-		case gpio.Low:
-			fallingMs = nowMs
-		case gpio.High:
-			risingMs = nowMs
+
+		risingNs = time.Now().UnixNano()
+		if risingNs < lastActionNs+int64(DEBOUNCE_NS) {
+			continue
 		}
 
-		if currentState == gpio.Low {
-			passedTimeMs := fallingMs - risingMs
-			if passedTimeMs < 50 /*ms*/ {
+		//labeled breakout because of complexity
+	press_detection:
+		for {
+			//longpress timeout -> when no Edge is coming, user is still pressing
+			inTime = p.WaitForEdge(time.Millisecond * time.Duration(self.longPressMs))
+			log.Trace("2_%s", p.Read())
+
+			if !inTime {
+				log.Info("PRESS_LONG") //TODO PRESS_LONG callback
+				break press_detection
+			}
+			if p.Read() != gpio.Low {
 				continue
 			}
-			if passedTimeMs >= self.longPressMs {
-				log.Println("longPress")
-			} else {
-				log.Println("shortPress")
+
+			fallingNs = time.Now().UnixNano()
+			passedTimeNs = fallingNs - risingNs
+			if passedTimeNs < DEBOUNCE_NS { // Debouncing
+				risingNs = fallingNs
+				continue
+			}
+
+			for {
+				inTime = p.WaitForEdge(time.Millisecond * time.Duration(self.doublePressTimeout))
+				log.Trace("3_%s", p.Read())
+
+				if !inTime {
+					log.Info("PRESS_SINGLE") //TODO PRESS_SINGLE callback
+					break press_detection
+				}
+				if p.Read() != gpio.High {
+					continue
+				}
+
+				risingNs = time.Now().UnixNano()
+				passedTimeNs = risingNs - fallingNs
+				if passedTimeNs < DEBOUNCE_NS { // Debouncing
+					fallingNs = risingNs
+					continue
+				}
+
+				log.Info("PRESS_DOUBLE") //TODO PRESS_DOUBLE callback
+				for {
+					p.WaitForEdge(-1)
+					log.Trace("4_%s", p.Read())
+					if p.Read() != gpio.Low {
+						continue
+					}
+
+					fallingNs = time.Now().UnixNano()
+					passedTimeNs = fallingNs - risingNs
+					if passedTimeNs < DEBOUNCE_NS { // Debouncing
+						risingNs = fallingNs
+						continue
+					}
+
+					break press_detection
+				}
 			}
 		}
-
-		// log.Printf("%s went %s\n", p, currentState)
-		lastState = currentState
+		lastActionNs = time.Now().UnixNano()
 	}
 	self.register()
 }

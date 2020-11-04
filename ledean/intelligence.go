@@ -12,7 +12,7 @@ type LEDeanInstance struct {
 
 func Run(parameter Parameter) LEDeanInstance {
 	pi.Init()
-	pi_button := pi.NewPiButton(parameter.gpio_button, parameter.longPressMs)
+	pi_button := pi.NewPiButton(parameter.gpio_button, parameter.longPressMs, parameter.doublePressTimeout)
 
 	return LEDeanInstance{pi_button: pi_button}
 }
