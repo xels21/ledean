@@ -1,0 +1,7 @@
+*.log
+*.exe
+__debug_bin
+**/logs/**
+**/temp/**
+**/build/**
+.vscode/

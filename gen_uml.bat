@@ -1,0 +1,1 @@
+goviz -i LEDean | dot -Tpng -o uml.png
