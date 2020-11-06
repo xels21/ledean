@@ -6,4 +6,13 @@ set GOOS=windows
 echo building for: %GOOS%(%GOARCH%)...
 
 go build -o build/%GOOS%/LEDean.sh
-echo done
+
+echo Exit Code is %errorlevel%
+echo.
+
+if %ERRORLEVEL% EQU 0 (
+   echo Success 
+) else (
+  echo Fail
+  exit /b %errorlevel%
+)
