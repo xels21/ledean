@@ -1,6 +1,6 @@
 // +build linux
 
-package pi
+package button
 
 import (
 	"time"
@@ -13,7 +13,7 @@ import (
 
 const DEBOUNCE_NS = 50 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/
 
-func (self *PiButton) register() {
+func (self *PiButton) Register() {
 	p := gpioreg.ByName(self.gpio)
 	if p == nil {
 		log.Fatal("Failed to find: ", self.gpio)
@@ -35,7 +35,7 @@ func (self *PiButton) listen(p gpio.PinIO) {
 		// button press should set the pin to High
 		// Caused by debouncing behaviour, action has a timeout of {{DEBOUNCE_NS}}
 		p.WaitForEdge(-1)
-		log.Trace("1_%s", p.Read())
+		log.Trace("1_", p.Read())
 
 		if p.Read() != gpio.High {
 			continue
@@ -51,7 +51,7 @@ func (self *PiButton) listen(p gpio.PinIO) {
 		for {
 			//longpress timeout -> when no Edge is coming, user is still pressing
 			inTime = p.WaitForEdge(time.Millisecond * time.Duration(self.longPressMs))
-			log.Trace("2_%s", p.Read())
+			log.Trace("2_", p.Read())
 
 			if !inTime {
 				trigger(self.CbLongPress)
@@ -70,7 +70,7 @@ func (self *PiButton) listen(p gpio.PinIO) {
 
 			for {
 				inTime = p.WaitForEdge(time.Millisecond * time.Duration(self.doublePressTimeout))
-				log.Trace("3_%s", p.Read())
+				log.Trace("3_", p.Read())
 
 				if !inTime {
 					trigger(self.CbSinglePress)
@@ -89,7 +89,7 @@ func (self *PiButton) listen(p gpio.PinIO) {
 				trigger(self.CbDoublePress)
 				for {
 					p.WaitForEdge(-1)
-					log.Trace("4_%s", p.Read())
+					log.Trace("4_", p.Read())
 					if p.Read() != gpio.Low {
 						continue
 					}
@@ -107,7 +107,7 @@ func (self *PiButton) listen(p gpio.PinIO) {
 		}
 		lastActionNs = time.Now().UnixNano()
 	}
-	self.register()
+	self.Register()
 }
 
 func trigger(cbs []func()) {

@@ -1,6 +1,6 @@
 // +build linux
 
-package pi
+package general
 
 import "periph.io/x/periph/host"
 

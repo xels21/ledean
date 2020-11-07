@@ -1,6 +1,6 @@
 // +build !linux
 
-package pi
+package general
 
 func Init() {
 
