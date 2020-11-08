@@ -12,6 +12,7 @@ type Parameter struct {
 	LongPressMs        int64  `json:"longPressMs"`
 	DoublePressTimeout int64  `json:"doublePressTimeout"`
 	LedCount           int64  `json:"ledCount"`
+	LedSplit           int64  `json:"LedSplit"`
 	LogLevel           string `json:"logLevel"`
 	// PathToDB       string
 	// Pw             string
@@ -34,6 +35,7 @@ func GetParameter() *Parameter {
 	flag.Int64Var(&parm.LongPressMs, "long_press_ms", 1200, "Time for the button long press")
 	flag.Int64Var(&parm.DoublePressTimeout, "double_press_timeout", 350, "Time between single and double press")
 	flag.Int64Var(&parm.LedCount, "led_count", 0, "Amount of leds")
+	flag.Int64Var(&parm.LedSplit, "led_split", 0, "split of led (2nd row)")
 	flag.StringVar(&parm.LogLevel, "log_level", "info", `log level. possibile: 
 	- panic
 	- fatal

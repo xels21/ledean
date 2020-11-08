@@ -29,9 +29,9 @@ func Run(parm *Parameter) LEDeanInstance {
 
 	ledController := led.NewLedController(parm.LedCount, pi_ws28xConnector, pi_button)
 
-	pi_button.CbSinglePress = append(pi_button.CbSinglePress, func() { log.Info("PRESS_SINGLE") })
-	pi_button.CbDoublePress = append(pi_button.CbDoublePress, func() { log.Info("PRESS_DOUBLE") })
-	pi_button.CbLongPress = append(pi_button.CbLongPress, func() { log.Info("PRESS_LONG") })
+	pi_button.AddCbSinglePress(func() { log.Info("PRESS_SINGLE") })
+	pi_button.AddCbDoublePress(func() { log.Info("PRESS_DOUBLE") })
+	pi_button.AddCbLongPress(func() { log.Info("PRESS_LONG") })
 
 	return LEDeanInstance{
 		pi_button:         pi_button,
