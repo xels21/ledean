@@ -5,6 +5,7 @@ import (
 	"LEDean/pi/button"
 	pi "LEDean/pi/general"
 	"LEDean/pi/ws28x"
+	"LEDean/webserver"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -32,6 +33,10 @@ func Run(parm *Parameter) LEDeanInstance {
 	pi_button.AddCbSinglePress(func() { log.Info("PRESS_SINGLE") })
 	pi_button.AddCbDoublePress(func() { log.Info("PRESS_DOUBLE") })
 	pi_button.AddCbLongPress(func() { log.Info("PRESS_LONG") })
+
+	go webserver.Start(parm.Address, parm.Port, parm.Path2Frontend, ledController)
+
+	ledController.Start()
 
 	return LEDeanInstance{
 		pi_button:         pi_button,

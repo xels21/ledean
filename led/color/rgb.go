@@ -3,9 +3,9 @@ package color
 import "math"
 
 type RGB struct {
-	R byte
-	G byte
-	B byte
+	R byte `json:"r"`
+	G byte `json:"g"`
+	B byte `json:"b"`
 }
 
 func (self *RGB) ToHsv() HSV {

@@ -5,6 +5,8 @@ import (
 	"LEDean/led/mode"
 	"LEDean/pi/button"
 	"LEDean/pi/ws28x"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type LedController struct {
@@ -17,7 +19,7 @@ type LedController struct {
 	active           bool
 	modes            []mode.Mode
 	modeIndex        uint8
-	modeLength       uint8
+	modesLength      uint8
 }
 
 func NewLedController(led_count int64, piWs28xConnector *ws28x.PiWs28xConnector, piButton *button.PiButton) *LedController {
@@ -29,12 +31,22 @@ func NewLedController(led_count int64, piWs28xConnector *ws28x.PiWs28xConnector,
 		leds:             make([]color.RGB, led_count),
 		buffer:           make([]byte, 9*led_count),
 		active:           false,
+		modeIndex:        0,
 	}
+
+	self.modes = mode.GetAllModes(self.leds, &self.cUpdate)
+	self.modesLength = uint8(len(self.modes))
+	// self.modes
 
 	self.registerEvents()
 	self.Clear()
+	go self.run()
 
 	return &self
+}
+
+func (self *LedController) GetLeds() []color.RGB {
+	return self.leds
 }
 
 func (self *LedController) run() {
@@ -44,28 +56,52 @@ func (self *LedController) run() {
 	}
 }
 
+func (self *LedController) StartStop() {
+	// TODO: On/Off
+	if self.active {
+		self.Stop()
+	} else {
+		self.Start()
+	}
+	self.active = !self.active
+}
+
+func (self *LedController) Stop() {
+	if !self.active {
+		return
+	}
+	log.Trace("stop")
+	self.modes[self.modeIndex].Deactivate()
+	self.Clear()
+	self.Render()
+}
+func (self *LedController) Start() {
+	if self.active {
+		return
+	}
+	log.Trace("start")
+	self.modes[self.modeIndex].Activate()
+}
+
+func (self *LedController) NextMode() {
+	if !self.active {
+		return
+	}
+	self.modes[self.modeIndex].Deactivate()
+	self.modeIndex += 1
+	if self.modeIndex >= self.modesLength {
+		self.modeIndex = 0
+	}
+	log.Trace("Next mode: ", self.modeIndex)
+	self.modes[self.modeIndex].Activate()
+}
+
 func (self *LedController) registerEvents() {
-	self.piButton.AddCbSinglePress(func() {
-		// TODO: switch mode
-		// self.AllSolid(RGB{R: 255, G: 0, B: 0})
-		self.AllSolid(color.RGB{R: 0, G: 255, B: 0})
-		// self.AllSolid(RGB{R: 0, G: 0, B: 255})
-		self.Render()
-	})
+	self.piButton.AddCbSinglePress(self.NextMode)
 	// self.piButton.CbDoublePress = append(self.piButton.CbDoublePress, func() {
 	// TODO: randomize parameter
 	// })
-	self.piButton.AddCbLongPress(func() {
-		// TODO: On/Off
-		if self.active {
-			self.modes[self.modeIndex].Deactivate()
-			self.Clear()
-			self.Render()
-		} else {
-			self.modes[self.modeIndex].Activate()
-		}
-		self.active = !self.active
-	})
+	self.piButton.AddCbLongPress(self.StartStop)
 }
 
 func (self *LedController) Render() {

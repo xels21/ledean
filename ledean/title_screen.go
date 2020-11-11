@@ -2,6 +2,7 @@ package ledean
 
 import "fmt"
 
+//GetStartScreen - Ascii art Start screen info as string
 func GetStartScreen() string {
 	//http://patorjk.com/software/taag/#p=display&f=Big%20Money-ne&t=LEDean
 	return fmt.Sprintf(`

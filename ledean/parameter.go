@@ -12,8 +12,12 @@ type Parameter struct {
 	LongPressMs        int64  `json:"longPressMs"`
 	DoublePressTimeout int64  `json:"doublePressTimeout"`
 	LedCount           int64  `json:"ledCount"`
-	LedSplit           int64  `json:"LedSplit"`
+	LedSplit           int64  `json:"ledSplit"`
 	LogLevel           string `json:"logLevel"`
+	Path2Frontend      string `json:"path2Frontend"`
+	Address            string `json:"address"`
+	Port               int64  `json:"port"`
+
 	// PathToDB       string
 	// Pw             string
 	// PathToFrontEnd string
@@ -44,6 +48,9 @@ func GetParameter() *Parameter {
 	- info
 	- debug
 	`)
+	flag.StringVar(&parm.Path2Frontend, "path2frontend", "", "path to static frontend. Keep it empty to dont serve static files")
+	flag.StringVar(&parm.Address, "address", "127.0.0.1", "Local adress. Set it to '' to make the interface globally adressable")
+	flag.Int64Var(&parm.Port, "port", 2211, "Port for webserver")
 	// pathToDB := flag.String("db", "../db", "Path to database folder")
 	// pw := flag.String("pw", "", "Generate pw for user management")
 	// pathToFrontEnd := flag.String("frontend", "../FrontRbc", "Path to frontend folder.\n"+

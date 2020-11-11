@@ -7,29 +7,32 @@ import (
 )
 
 type ModeRainBowSolid struct {
-	leds          []color.RGB
-	cUpdate       chan bool
-	minSpeedMs    uint16 //time for one rainbow round
-	maxSpeedMs    uint16
-	speedMs       uint16
-	minBrightness uint8
-	maxBrightness uint8
-	brightness    uint8
-	// solidColor
-	refreshRate time.Duration
-	shouldExit  bool
+	leds           []color.RGB
+	cUpdate        *chan bool
+	minRoundTimeMs uint16 //time for one rainbow round
+	maxRoundTimeMs uint16
+	roundTimeMs    uint16
+	minBrightness  float64
+	maxBrightness  float64
+	brightness     float64
+	stepSizeHue    float64
+	refreshRate    time.Duration
+	shouldExit     bool
+	hsv            color.HSV
 }
 
-func NewModeRainBowSolid(leds []color.RGB, cUpdate chan bool) *ModeRainBowSolid {
+func NewModeRainBowSolid(leds []color.RGB, cUpdate *chan bool) *ModeRainBowSolid {
 	self := ModeRainBowSolid{
-		leds:          leds,
-		cUpdate:       cUpdate,
-		minSpeedMs:    1000, //10s
-		maxSpeedMs:    6000, //1min
-		minBrightness: 50,
-		maxBrightness: 255,                                  //math.MaxUint8,
-		refreshRate:   time.Duration(33 * time.Millisecond), //30fps
-		shouldExit:    false,
+		leds:    leds,
+		cUpdate: cUpdate,
+		// minRoundTimeMs: 2000, //2s
+		// maxRoundTimeMs: 60000, //1min
+		minRoundTimeMs: 1000, //10s
+		maxRoundTimeMs: 1000, //1min
+		minBrightness:  0.3,
+		maxBrightness:  1.0,
+		refreshRate:    time.Duration((1000 / 30) * time.Millisecond), //30fps
+		shouldExit:     false,
 	}
 
 	self.Randomize()
@@ -40,19 +43,33 @@ func NewModeRainBowSolid(leds []color.RGB, cUpdate chan bool) *ModeRainBowSolid 
 func (self *ModeRainBowSolid) Activate() {
 	self.shouldExit = false
 	go func() {
+		rgb := color.RGB{}
 		for !self.shouldExit {
-
-			self.cUpdate <- true
+			self.hsv.H += self.stepSizeHue
+			for self.hsv.H > 360.0 {
+				self.hsv.H -= 360.0
+			}
+			rgb = self.hsv.ToRGB()
+			for i := 0; i < len(self.leds); i++ {
+				self.leds[i] = rgb
+			}
+			*self.cUpdate <- true
 			time.Sleep(self.refreshRate)
 		}
 	}()
 }
 func (self *ModeRainBowSolid) Deactivate() {
 	self.shouldExit = true
-
 }
+
 func (self *ModeRainBowSolid) Randomize() {
-	// rand.Seed(time.Now().UnixNano())
-	self.speedMs = uint16(rand.Float32()*float32(self.maxSpeedMs-self.minSpeedMs)) + self.minSpeedMs
-	self.brightness = uint8(rand.Float32()*float32(self.maxBrightness-self.minBrightness)) + self.minBrightness
+	rand.Seed(time.Now().UnixNano())
+	self.roundTimeMs = uint16(rand.Float32()*float32(self.maxRoundTimeMs-self.minRoundTimeMs)) + self.minRoundTimeMs
+	self.brightness = rand.Float64()*(self.maxBrightness-self.minBrightness) + self.minBrightness
+	self.hsv = color.HSV{
+		H: rand.Float64() * 360.0,
+		S: 1.0,
+		V: self.brightness,
+	}
+	self.stepSizeHue = 360.0 / (30.0 * float64(self.roundTimeMs))
 }
