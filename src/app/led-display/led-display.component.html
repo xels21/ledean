@@ -1,0 +1,19 @@
+<input type="checkbox" [checked]="ledsService.pollingActive" (change)="onPollingChanged($event)"/>
+
+<div style="height:20px;width:100%">
+
+</div>
+
+<div>
+  <div *ngFor="let led of ledsService.leds" style="margin:0px 4px;display: inline-block;width:40px;height:40px;background-color:rgb({{led.r}},{{led.g}},{{led.b}})">
+</div>
+
+</div>
+<span *ngFor="let led of ledsService.leds">
+
+  {{led.r}}
+  {{led.g}}
+  {{led.b}}
+</span>
+
+<button (click)="ledsService.updateLeds()">update</button>
