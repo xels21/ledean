@@ -5,6 +5,7 @@ import (
 	"LEDean/led/mode"
 	"LEDean/pi/button"
 	"LEDean/pi/ws28x"
+	"encoding/json"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -40,7 +41,7 @@ func NewLedController(led_count int64, piWs28xConnector *ws28x.PiWs28xConnector,
 
 	self.registerEvents()
 	self.Clear()
-	go self.run()
+	go self.listen()
 
 	return &self
 }
@@ -49,7 +50,15 @@ func (self *LedController) GetLeds() []color.RGB {
 	return self.leds
 }
 
-func (self *LedController) run() {
+func (self *LedController) GetLedsJson() []byte {
+	msg, err := json.Marshal(self.leds)
+	if err != nil {
+		msg = []byte(err.Error())
+	}
+	return msg
+}
+
+func (self *LedController) listen() {
 	for {
 		<-self.cUpdate
 		self.Render()
@@ -63,7 +72,6 @@ func (self *LedController) StartStop() {
 	} else {
 		self.Start()
 	}
-	self.active = !self.active
 }
 
 func (self *LedController) Stop() {
@@ -74,6 +82,7 @@ func (self *LedController) Stop() {
 	self.modes[self.modeIndex].Deactivate()
 	self.Clear()
 	self.Render()
+	self.active = false
 }
 func (self *LedController) Start() {
 	if self.active {
@@ -81,9 +90,11 @@ func (self *LedController) Start() {
 	}
 	log.Trace("start")
 	self.modes[self.modeIndex].Activate()
+	self.active = true
 }
 
 func (self *LedController) NextMode() {
+	log.Info("nextMode")
 	if !self.active {
 		return
 	}
@@ -92,16 +103,25 @@ func (self *LedController) NextMode() {
 	if self.modeIndex >= self.modesLength {
 		self.modeIndex = 0
 	}
-	log.Trace("Next mode: ", self.modeIndex)
+	log.Info("Next mode: ", self.modeIndex)
+	self.modes[self.modeIndex].Randomize()
+	self.modes[self.modeIndex].Activate()
+}
+
+func (self *LedController) Randomize() {
+	log.Info("Randomize")
+	if !self.active {
+		return
+	}
+	self.modes[self.modeIndex].Deactivate()
+	self.modes[self.modeIndex].Randomize()
 	self.modes[self.modeIndex].Activate()
 }
 
 func (self *LedController) registerEvents() {
-	self.piButton.AddCbSinglePress(self.NextMode)
-	// self.piButton.CbDoublePress = append(self.piButton.CbDoublePress, func() {
-	// TODO: randomize parameter
-	// })
-	self.piButton.AddCbLongPress(self.StartStop)
+	self.piButton.AddCbPressSingle(self.NextMode)
+	self.piButton.AddCbPressDouble(self.Randomize)
+	self.piButton.AddCbPressLong(self.StartStop)
 }
 
 func (self *LedController) Render() {

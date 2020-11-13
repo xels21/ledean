@@ -4,6 +4,8 @@ import (
 	"LEDean/led/color"
 	"math/rand"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type ModeRainBowSolid struct {
@@ -16,7 +18,7 @@ type ModeRainBowSolid struct {
 	maxBrightness  float64
 	brightness     float64
 	stepSizeHue    float64
-	refreshRate    time.Duration
+	refreshRateNs  time.Duration
 	shouldExit     bool
 	hsv            color.HSV
 }
@@ -27,11 +29,11 @@ func NewModeRainBowSolid(leds []color.RGB, cUpdate *chan bool) *ModeRainBowSolid
 		cUpdate: cUpdate,
 		// minRoundTimeMs: 2000, //2s
 		// maxRoundTimeMs: 60000, //1min
-		minRoundTimeMs: 1000, //10s
-		maxRoundTimeMs: 1000, //1min
+		minRoundTimeMs: 5000, //10s
+		maxRoundTimeMs: 5000, //1min
 		minBrightness:  0.3,
 		maxBrightness:  1.0,
-		refreshRate:    time.Duration((1000 / 30) * time.Millisecond), //30fps
+		refreshRateNs:  time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 30) * time.Nanosecond), //30fps
 		shouldExit:     false,
 	}
 
@@ -41,6 +43,9 @@ func NewModeRainBowSolid(leds []color.RGB, cUpdate *chan bool) *ModeRainBowSolid
 }
 
 func (self *ModeRainBowSolid) Activate() {
+	log.Info("wat")
+
+	log.Debugf("start ModeRainBowSolid with:\n -self.roundTimeMs: %d\n -self.stepSizeHue: %f\n- self.refreshRateNs: %d", self.roundTimeMs, self.stepSizeHue, self.refreshRateNs)
 	self.shouldExit = false
 	go func() {
 		rgb := color.RGB{}
@@ -54,7 +59,7 @@ func (self *ModeRainBowSolid) Activate() {
 				self.leds[i] = rgb
 			}
 			*self.cUpdate <- true
-			time.Sleep(self.refreshRate)
+			time.Sleep(self.refreshRateNs)
 		}
 	}()
 }
@@ -71,5 +76,5 @@ func (self *ModeRainBowSolid) Randomize() {
 		S: 1.0,
 		V: self.brightness,
 	}
-	self.stepSizeHue = 360.0 / (30.0 * float64(self.roundTimeMs))
+	self.stepSizeHue = 360.0 / (float64(self.roundTimeMs) / 1000) * (float64(self.refreshRateNs) / 1000 / 1000 / 1000)
 }

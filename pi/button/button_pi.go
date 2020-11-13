@@ -54,7 +54,7 @@ func (self *PiButton) listen(p gpio.PinIO) {
 			log.Trace("2_", p.Read())
 
 			if !inTime {
-				trigger(self.cbLongPress)
+				self.PressLong()
 				break press_detection
 			}
 			if p.Read() != gpio.Low {
@@ -69,11 +69,11 @@ func (self *PiButton) listen(p gpio.PinIO) {
 			}
 
 			for {
-				inTime = p.WaitForEdge(time.Millisecond * time.Duration(self.doublePressTimeout))
+				inTime = p.WaitForEdge(time.Millisecond * time.Duration(self.pressDoubleTimeout))
 				log.Trace("3_", p.Read())
 
 				if !inTime {
-					trigger(self.cbSinglePress)
+					self.PressSingle()
 					break press_detection
 				}
 				if p.Read() != gpio.High {
@@ -86,7 +86,7 @@ func (self *PiButton) listen(p gpio.PinIO) {
 					fallingNs = risingNs
 					continue
 				}
-				trigger(self.cbDoublePress)
+				self.PressDouble()
 				for {
 					p.WaitForEdge(-1)
 					log.Trace("4_", p.Read())
@@ -108,10 +108,4 @@ func (self *PiButton) listen(p gpio.PinIO) {
 		lastActionNs = time.Now().UnixNano()
 	}
 	self.Register()
-}
-
-func trigger(cbs []func()) {
-	for _, cb := range cbs {
-		cb()
-	}
 }

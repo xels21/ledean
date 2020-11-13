@@ -22,7 +22,7 @@ func Run(parm *Parameter) LEDeanInstance {
 	SetLogger(parm.LogLevel)
 
 	pi.Init()
-	pi_button := button.NewPiButton(parm.GpioButton, parm.LongPressMs, parm.DoublePressTimeout)
+	pi_button := button.NewPiButton(parm.GpioButton, parm.PressLongMs, parm.PressDoubleTimeout)
 	pi_button.Register()
 
 	pi_ws28xConnector := ws28x.NewPiWs28xConnector(parm.SpiInfo)
@@ -30,11 +30,11 @@ func Run(parm *Parameter) LEDeanInstance {
 
 	ledController := led.NewLedController(parm.LedCount, pi_ws28xConnector, pi_button)
 
-	pi_button.AddCbSinglePress(func() { log.Info("PRESS_SINGLE") })
-	pi_button.AddCbDoublePress(func() { log.Info("PRESS_DOUBLE") })
-	pi_button.AddCbLongPress(func() { log.Info("PRESS_LONG") })
+	pi_button.AddCbPressSingle(func() { log.Info("PRESS_SINGLE") })
+	pi_button.AddCbPressDouble(func() { log.Info("PRESS_DOUBLE") })
+	pi_button.AddCbPressLong(func() { log.Info("PRESS_LONG") })
 
-	go webserver.Start(parm.Address, parm.Port, parm.Path2Frontend, ledController)
+	go webserver.Start(parm.Address, parm.Port, parm.Path2Frontend, ledController, pi_button)
 
 	ledController.Start()
 

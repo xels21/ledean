@@ -2,6 +2,7 @@ package webserver
 
 import (
 	"LEDean/led"
+	"LEDean/pi/button"
 	"log"
 	"net/http"
 	"strconv"
@@ -10,7 +11,7 @@ import (
 	"github.com/rs/cors"
 )
 
-func Start(addr string, port int64, path2Frontend string, ledController *led.LedController) {
+func Start(addr string, port int64, path2Frontend string, ledController *led.LedController, piButton *button.PiButton) {
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
 		// AllowedOrigins: []string{"http://127.0.0.1*", "http://localhost*"},
@@ -20,6 +21,9 @@ func Start(addr string, port int64, path2Frontend string, ledController *led.Led
 	router := mux.NewRouter().StrictSlash(true)
 
 	router.HandleFunc("/leds", MakeGetLedHandler(ledController)).Methods("GET")
+	router.HandleFunc("/press_single", MakePressSingleHandler(ledController, piButton))
+	router.HandleFunc("/press_double", MakePressDoubleHandler(ledController, piButton))
+	router.HandleFunc("/press_long", MakePressLongHandler(ledController, piButton))
 
 	if path2Frontend != "" {
 		router.PathPrefix("/").Handler(http.FileServer(http.Dir(path2Frontend)))

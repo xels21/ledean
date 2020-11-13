@@ -1,11 +1,22 @@
 package color
 
-import "math"
+import (
+	"encoding/json"
+	"math"
+)
 
 type RGB struct {
 	R byte `json:"r"`
 	G byte `json:"g"`
 	B byte `json:"b"`
+}
+
+func (self RGB) String() string {
+	msg, err := json.Marshal(self)
+	if err != nil {
+		msg = []byte(err.Error())
+	}
+	return string(msg)
 }
 
 func (self *RGB) ToHsv() HSV {

@@ -1,1 +1,1 @@
-go build -o ledean.exe && ledean.exe -gpio_button=GPIO17 -led_count=8 -path2frontend=""
+go build -o ledean.exe && ledean.exe -gpio_button=GPIO17 -led_count=8 -path2frontend="" -log_level="debug"
