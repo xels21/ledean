@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { RGB } from '../color/color';
+import { REST_GET_LEDS_URL } from '../config/const';
 
 
 @Injectable({
@@ -10,21 +11,12 @@ export class LedsService {
 
   leds: Array<RGB>
   pollMs: number
-  addr: string
-  port: number
-  path: string
-  url: string
 
   public pollingActive: boolean
   pollingInterval: any
 
   constructor(private httpClient: HttpClient) {
-    this.pollMs = 1000;
-    this.addr = window.location.hostname//"localhost"
-    // this.addr = "localhost"
-    this.port = 2211
-    this.path = "leds"
-    this.url = "http://" + this.addr + ":" + this.port + "/" + this.path
+    this.pollMs = 100;
     this.pollingActive = true
     this.checkPollingInterval()
   }
@@ -32,7 +24,7 @@ export class LedsService {
   public checkPollingInterval() {
     if (this.pollingActive) {
       if (this.pollingInterval == null) {
-        this.pollingInterval = setInterval(() => this.updateLeds(), 1000)
+        this.pollingInterval = setInterval(() => this.updateLeds(), this.pollMs)
       }
     } else {
       if (this.pollingInterval != null) {
@@ -43,8 +35,7 @@ export class LedsService {
   }
 
   public updateLeds() {
-    const headers = new HttpHeaders()
-    this.httpClient.get<Array<RGB>>(this.url, { headers }).subscribe((data: Array<RGB>) => this.leds = data);
+    this.httpClient.get<Array<RGB>>(REST_GET_LEDS_URL).subscribe((data: Array<RGB>) => this.leds = data);
   }
 
 }

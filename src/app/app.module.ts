@@ -5,11 +5,14 @@ import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { LedDisplayComponent } from './led-display/led-display.component';
 import { LedsService } from './leds/leds.service';
+import { ButtonService } from './button/button.service';
+import { ControlsComponent } from './controls/controls.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    LedDisplayComponent
+    LedDisplayComponent,
+    ControlsComponent
   ],
   imports: [
     BrowserModule,
@@ -17,7 +20,8 @@ import { LedsService } from './leds/leds.service';
     // FormsModule,
   ],
   providers: [
-    LedsService
+    LedsService,
+    ButtonService
   ],
   bootstrap: [AppComponent]
 })
