@@ -3,16 +3,21 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { LedDisplayComponent } from './led-display/led-display.component';
+
 import { LedsService } from './leds/leds.service';
 import { ButtonService } from './button/button.service';
-import { ControlsComponent } from './controls/controls.component';
+import { UpdateService } from './update/update.service';
+
+import { LedDisplayComponent } from './led-display/led-display.component';
+import { ButtonComponent } from './button/button.component';
+import { NavigationComponent } from './navigation/navigation.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LedDisplayComponent,
-    ControlsComponent
+    ButtonComponent,
+    NavigationComponent
   ],
   imports: [
     BrowserModule,
@@ -21,7 +26,8 @@ import { ControlsComponent } from './controls/controls.component';
   ],
   providers: [
     LedsService,
-    ButtonService
+    ButtonService,
+    UpdateService
   ],
   bootstrap: [AppComponent]
 })

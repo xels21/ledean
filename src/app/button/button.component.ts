@@ -4,10 +4,10 @@ import { ButtonService } from '../button/button.service';
 
 @Component({
   selector: 'app-controls',
-  templateUrl: './controls.component.html',
-  styleUrls: ['./controls.component.scss']
+  templateUrl: './button.component.html',
+  styleUrls: ['./button.component.scss']
 })
-export class ControlsComponent implements OnInit {
+export class ButtonComponent implements OnInit {
 
   constructor(public buttonService: ButtonService) { }
 
