@@ -46,6 +46,18 @@ func NewLedController(led_count int64, piWs28xConnector *ws28x.PiWs28xConnector,
 	return &self
 }
 
+func (self *LedController) GetModeIndex() uint8 {
+	return self.modeIndex
+}
+func (self *LedController) GetModeResolver() []string {
+	// m = make(map[int]string)
+	modesString := make([]string, 0, 10)
+	for _, mode := range self.modes {
+		modesString = append(modesString, mode.GetFriendlyName())
+	}
+	return modesString
+}
+
 func (self *LedController) GetLeds() []color.RGB {
 	return self.leds
 }

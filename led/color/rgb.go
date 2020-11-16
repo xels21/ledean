@@ -62,14 +62,14 @@ func rgb2hue(r float64, b float64, g float64, maxC float64, minC float64) float6
 }
 
 func (self *RGB) ToSpi() []byte {
-	var ret = make([]byte, 0, 9)
-	return append(append(append(ret, Channel2Spi(self.R)...), Channel2Spi(self.B)...), Channel2Spi(self.G)...) //RGB -> RBG
+	return append(append(append(make([]byte, 0, 9), Channel2Spi(self.R)...), Channel2Spi(self.B)...), Channel2Spi(self.G)...) //RGB -> RBG
 }
 
 //public for test purpose
 func Channel2Spi(channel byte) []byte {
 
 	var ret uint32 = 2396745 //001 001 001 001 001 001 001 001
+	// var ret uint32 = 924924 //100 100 100 100 100 100 100 100
 	for i := uint32(0); i < 8; i++ {
 		if (channel & (1 << i)) != 0 {
 			ret |= 1 << (i*3 + 1)

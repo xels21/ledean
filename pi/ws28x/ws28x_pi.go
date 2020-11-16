@@ -33,6 +33,7 @@ func (self *PiWs28xConnector) Connect() error {
 	// conn, err := portCloser.Connect(3*400*physic.Hertz, spi.Mode0, 8)
 	// conn, err := portCloser.Connect(3*physic.MegaHertz, spi.Mode0, 8)
 	conn, err := portCloser.Connect(3*800*physic.KiloHertz, spi.Mode0, 8)
+	// conn, err := portCloser.Connect(800*physic.KiloHertz, spi.Mode0, 8)
 	if err != nil {
 		log.Fatal(err)
 	}

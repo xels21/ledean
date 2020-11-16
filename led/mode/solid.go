@@ -32,6 +32,10 @@ func NewModeSolid(leds []color.RGB, cUpdate *chan bool) *ModeSolid {
 	return &self
 }
 
+func (self *ModeSolid) GetFriendlyName() string {
+	return "ModeSolid"
+}
+
 func (self *ModeSolid) Activate() {
 	log.Info("wat")
 

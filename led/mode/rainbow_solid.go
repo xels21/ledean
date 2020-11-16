@@ -42,6 +42,10 @@ func NewModeRainBowSolid(leds []color.RGB, cUpdate *chan bool) *ModeRainBowSolid
 	return &self
 }
 
+func (self *ModeRainBowSolid) GetFriendlyName() string {
+	return "ModeRainBowSolid"
+}
+
 func (self *ModeRainBowSolid) Activate() {
 	log.Info("wat")
 
