@@ -24,6 +24,7 @@ func Start(addr string, port int64, path2Frontend string, ledController *led.Led
 	router.HandleFunc("/press_single", MakePressSingleHandler(ledController, piButton))
 	router.HandleFunc("/press_double", MakePressDoubleHandler(ledController, piButton))
 	router.HandleFunc("/press_long", MakePressLongHandler(ledController, piButton))
+	router.HandleFunc("/mode/", MakeModeGetHandler(ledController))
 	router.HandleFunc("/mode/{mode}", MakeModeHandler(ledController))
 
 	if path2Frontend != "" {

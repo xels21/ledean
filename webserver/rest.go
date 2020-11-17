@@ -5,8 +5,11 @@ import (
 	"LEDean/pi/button"
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func MakeGetLedHandler(ledController *led.LedController) http.HandlerFunc {
@@ -39,23 +42,38 @@ func MakePressLongHandler(ledController *led.LedController, piButton *button.PiB
 	}
 }
 
+func MakeModeGetHandler(ledController *led.LedController) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		msg, err := json.Marshal(ledController.GetModeIndex())
+		if err != nil {
+			msg = []byte{}
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(msg)
+	}
+}
+
 func MakeModeHandler(ledController *led.LedController) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		mode := mux.Vars(r)["mode"]
+		modeStr := mux.Vars(r)["mode"]
 		msg := []byte{}
 		var err error
-		if mode == "resolver" {
+		if modeStr == "resolver" {
 			msg, err = json.Marshal(ledController.GetModeResolver())
 			if err != nil {
 				msg = []byte{}
 			}
 		} else {
-			if mode != "" {
+			mode, err := strconv.Atoi(modeStr)
+			if err != nil || mode < 0 || mode > int(ledController.GetModesLength()) {
+				log.Info("Wrong mode: " + modeStr)
+			} else {
 				//set mode
-			}
-			msg, err = json.Marshal(ledController.GetModeIndex())
-			if err != nil {
-				msg = []byte{}
+
+				msg, err = json.Marshal(ledController.GetModeIndex())
+				if err != nil {
+					msg = []byte{}
+				}
 			}
 		}
 		w.Header().Set("Content-Type", "application/json")

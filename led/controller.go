@@ -46,6 +46,10 @@ func NewLedController(led_count int64, piWs28xConnector *ws28x.PiWs28xConnector,
 	return &self
 }
 
+func (self *LedController) GetModesLength() uint8 {
+	return self.modesLength
+}
+
 func (self *LedController) GetModeIndex() uint8 {
 	return self.modeIndex
 }
