@@ -8,3 +8,6 @@ export const REST_GET_LEDS_URL = REST_PREFIX_URL + "leds"
 export const REST_PRESS_SINGLE_URL = REST_PREFIX_URL + "press_single"
 export const REST_PRESS_DOUBLE_URL = REST_PREFIX_URL + "press_double"
 export const REST_PRESS_LONG_URL = REST_PREFIX_URL + "press_long"
+
+export const REST_GET_MODE_URL = REST_PREFIX_URL + "mode"
+export const REST_GET_MODE_RESOLVER_URL = REST_PREFIX_URL + "mode/resolver"

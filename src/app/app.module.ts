@@ -11,13 +11,17 @@ import { UpdateService } from './update/update.service';
 import { LedDisplayComponent } from './led-display/led-display.component';
 import { ButtonComponent } from './button/button.component';
 import { NavigationComponent } from './navigation/navigation.component';
+import { ModesComponent } from './modes/modes.component';
+import { ModeSolidComponent } from './modes/mode-solid/mode-solid.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LedDisplayComponent,
     ButtonComponent,
-    NavigationComponent
+    NavigationComponent,
+    ModesComponent,
+    ModeSolidComponent
   ],
   imports: [
     BrowserModule,

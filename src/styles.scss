@@ -3,7 +3,9 @@
 $material-design-icons-font-directory-path: "~material-design-icons-iconfont/dist/fonts/";
 @import "~material-design-icons-iconfont/src/material-design-icons";
 
-
+.row{
+  margin-bottom: 0px !important;
+}
 
 // $primary-color: color("materialize-blue", "lighten-2") !default;
 // $primary-color-light: false !default;

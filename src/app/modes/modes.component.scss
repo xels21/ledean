@@ -1,0 +1,30 @@
+// MY CUSTOM COLOR VARIABLES
+$custom-color: teal;
+
+// RESTYLING THE TABS USING THE CUSTOM VARIABLE
+.tabs {
+  background-color: transparent;
+  .tab {
+    a {
+      color: #888;
+      &.active {
+        background-color: rgba($custom-color, 0.1);
+        color: $custom-color;
+        font-weight: 600;
+      }
+      &:hover {
+        background-color: rgba($custom-color, 0.2);
+        color: $custom-color;
+      }
+      &:focus {
+        background-color: rgba($custom-color, 0.1);
+        &.active {
+          background-color: rgba($custom-color, 0.1);
+        }
+      }
+    }
+  }
+  .indicator {
+    // background-color: $custom-color; /* not working, dunno why :( */
+  }
+}

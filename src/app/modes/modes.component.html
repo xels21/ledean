@@ -1,0 +1,16 @@
+<!-- <div *ngFor="let mode of modesService.modeResolver">{{mode}}</div> -->
+
+<div class="row">
+  <div class="col s12">
+    <ul class="tabs">
+      <li class="tab col s3"><a href="#ModeSolid" [ngClass]="{'active': modesService.isActive('ModeSolid')}">Solid</a>
+      </li>
+      <li class="tab col s3"><a href="#ModeRainBowSolid"
+          [ngClass]="{'active': modesService.isActive('ModeRainBowSolid')}">RainBowSolid</a></li>
+    </ul>
+  </div>
+  <div id="ModeSolid" class="col s12"><app-mode-solid></app-mode-solid></div>
+  <div id="ModeRainBowSolid" class="col s12">
+    <!-- <app-mode-solid></app-mode-solid> -->
+  </div>
+</div>
