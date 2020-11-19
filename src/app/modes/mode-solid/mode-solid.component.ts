@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RGB } from '../../color/color';
 import { REST_MODE_SOLID_URL } from '../../config/const';
+import { UpdateService } from '../../update/update.service';
 import { HttpClient } from '@angular/common/http';
 
 
@@ -16,14 +17,16 @@ interface ModeSolidParameter {
 export class ModeSolidComponent implements OnInit {
   public modeSolidParameter: ModeSolidParameter
 
-  constructor(private httpClient: HttpClient) {
+  constructor(private httpClient: HttpClient, private updateService:UpdateService) {
     this.modeSolidParameter = {
       rgb: { r: 0, g: 0, b: 0 }
     }
   }
 
   ngOnInit(): void {
+    console.log("this")
     this.updateModeSolidParameter();
+    this.updateService.registerPolling({ cb: ()=>{this.updateModeSolidParameter()}, timeout: 500 })
   }
 
   updateModeSolidParameter() {

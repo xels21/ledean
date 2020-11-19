@@ -4,8 +4,8 @@
 
 <div class="row">
   <div *ngFor="let led of ledsService.leds" class="col"
-    style="height:40px;border-radius:2px"
-    [ngStyle]="{'width': 90/ledsService.leds.length + '%', 'margin':'0% ' + 5/ledsService.leds.length + '%', 'background-color': 'rgb('+led.r+','+led.g+','+led.b+')', 'box-shadow': '0px 0px 30px rgba('+led.r+','+led.g+','+led.b+',0.7)'}">
+    style="height:40px;border-radius:2px;"
+    [ngStyle]="{'transition':ledsService.pollingTimeout+'ms','width': 90/ledsService.leds.length + '%', 'margin':'0% ' + 5/ledsService.leds.length + '%', 'background-color': 'rgb('+led.r+','+led.g+','+led.b+')', 'box-shadow': '0px 0px 30px rgba('+led.r+','+led.g+','+led.b+',0.7)'}">
   </div>
 </div>
 

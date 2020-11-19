@@ -1,23 +1,23 @@
 <div class="row" [ngStyle]="{'background-color': 'rgb('+modeSolidParameter.rgb.r+','+modeSolidParameter.rgb.g+','+modeSolidParameter.rgb.b+')'}">
 
     <div class="row">
-      <div class="col s2"><input type="number" min="0" max="255" [(ngModel)]="modeSolidParameter.rgb.r" /></div>
-      <div class="col s10"><input type="range" min="0" max="255" [(ngModel)]="modeSolidParameter.rgb.r" /></div>
+      <div class="col s2"><input type="number" min="0" max="255" (change)="setModeSolidParameter()" [(ngModel)]="modeSolidParameter.rgb.r" /></div>
+      <div class="col s10"><input type="range" min="0" max="255" (change)="setModeSolidParameter()" [(ngModel)]="modeSolidParameter.rgb.r" /></div>
     </div>
 
     <div class="row">
-      <div class="col s2"><input type="number" min="0" max="255" [(ngModel)]="modeSolidParameter.rgb.g" /></div>
-      <div class="col s10"><input type="range" min="0" max="255" [(ngModel)]="modeSolidParameter.rgb.g" /></div>
+      <div class="col s2"><input type="number" min="0" max="255" (change)="setModeSolidParameter()" [(ngModel)]="modeSolidParameter.rgb.g" /></div>
+      <div class="col s10"><input type="range" min="0" max="255" (change)="setModeSolidParameter()" [(ngModel)]="modeSolidParameter.rgb.g" /></div>
     </div>
 
     <div class="row">
-      <div class="col s2"><input type="number" min="0" max="255" [(ngModel)]="modeSolidParameter.rgb.b" /></div>
-      <div class="col s10"><input type="range" min="0" max="255" [(ngModel)]="modeSolidParameter.rgb.b" /></div>
+      <div class="col s2"><input type="number" min="0" max="255" (change)="setModeSolidParameter()" [(ngModel)]="modeSolidParameter.rgb.b" /></div>
+      <div class="col s10"><input type="range" min="0" max="255" (change)="setModeSolidParameter()" [(ngModel)]="modeSolidParameter.rgb.b" /></div>
     </div>
 
 </div>
 
-<div class="row" style="margin-top: 10px;">
+<!-- <div class="row" style="margin-top: 10px;">
   <div class="col s6" style="text-align: center;"><button class="btn waves-effect button-control grey" (click)="updateModeSolidParameter()">reload</button></div>
   <div class="col s6" style="text-align: center;"><button class="btn waves-effect button-control green" (click)="setModeSolidParameter()">SET</button></div>
-</div>
+</div> -->

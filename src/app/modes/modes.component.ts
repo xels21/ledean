@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ModesService } from './modes.service'
+import { HttpClient } from '@angular/common/http';
+import { REST_RANDOMIZE_URL } from '../config/const';
 
 import * as M from 'materialize-css';
 import * as $ from "jquery";
@@ -12,7 +14,7 @@ import * as $ from "jquery";
 })
 export class ModesComponent implements OnInit {
 
-  constructor(public modesService: ModesService) { }
+  constructor(public modesService: ModesService, private httpClient:HttpClient) { }
 
   ngOnInit(): void {
     // $('ul.tabs').tabs();
@@ -24,6 +26,9 @@ export class ModesComponent implements OnInit {
     })
   }
 
+  randomizeMode(){
+    this.httpClient.get(REST_RANDOMIZE_URL).subscribe();
 
+}
 
 }
