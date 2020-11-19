@@ -65,6 +65,8 @@ func MakeModeHandler(ledController *led.LedController) http.HandlerFunc {
 			if err != nil {
 				msg = []byte{}
 			}
+		} else if modeStr == "randomize" {
+			ledController.Randomize()
 		} else {
 			mode, err := strconv.Atoi(modeStr)
 			if err != nil || mode < 0 || mode > int(ledController.GetModeLength()) {
@@ -107,6 +109,7 @@ func MakeModeSolidHandler(ledController *led.LedController) http.HandlerFunc {
 		}
 
 		(*modeSolid).SetParameter(modeSolidParameter)
+		ledController.Restart()
 
 		msg := []byte{}
 

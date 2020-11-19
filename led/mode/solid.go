@@ -49,7 +49,7 @@ func (self *ModeSolid) SetParameter(parm interface{}) {
 	case ModeSolidParameter:
 		solidParm := parm.(ModeSolidParameter)
 		self.rgb = solidParm.RGB
-		self.Activate()
+		// self.Activate()
 	}
 }
 

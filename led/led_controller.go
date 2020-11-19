@@ -101,44 +101,47 @@ func (self *LedController) StartStop() {
 	}
 }
 
-func (self *LedController) Stop() {
-	if !self.active {
-		return
-	}
-	log.Trace("stop")
-	self.modeController.DeactivateCurrentMode()
-	self.Clear()
-	self.Render()
-	self.active = false
-}
 func (self *LedController) Start() {
-	if self.active {
-		return
+	if !self.active {
+		log.Trace("start")
+		self.modeController.ActivateCurrentMode()
+		self.active = true
 	}
-	log.Trace("start")
-	self.modeController.ActivateCurrentMode()
-	self.active = true
+}
+func (self *LedController) Stop() {
+	if self.active {
+		log.Trace("stop")
+		self.modeController.DeactivateCurrentMode()
+		self.Clear()
+		self.Render()
+		self.active = false
+	}
+}
+func (self *LedController) Restart() {
+	if self.active {
+		log.Trace("restart")
+		self.modeController.DeactivateCurrentMode()
+		self.modeController.ActivateCurrentMode()
+	}
 }
 
 func (self *LedController) NextMode() {
 	log.Info("nextMode")
-	if !self.active {
-		return
-	}
 	self.modeController.DeactivateCurrentMode()
 	self.modeController.NextMode()
-	self.modeController.RandomizeCurrentMode()
-	self.modeController.ActivateCurrentMode()
+	// self.modeController.RandomizeCurrentMode()
+	if self.active {
+		self.modeController.ActivateCurrentMode()
+	}
 }
 
 func (self *LedController) Randomize() {
 	log.Info("Randomize")
-	if !self.active {
-		return
-	}
 	self.modeController.DeactivateCurrentMode()
 	self.modeController.RandomizeCurrentMode()
-	self.modeController.ActivateCurrentMode()
+	if self.active {
+		self.modeController.ActivateCurrentMode()
+	}
 }
 
 func (self *LedController) registerEvents() {

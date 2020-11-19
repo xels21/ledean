@@ -32,7 +32,10 @@ func (self *PiWs28xConnector) Connect() error {
 	// Convert the spi.Port into a spi.Conn so it can be used for communication.
 	// conn, err := portCloser.Connect(3*400*physic.Hertz, spi.Mode0, 8)
 	// conn, err := portCloser.Connect(3*physic.MegaHertz, spi.Mode0, 8)
-	conn, err := portCloser.Connect(3*800*physic.KiloHertz, spi.Mode0, 8)
+
+	// CAUTION:
+	// It was observed on RPi3 hardware to have a one clock delay between each packet.
+	conn, err := portCloser.Connect(3*800*physic.KiloHertz, spi.Mode0|spi.NoCS, 8)
 	// conn, err := portCloser.Connect(800*physic.KiloHertz, spi.Mode0, 8)
 	if err != nil {
 		log.Fatal(err)
