@@ -1,6 +1,7 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 
@@ -15,6 +16,11 @@ import { ModesComponent } from './modes/modes.component';
 import { ModeSolidComponent } from './modes/mode-solid/mode-solid.component';
 
 @NgModule({
+  imports: [
+    BrowserModule,
+    FormsModule,
+    HttpClientModule
+  ],
   declarations: [
     AppComponent,
     LedDisplayComponent,
@@ -22,11 +28,6 @@ import { ModeSolidComponent } from './modes/mode-solid/mode-solid.component';
     NavigationComponent,
     ModesComponent,
     ModeSolidComponent
-  ],
-  imports: [
-    BrowserModule,
-    HttpClientModule
-    // FormsModule,
   ],
   providers: [
     LedsService,

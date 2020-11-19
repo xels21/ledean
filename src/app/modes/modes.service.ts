@@ -24,11 +24,24 @@ export class ModesService {
   }
 
   public updateActiveMode() {
-    this.httpClient.get<number>(REST_GET_MODE_URL).subscribe((data: number) => { this.activeMode = data });
+    this.httpClient.get<number>(REST_GET_MODE_URL).subscribe((data: number) => { 
+      if(this.activeMode != data ){
+        this.activeMode = data
+        this.onModeChange()
+      }
+    });
   }
 
   public isActive(mode: string) {
     return mode == this.modeResolver[this.activeMode]
+  }
+
+  public switchState(mode: string) {
+    this.httpClient.get(REST_GET_MODE_URL + "/" + this.modeStrToIdx(mode)).subscribe();
+  }
+
+  public modeStrToIdx(mode: string) {
+    return this.modeResolver.findIndex(m => {return m == mode })
   }
 
 }

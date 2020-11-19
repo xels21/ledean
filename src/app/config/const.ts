@@ -11,3 +11,5 @@ export const REST_PRESS_LONG_URL = REST_PREFIX_URL + "press_long"
 
 export const REST_GET_MODE_URL = REST_PREFIX_URL + "mode"
 export const REST_GET_MODE_RESOLVER_URL = REST_PREFIX_URL + "mode/resolver"
+
+export const REST_MODE_SOLID_URL = REST_PREFIX_URL + "ModeSolid"
