@@ -2,6 +2,7 @@ package webserver
 
 import (
 	"LEDean/led"
+	"LEDean/led/mode"
 	"LEDean/pi/button"
 	"log"
 	"net/http"
@@ -26,6 +27,8 @@ func Start(addr string, port int64, path2Frontend string, ledController *led.Led
 	router.HandleFunc("/press_long", MakePressLongHandler(ledController, piButton))
 	router.HandleFunc("/mode/", MakeModeGetHandler(ledController))
 	router.HandleFunc("/mode/{mode}", MakeModeHandler(ledController))
+	router.HandleFunc("/"+(mode.ModeSolid).GetFriendlyName(mode.ModeSolid{}), MakeGetModeSolidHandler(ledController)).Methods("GET")
+	router.HandleFunc("/"+(mode.ModeSolid).GetFriendlyName(mode.ModeSolid{}), MakeModeSolidHandler(ledController)).Methods("POST")
 
 	if path2Frontend != "" {
 		router.PathPrefix("/").Handler(http.FileServer(http.Dir(path2Frontend)))

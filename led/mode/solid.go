@@ -2,6 +2,7 @@ package mode
 
 import (
 	"LEDean/led/color"
+	"encoding/json"
 	"math/rand"
 	"time"
 
@@ -14,8 +15,11 @@ type ModeSolid struct {
 	minBrightness float64
 	maxBrightness float64
 	brightness    float64
-	shouldExit    bool
 	rgb           color.RGB
+}
+
+type ModeSolidParameter struct {
+	RGB color.RGB `json:"rgb"`
 }
 
 func NewModeSolid(leds []color.RGB, cUpdate *chan bool) *ModeSolid {
@@ -24,7 +28,6 @@ func NewModeSolid(leds []color.RGB, cUpdate *chan bool) *ModeSolid {
 		cUpdate:       cUpdate,
 		minBrightness: 0.3,
 		maxBrightness: 1.0,
-		shouldExit:    false,
 	}
 
 	self.Randomize()
@@ -32,15 +35,26 @@ func NewModeSolid(leds []color.RGB, cUpdate *chan bool) *ModeSolid {
 	return &self
 }
 
-func (self *ModeSolid) GetFriendlyName() string {
+func (ModeSolid) GetFriendlyName() string {
 	return "ModeSolid"
 }
 
-func (self *ModeSolid) Activate() {
-	log.Info("wat")
+func (self *ModeSolid) GetParameterJson() []byte {
+	json, _ := json.Marshal(ModeSolidParameter{RGB: self.rgb})
+	return json
+}
 
+func (self *ModeSolid) SetParameter(parm interface{}) {
+	switch parm.(type) {
+	case ModeSolidParameter:
+		solidParm := parm.(ModeSolidParameter)
+		self.rgb = solidParm.RGB
+		self.Activate()
+	}
+}
+
+func (self *ModeSolid) Activate() {
 	log.Debugf("start ModeSolid with:\n -self.rgb: %s\n", self.rgb)
-	self.shouldExit = false
 
 	for i := 0; i < len(self.leds); i++ {
 		self.leds[i] = self.rgb
@@ -49,7 +63,6 @@ func (self *ModeSolid) Activate() {
 
 }
 func (self *ModeSolid) Deactivate() {
-	self.shouldExit = true
 }
 
 func (self *ModeSolid) Randomize() {

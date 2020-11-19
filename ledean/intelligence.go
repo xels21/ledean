@@ -47,5 +47,6 @@ func Run(parm *Parameter) LEDeanInstance {
 func RunForever() {
 	log.Info("Running forever ...")
 	for {
+		select {}
 	}
 }

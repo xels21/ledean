@@ -2,8 +2,10 @@ package webserver
 
 import (
 	"LEDean/led"
+	"LEDean/led/mode"
 	"LEDean/pi/button"
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 
@@ -65,10 +67,10 @@ func MakeModeHandler(ledController *led.LedController) http.HandlerFunc {
 			}
 		} else {
 			mode, err := strconv.Atoi(modeStr)
-			if err != nil || mode < 0 || mode > int(ledController.GetModesLength()) {
+			if err != nil || mode < 0 || mode > int(ledController.GetModeLength()) {
 				log.Info("Wrong mode: " + modeStr)
 			} else {
-				//set mode
+				ledController.SwitchModeIndex(uint8(mode))
 
 				msg, err = json.Marshal(ledController.GetModeIndex())
 				if err != nil {
@@ -76,6 +78,51 @@ func MakeModeHandler(ledController *led.LedController) http.HandlerFunc {
 				}
 			}
 		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(msg)
+	}
+}
+
+func MakeModeSolidHandler(ledController *led.LedController) http.HandlerFunc {
+	modeSolid, err := ledController.GetModeRef((mode.ModeSolid).GetFriendlyName(mode.ModeSolid{}))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		b, err := ioutil.ReadAll(r.Body)
+		defer r.Body.Close()
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		// Unmarshal
+		var modeSolidParameter mode.ModeSolidParameter
+		err = json.Unmarshal(b, &modeSolidParameter)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		(*modeSolid).SetParameter(modeSolidParameter)
+
+		msg := []byte{}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(msg)
+	}
+}
+
+func MakeGetModeSolidHandler(ledController *led.LedController) http.HandlerFunc {
+	mode, err := ledController.GetModeRef((mode.ModeSolid).GetFriendlyName(mode.ModeSolid{}))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		msg := (*mode).GetParameterJson()
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(msg)
 	}

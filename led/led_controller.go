@@ -18,9 +18,7 @@ type LedController struct {
 	leds             []color.RGB
 	buffer           []byte
 	active           bool
-	modes            []mode.Mode
-	modeIndex        uint8
-	modesLength      uint8
+	modeController   *mode.ModeController //[]mode.Mode
 }
 
 func NewLedController(led_count int64, piWs28xConnector *ws28x.PiWs28xConnector, piButton *button.PiButton) *LedController {
@@ -32,12 +30,9 @@ func NewLedController(led_count int64, piWs28xConnector *ws28x.PiWs28xConnector,
 		leds:             make([]color.RGB, led_count),
 		buffer:           make([]byte, 9*led_count),
 		active:           false,
-		modeIndex:        0,
 	}
 
-	self.modes = mode.GetAllModes(self.leds, &self.cUpdate)
-	self.modesLength = uint8(len(self.modes))
-	// self.modes
+	self.modeController = mode.NewModeController(self.leds, &self.cUpdate)
 
 	self.registerEvents()
 	self.Clear()
@@ -46,20 +41,36 @@ func NewLedController(led_count int64, piWs28xConnector *ws28x.PiWs28xConnector,
 	return &self
 }
 
-func (self *LedController) GetModesLength() uint8 {
-	return self.modesLength
+func (self *LedController) SwitchModeIndex(index uint8) {
+	if self.modeController.GetIndex() == index {
+		return
+	}
+
+	resume := self.active
+
+	if self.active {
+		self.Stop()
+	}
+	self.modeController.SetIndex(index)
+	if resume {
+		self.Start()
+	}
+}
+
+func (self *LedController) GetModeLength() uint8 {
+	return self.modeController.GetLength()
 }
 
 func (self *LedController) GetModeIndex() uint8 {
-	return self.modeIndex
+	return self.modeController.GetIndex()
 }
+
+func (self *LedController) GetModeRef(friendlyName string) (*mode.Mode, error) {
+	return self.modeController.GetModeRef(friendlyName)
+}
+
 func (self *LedController) GetModeResolver() []string {
-	// m = make(map[int]string)
-	modesString := make([]string, 0, 10)
-	for _, mode := range self.modes {
-		modesString = append(modesString, mode.GetFriendlyName())
-	}
-	return modesString
+	return self.modeController.GetModeResolver()
 }
 
 func (self *LedController) GetLeds() []color.RGB {
@@ -95,7 +106,7 @@ func (self *LedController) Stop() {
 		return
 	}
 	log.Trace("stop")
-	self.modes[self.modeIndex].Deactivate()
+	self.modeController.DeactivateCurrentMode()
 	self.Clear()
 	self.Render()
 	self.active = false
@@ -105,7 +116,7 @@ func (self *LedController) Start() {
 		return
 	}
 	log.Trace("start")
-	self.modes[self.modeIndex].Activate()
+	self.modeController.ActivateCurrentMode()
 	self.active = true
 }
 
@@ -114,14 +125,10 @@ func (self *LedController) NextMode() {
 	if !self.active {
 		return
 	}
-	self.modes[self.modeIndex].Deactivate()
-	self.modeIndex += 1
-	if self.modeIndex >= self.modesLength {
-		self.modeIndex = 0
-	}
-	log.Info("Next mode: ", self.modeIndex)
-	self.modes[self.modeIndex].Randomize()
-	self.modes[self.modeIndex].Activate()
+	self.modeController.DeactivateCurrentMode()
+	self.modeController.NextMode()
+	self.modeController.RandomizeCurrentMode()
+	self.modeController.ActivateCurrentMode()
 }
 
 func (self *LedController) Randomize() {
@@ -129,9 +136,9 @@ func (self *LedController) Randomize() {
 	if !self.active {
 		return
 	}
-	self.modes[self.modeIndex].Deactivate()
-	self.modes[self.modeIndex].Randomize()
-	self.modes[self.modeIndex].Activate()
+	self.modeController.DeactivateCurrentMode()
+	self.modeController.RandomizeCurrentMode()
+	self.modeController.ActivateCurrentMode()
 }
 
 func (self *LedController) registerEvents() {

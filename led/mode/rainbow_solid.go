@@ -42,13 +42,21 @@ func NewModeRainBowSolid(leds []color.RGB, cUpdate *chan bool) *ModeRainBowSolid
 	return &self
 }
 
-func (self *ModeRainBowSolid) GetFriendlyName() string {
+func (ModeRainBowSolid) GetFriendlyName() string {
 	return "ModeRainBowSolid"
 }
 
-func (self *ModeRainBowSolid) Activate() {
-	log.Info("wat")
+func (self *ModeRainBowSolid) GetParameterJson() []byte {
+	// msg, _ := json.Marshal(ModeSolidParameter{rgb: self.rgb})
 
+	return []byte{}
+}
+
+func (self *ModeRainBowSolid) SetParameter(parm interface{}) {
+
+}
+
+func (self *ModeRainBowSolid) Activate() {
 	log.Debugf("start ModeRainBowSolid with:\n -self.roundTimeMs: %d\n -self.stepSizeHue: %f\n- self.refreshRateNs: %d", self.roundTimeMs, self.stepSizeHue, self.refreshRateNs)
 	self.shouldExit = false
 	go func() {
