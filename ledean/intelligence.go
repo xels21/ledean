@@ -26,7 +26,7 @@ func Run(parm *Parameter) LEDeanInstance {
 	pi_button.Register()
 
 	pi_ws28xConnector := ws28x.NewPiWs28xConnector(parm.SpiInfo)
-	pi_ws28xConnector.Connect()
+	pi_ws28xConnector.Connect(parm.LedCount)
 
 	ledController := led.NewLedController(parm.LedCount, pi_ws28xConnector, pi_button)
 

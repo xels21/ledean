@@ -12,7 +12,7 @@ import (
 
 type LedController struct {
 	cUpdate          chan bool
-	led_count        int64
+	led_count        int
 	piWs28xConnector *ws28x.PiWs28xConnector
 	piButton         *button.PiButton
 	leds             []color.RGB
@@ -21,7 +21,7 @@ type LedController struct {
 	modeController   *mode.ModeController //[]mode.Mode
 }
 
-func NewLedController(led_count int64, piWs28xConnector *ws28x.PiWs28xConnector, piButton *button.PiButton) *LedController {
+func NewLedController(led_count int, piWs28xConnector *ws28x.PiWs28xConnector, piButton *button.PiButton) *LedController {
 	var self LedController = LedController{
 		cUpdate:          make(chan bool, 1),
 		led_count:        led_count,

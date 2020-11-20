@@ -12,7 +12,7 @@ import (
 	"github.com/rs/cors"
 )
 
-func Start(addr string, port int64, path2Frontend string, ledController *led.LedController, piButton *button.PiButton) {
+func Start(addr string, port int, path2Frontend string, ledController *led.LedController, piButton *button.PiButton) {
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
 		// AllowedOrigins: []string{"http://127.0.0.1*", "http://localhost*"},

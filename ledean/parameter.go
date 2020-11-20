@@ -9,14 +9,14 @@ import (
 type Parameter struct {
 	GpioButton         string `json:"gpioButton"`
 	SpiInfo            string `json:"spiInfo"`
-	PressLongMs        int64  `json:"pressLongMs"`
-	PressDoubleTimeout int64  `json:"pressDoubleTimeout"`
-	LedCount           int64  `json:"ledCount"`
-	LedSplit           int64  `json:"ledSplit"`
+	PressLongMs        int    `json:"pressLongMs"`
+	PressDoubleTimeout int    `json:"pressDoubleTimeout"`
+	LedCount           int    `json:"ledCount"`
+	LedSplit           int    `json:"ledSplit"`
 	LogLevel           string `json:"logLevel"`
 	Path2Frontend      string `json:"path2Frontend"`
 	Address            string `json:"address"`
-	Port               int64  `json:"port"`
+	Port               int    `json:"port"`
 
 	// PathToDB       string
 	// Pw             string
@@ -36,10 +36,10 @@ func GetParameter() *Parameter {
 	HINT: SPI0 has to be enabled in raspi-config first
 	'''sudo raspi-config nonint do_spi 0'''
 	`)
-	flag.Int64Var(&parm.PressLongMs, "_long_long_ms", 1200, "Time for the button long press")
-	flag.Int64Var(&parm.PressDoubleTimeout, "double_press_timeout", 350, "Time between single and double press")
-	flag.Int64Var(&parm.LedCount, "led_count", 0, "Amount of leds")
-	flag.Int64Var(&parm.LedSplit, "led_split", 0, "split of led (2nd row)")
+	flag.IntVar(&parm.PressLongMs, "_long_long_ms", 1200, "Time for the button long press")
+	flag.IntVar(&parm.PressDoubleTimeout, "double_press_timeout", 350, "Time between single and double press")
+	flag.IntVar(&parm.LedCount, "led_count", 0, "Amount of leds")
+	flag.IntVar(&parm.LedSplit, "led_split", 0, "split of led (2nd row)")
 	flag.StringVar(&parm.LogLevel, "log_level", "info", `log level. possibile: 
 	- panic
 	- fatal
@@ -50,7 +50,7 @@ func GetParameter() *Parameter {
 	`)
 	flag.StringVar(&parm.Path2Frontend, "path2frontend", "", "path to static frontend. Keep it empty to dont serve static files")
 	flag.StringVar(&parm.Address, "address", "127.0.0.1", "Local adress. Set it to '' to make the interface globally adressable")
-	flag.Int64Var(&parm.Port, "port", 2211, "Port for webserver")
+	flag.IntVar(&parm.Port, "port", 2211, "Port for webserver")
 	// pathToDB := flag.String("db", "../db", "Path to database folder")
 	// pw := flag.String("pw", "", "Generate pw for user management")
 	// pathToFrontEnd := flag.String("frontend", "../FrontRbc", "Path to frontend folder.\n"+

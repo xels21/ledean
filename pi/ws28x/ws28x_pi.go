@@ -3,71 +3,52 @@
 package ws28x
 
 import (
-	"time"
-
 	log "github.com/sirupsen/logrus"
 
-	"periph.io/x/periph/conn"
 	"periph.io/x/periph/conn/physic"
-	"periph.io/x/periph/conn/spi"
 	"periph.io/x/periph/conn/spi/spireg"
+	"periph.io/x/periph/experimental/devices/nrzled"
 )
 
-func (self *PiWs28xConnector) Connect() error {
-	var portCloser spi.PortCloser
-	var err error
-	portCloser, err = spireg.Open(self.spiInfo)
+func (self *PiWs28xConnector) Connect(ledCount int) error {
+
+	portCloser, err := spireg.Open(self.spiInfo)
 	// defer portCloser.Close()
 	if err != nil {
 		log.Panic(err)
 	}
+	opts := &nrzled.Opts{
+		Channels:  3,
+		NumPixels: ledCount,
+		Freq:      2500 * physic.KiloHertz, //should be 800khz...
 
-	if p, ok := portCloser.(spi.Pins); ok {
-		// log.Trace("  CLK : %s", p.CLK())
-		log.Trace("  MOSI: ", p.MOSI())
-		// log.Trace("  MISO: %s", p.MISO())
-		// log.Trace("  CS  : %s", p.CS())
 	}
+	var dev *nrzled.Dev
+	dev, err = nrzled.NewSPI(portCloser, opts)
 
-	// Convert the spi.Port into a spi.Conn so it can be used for communication.
-	// conn, err := portCloser.Connect(3*400*physic.Hertz, spi.Mode0, 8)
-	// conn, err := portCloser.Connect(3*physic.MegaHertz, spi.Mode0, 8)
-
-	// CAUTION:
-	// It was observed on RPi3 hardware to have a one clock delay between each packet.
-	conn, err := portCloser.Connect(3*800*physic.KiloHertz, spi.Mode0|spi.NoCS, 8)
-	// conn, err := portCloser.Connect(800*physic.KiloHertz, spi.Mode0, 8)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	go self.listen(conn)
+	go self.listen(dev)
 
 	return nil
 }
 
-func (self *PiWs28xConnector) listen(conn conn.Conn) {
+func (self *PiWs28xConnector) listen(dev *nrzled.Dev) {
 	var err error
-	var write, read []byte
-	// r := make([]byte, 0)
+	var pixels []byte
+
 	for {
-		write = <-self.cWriteBuffer
-		// write = []byte{0, 1, 2, 3, 4, 5}
+		pixels = <-self.cWriteBuffer
 
-		// read := make([]byte, len(write))
-		log.Trace("write: ", write)
+		log.Trace("write: ", pixels)
 
-		err = conn.Tx(write, read)
+		_, err = (*dev).Write(pixels)
+
 		if err != nil {
-			log.Panic("something went wrong: ", err) // Todo reinit spi conn
+			log.Fatal(err)
 		}
-		// log.Trace("1")
-		time.Sleep(200 * time.Microsecond) //RESET - 50us - just tested TODO remove when wiring is done
-		// log.Trace("2")
 
-		// err = conn.Tx([]byte{0, 0, 0}, read)
-		// if err != nil {
-		// 	log.Panic("something went wrong: ", err) // Todo reinit spi conn
-		// }
 	}
 }

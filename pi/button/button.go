@@ -2,14 +2,14 @@ package button
 
 type PiButton struct {
 	gpio               string
-	longPressMs        int64
-	pressDoubleTimeout int64
+	longPressMs        int
+	pressDoubleTimeout int
 	cbPressLong        []func()
 	cbPressSingle      []func()
 	cbPressDouble      []func()
 }
 
-func NewPiButton(gpio string, longPressMs int64, pressDoubleTimeout int64) *PiButton {
+func NewPiButton(gpio string, longPressMs int, pressDoubleTimeout int) *PiButton {
 
 	self := PiButton{
 		gpio:               gpio,
