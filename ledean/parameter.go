@@ -17,6 +17,7 @@ type Parameter struct {
 	Path2Frontend      string `json:"path2Frontend"`
 	Address            string `json:"address"`
 	Port               int    `json:"port"`
+	Path2DB            string `json:"path2Db"`
 
 	// PathToDB       string
 	// Pw             string
@@ -51,6 +52,7 @@ func GetParameter() *Parameter {
 	flag.StringVar(&parm.Path2Frontend, "path2frontend", "", "path to static frontend. Keep it empty to dont serve static files")
 	flag.StringVar(&parm.Address, "address", "127.0.0.1", "Local adress. Set it to '' to make the interface globally adressable")
 	flag.IntVar(&parm.Port, "port", 2211, "Port for webserver")
+	flag.StringVar(&parm.Path2DB, "path2db", "db", "Path to DB folder (folder with json files)")
 	// pathToDB := flag.String("db", "../db", "Path to database folder")
 	// pw := flag.String("pw", "", "Generate pw for user management")
 	// pathToFrontEnd := flag.String("frontend", "../FrontRbc", "Path to frontend folder.\n"+

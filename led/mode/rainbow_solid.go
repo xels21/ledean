@@ -5,10 +5,12 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/sdomino/scribble"
 	log "github.com/sirupsen/logrus"
 )
 
 type ModeRainBowSolid struct {
+	dbDriver       *scribble.Driver
 	leds           []color.RGB
 	cUpdate        *chan bool
 	minRoundTimeMs uint16 //time for one rainbow round
@@ -23,10 +25,11 @@ type ModeRainBowSolid struct {
 	hsv            color.HSV
 }
 
-func NewModeRainBowSolid(leds []color.RGB, cUpdate *chan bool) *ModeRainBowSolid {
+func NewModeRainBowSolid(leds []color.RGB, cUpdate *chan bool, dbDriver *scribble.Driver) *ModeRainBowSolid {
 	self := ModeRainBowSolid{
-		leds:    leds,
-		cUpdate: cUpdate,
+		dbDriver: dbDriver,
+		leds:     leds,
+		cUpdate:  cUpdate,
 		// minRoundTimeMs: 2000, //2s
 		// maxRoundTimeMs: 60000, //1min
 		minRoundTimeMs: 5000, //10s

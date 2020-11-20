@@ -7,6 +7,7 @@ import (
 	"LEDean/pi/ws28x"
 	"LEDean/webserver"
 
+	scribble "github.com/sdomino/scribble"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -14,12 +15,17 @@ type LEDeanInstance struct {
 	pi_button         *button.PiButton
 	pi_ws28xConnector *ws28x.PiWs28xConnector
 	ledController     *led.LedController
+	dbDriver          *scribble.Driver
 }
 
 func Run(parm *Parameter) LEDeanInstance {
 	parm.Check()
-
 	SetLogger(parm.LogLevel)
+
+	dbDriver, err := scribble.New(parm.Path2DB, nil)
+	if err != nil {
+		log.Panic("Error while trying to make a new DB: ", err)
+	}
 
 	pi.Init()
 	pi_button := button.NewPiButton(parm.GpioButton, parm.PressLongMs, parm.PressDoubleTimeout)
@@ -28,7 +34,7 @@ func Run(parm *Parameter) LEDeanInstance {
 	pi_ws28xConnector := ws28x.NewPiWs28xConnector(parm.SpiInfo)
 	pi_ws28xConnector.Connect(parm.LedCount)
 
-	ledController := led.NewLedController(parm.LedCount, pi_ws28xConnector, pi_button)
+	ledController := led.NewLedController(parm.LedCount, pi_ws28xConnector, pi_button, dbDriver)
 
 	pi_button.AddCbPressSingle(func() { log.Info("PRESS_SINGLE") })
 	pi_button.AddCbPressDouble(func() { log.Info("PRESS_DOUBLE") })

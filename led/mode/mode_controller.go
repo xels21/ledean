@@ -4,6 +4,7 @@ import (
 	"LEDean/led/color"
 	"fmt"
 
+	"github.com/sdomino/scribble"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -12,22 +13,27 @@ type ModeController struct {
 	modeSolid        *ModeSolid
 	modeRainBowSolid *ModeRainBowSolid
 	index            uint8
+	dbDriver         *scribble.Driver
 }
 
-func NewModeController(leds []color.RGB, cUpdate *chan bool) *ModeController {
+func NewModeController(leds []color.RGB, cUpdate *chan bool, dbDriver *scribble.Driver) *ModeController {
 	modes := ModeController{
-		modeSolid:        NewModeSolid(leds, cUpdate),
-		modeRainBowSolid: NewModeRainBowSolid(leds, cUpdate),
-		index:            0,
+		modeSolid:        NewModeSolid(leds, cUpdate, dbDriver),
+		modeRainBowSolid: NewModeRainBowSolid(leds, cUpdate, dbDriver),
+		dbDriver:         dbDriver,
 	}
 	modes.modes = []Mode{modes.modeSolid, modes.modeRainBowSolid}
+
+	err := dbDriver.Read("modeController", "index", &modes.index)
+	if err != nil {
+		modes.SetIndex(0)
+	}
 
 	return &modes
 }
 
 func (self *ModeController) NextMode() {
-	self.index = (self.index + 1) % self.GetLength()
-	log.Info("Next mode: ", self.index)
+	self.SetIndex((self.index + 1) % self.GetLength())
 }
 
 func (self *ModeController) ActivateCurrentMode() {
@@ -64,6 +70,8 @@ func (self *ModeController) GetIndex() uint8 {
 }
 func (self *ModeController) SetIndex(index uint8) {
 	self.index = index
+	self.dbDriver.Write("modeController", "index", self.index)
+	log.Info("Current mode: ", self.index)
 }
 
 func (self *ModeController) GetLength() uint8 {

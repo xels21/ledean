@@ -7,6 +7,7 @@ import (
 	"LEDean/pi/ws28x"
 	"encoding/json"
 
+	"github.com/sdomino/scribble"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -21,7 +22,7 @@ type LedController struct {
 	modeController   *mode.ModeController //[]mode.Mode
 }
 
-func NewLedController(led_count int, piWs28xConnector *ws28x.PiWs28xConnector, piButton *button.PiButton) *LedController {
+func NewLedController(led_count int, piWs28xConnector *ws28x.PiWs28xConnector, piButton *button.PiButton, dbDriver *scribble.Driver) *LedController {
 	var self LedController = LedController{
 		cUpdate:          make(chan bool, 1),
 		led_count:        led_count,
@@ -32,7 +33,7 @@ func NewLedController(led_count int, piWs28xConnector *ws28x.PiWs28xConnector, p
 		active:           false,
 	}
 
-	self.modeController = mode.NewModeController(self.leds, &self.cUpdate)
+	self.modeController = mode.NewModeController(self.leds, &self.cUpdate, dbDriver)
 
 	self.registerEvents()
 	self.Clear()

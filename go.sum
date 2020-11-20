@@ -21,6 +21,8 @@ github.com/fatih/color v1.9.0/go.mod h1:eQcE1qtQxscV5RaZvpXrrb8Drkc3/DdQ+uUYCNjL
 github.com/google/go-cmp v0.4.0/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/gorilla/mux v1.8.0 h1:i40aqfkR1h2SlN9hojwV5ZA91wcXFOvkdNIeFDP5koI=
 github.com/gorilla/mux v1.8.0/go.mod h1:DVbg23sWSpFRCP0SfiEN6jmj59UnW/n46BH5rLB71So=
+github.com/jcelliott/lumber v0.0.0-20160324203708-dd349441af25 h1:EFT6MH3igZK/dIVqgGbTqWVvkZ7wJ5iGN03SVtvvdd8=
+github.com/jcelliott/lumber v0.0.0-20160324203708-dd349441af25/go.mod h1:sWkGw/wsaHtRsT9zGQ/WyJCotGWG/Anow/9hsAcBWRw=
 github.com/kr/pretty v0.2.0/go.mod h1:ipq/a2n7PKx3OHsz4KJII5eveXtPO4qwEXGdVfWzfnI=
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
@@ -42,6 +44,8 @@ github.com/rjeczalik/notify v0.0.0-20181126183243-629144ba06a1 h1:FLWDC+iIP9BWgY
 github.com/rjeczalik/notify v0.0.0-20181126183243-629144ba06a1/go.mod h1:aErll2f0sUX9PXZnVNyeiObbmTlk5jnMoCa4QEjJeqM=
 github.com/rs/cors v1.7.0 h1:+88SsELBHx5r+hZ8TCkggzSstaWNbDvThkVK8H6f9ik=
 github.com/rs/cors v1.7.0/go.mod h1:gFx+x8UowdsKA9AchylcLynDq+nNFfI8FkUZdN/jGCU=
+github.com/sdomino/scribble v0.0.0-20200707180004-3cc68461d505 h1:/2EeHu+TXdtUKXa2BUNo26L72IR4mURn5cq4/zBz7qs=
+github.com/sdomino/scribble v0.0.0-20200707180004-3cc68461d505/go.mod h1:W6zxGUBCXRR5QugSd/nFcFVmwoGnvpjiNY/JwT03Wew=
 github.com/sirupsen/logrus v1.7.0 h1:ShrD1U9pZB12TX0cVy0DtePoCH97K8EtX+mg7ZARUtM=
 github.com/sirupsen/logrus v1.7.0/go.mod h1:yWOB1SBYBC5VeMP7gHvWumXLIWorT60ONWic61uBYv0=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
