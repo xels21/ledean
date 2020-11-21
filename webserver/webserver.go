@@ -27,8 +27,14 @@ func Start(addr string, port int, path2Frontend string, ledController *led.LedCo
 	router.HandleFunc("/press_long", MakePressLongHandler(ledController, piButton))
 	router.HandleFunc("/mode/", MakeModeGetHandler(ledController))
 	router.HandleFunc("/mode/{mode}", MakeModeHandler(ledController))
+
 	router.HandleFunc("/"+(mode.ModeSolid).GetFriendlyName(mode.ModeSolid{}), MakeGetModeSolidHandler(ledController)).Methods("GET")
 	router.HandleFunc("/"+(mode.ModeSolid).GetFriendlyName(mode.ModeSolid{}), MakeModeSolidHandler(ledController)).Methods("POST")
+	router.HandleFunc("/"+(mode.ModeSolid).GetFriendlyName(mode.ModeSolid{})+"/limits", MakeGetModeSolidLimitsHandler(ledController)).Methods("GET")
+
+	router.HandleFunc("/"+(mode.ModeSolidRainbow).GetFriendlyName(mode.ModeSolidRainbow{}), MakeGetModeSolidRainbowHandler(ledController)).Methods("GET")
+	router.HandleFunc("/"+(mode.ModeSolidRainbow).GetFriendlyName(mode.ModeSolidRainbow{}), MakeModeSolidRainbowHandler(ledController)).Methods("POST")
+	router.HandleFunc("/"+(mode.ModeSolidRainbow).GetFriendlyName(mode.ModeSolidRainbow{})+"/limits", MakeGetModeSolidRainbowLimitsHandler(ledController)).Methods("GET")
 
 	if path2Frontend != "" {
 		router.PathPrefix("/").Handler(http.FileServer(http.Dir(path2Frontend)))

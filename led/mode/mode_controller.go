@@ -11,7 +11,7 @@ import (
 type ModeController struct {
 	modes            []Mode
 	modeSolid        *ModeSolid
-	modeRainBowSolid *ModeRainBowSolid
+	modeSolidRainbow *ModeSolidRainbow
 	index            uint8
 	dbDriver         *scribble.Driver
 }
@@ -19,10 +19,10 @@ type ModeController struct {
 func NewModeController(leds []color.RGB, cUpdate *chan bool, dbDriver *scribble.Driver) *ModeController {
 	modes := ModeController{
 		modeSolid:        NewModeSolid(leds, cUpdate, dbDriver),
-		modeRainBowSolid: NewModeRainBowSolid(leds, cUpdate, dbDriver),
+		modeSolidRainbow: NewModeRainbowSolid(leds, cUpdate, dbDriver),
 		dbDriver:         dbDriver,
 	}
-	modes.modes = []Mode{modes.modeSolid, modes.modeRainBowSolid}
+	modes.modes = []Mode{modes.modeSolid, modes.modeSolidRainbow}
 
 	err := dbDriver.Read("modeController", "index", &modes.index)
 	if err != nil {

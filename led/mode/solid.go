@@ -11,26 +11,31 @@ import (
 )
 
 type ModeSolid struct {
-	dbDriver      *scribble.Driver
-	parameter     ModeSolidParameter
-	leds          []color.RGB
-	cUpdate       *chan bool
-	minBrightness float64
-	maxBrightness float64
+	dbDriver  *scribble.Driver
+	parameter ModeSolidParameter
+	limits    ModeSolidLimits
+	leds      []color.RGB
+	cUpdate   *chan bool
 }
 
 type ModeSolidParameter struct {
 	RGB        color.RGB `json:"rgb"`
 	Brightness float64   `json:"brightness"`
 }
+type ModeSolidLimits struct {
+	MinBrightness float64 `json:"minBrightness"`
+	MaxBrightness float64 `json:"maxBrightness"`
+}
 
 func NewModeSolid(leds []color.RGB, cUpdate *chan bool, dbDriver *scribble.Driver) *ModeSolid {
 	self := ModeSolid{
-		dbDriver:      dbDriver,
-		leds:          leds,
-		cUpdate:       cUpdate,
-		minBrightness: 0.3,
-		maxBrightness: 1.0,
+		dbDriver: dbDriver,
+		leds:     leds,
+		cUpdate:  cUpdate,
+		limits: ModeSolidLimits{
+			MinBrightness: 0.0,
+			MaxBrightness: 1.0,
+		},
 	}
 
 	err := dbDriver.Read("modeController", "index", &self.parameter)
@@ -50,6 +55,11 @@ func (self *ModeSolid) GetParameterJson() []byte {
 	return json
 }
 
+func (self *ModeSolid) GetLimitsJson() []byte {
+	json, _ := json.Marshal(self.limits)
+	return json
+}
+
 func (self *ModeSolid) SetParameter(parm interface{}) {
 	switch parm.(type) {
 	case ModeSolidParameter:
@@ -60,7 +70,7 @@ func (self *ModeSolid) SetParameter(parm interface{}) {
 }
 
 func (self *ModeSolid) Activate() {
-	log.Debugf("start ModeSolid with:\n %s\n", self.GetParameterJson())
+	log.Debugf("start "+self.GetFriendlyName()+" with:\n %s\n", self.GetParameterJson())
 
 	rgb := color.RGB{
 		R: uint8(float64(self.parameter.RGB.R) * self.parameter.Brightness),
@@ -80,7 +90,7 @@ func (self *ModeSolid) Deactivate() {
 func (self *ModeSolid) Randomize() {
 	rand.Seed(time.Now().UnixNano())
 	parameter := ModeSolidParameter{
-		Brightness: rand.Float64()*(self.maxBrightness-self.minBrightness) + self.minBrightness,
+		Brightness: rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
 		RGB: color.RGB{
 			R: uint8(rand.Intn(255)),
 			G: uint8(rand.Intn(255)),

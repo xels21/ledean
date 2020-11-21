@@ -8,7 +8,7 @@ type PiWs28xConnector struct {
 func NewPiWs28xConnector(spiInfo string) *PiWs28xConnector {
 	return &PiWs28xConnector{
 		spiInfo:      spiInfo,
-		cWriteBuffer: make(chan []byte, 10),
+		cWriteBuffer: make(chan []byte, 32),
 	}
 }
 

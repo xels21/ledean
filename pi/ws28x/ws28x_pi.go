@@ -50,5 +50,7 @@ func (self *PiWs28xConnector) listen(dev *nrzled.Dev) {
 			log.Fatal(err)
 		}
 
+		// time.Sleep(50 * time.Microsecond)
+
 	}
 }
