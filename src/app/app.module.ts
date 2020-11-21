@@ -14,6 +14,7 @@ import { ButtonComponent } from './button/button.component';
 import { NavigationComponent } from './navigation/navigation.component';
 import { ModesComponent } from './modes/modes.component';
 import { ModeSolidComponent } from './modes/mode-solid/mode-solid.component';
+import { ModeSolidRainbowComponent } from './modes/mode-solid-rainbow/mode-solid-rainbow.component';
 
 @NgModule({
   imports: [
@@ -27,7 +28,8 @@ import { ModeSolidComponent } from './modes/mode-solid/mode-solid.component';
     ButtonComponent,
     NavigationComponent,
     ModesComponent,
-    ModeSolidComponent
+    ModeSolidComponent,
+    ModeSolidRainbowComponent
   ],
   providers: [
     LedsService,

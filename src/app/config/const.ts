@@ -16,3 +16,4 @@ export const REST_GET_MODE_URL = REST_PREFIX_URL + "mode"
 export const REST_GET_MODE_RESOLVER_URL = REST_PREFIX_URL + "mode/resolver"
 
 export const REST_MODE_SOLID_URL = REST_PREFIX_URL + "ModeSolid"
+export const REST_MODE_SOLID_RAINBOW_URL = REST_PREFIX_URL + "ModeSolidRainbow"

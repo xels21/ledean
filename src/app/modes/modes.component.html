@@ -6,15 +6,15 @@
       <!-- <li class="tab col s3"><a href="#ModeSolid" [ngClass]="{'active': modesService.isActive('ModeSolid')}" (click)="modesService.switchState('ModeSolid')">Solid</a> -->
       <li class="tab col s3"><a href="#ModeSolid" (click)="modesService.switchState('ModeSolid')">Solid</a>
       </li>
-      <li class="tab col s3"><a href="#ModeRainBowSolid"
-          (click)="modesService.switchState('ModeRainBowSolid')">RainBowSolid</a></li>
+      <li class="tab col s3"><a href="#ModeSolidRainbow"
+          (click)="modesService.switchState('ModeSolidRainbow')">RainbowSolid</a></li>
     </ul>
   </div>
   <div id="ModeSolid" class="col s12">
     <app-mode-solid></app-mode-solid>
   </div>
-  <div id="ModeRainBowSolid" class="col s12">
-    <!-- <app-mode-solid></app-mode-solid> -->
+  <div id="ModeSolidRainbow" class="col s12">
+    <app-mode-solid-rainbow></app-mode-solid-rainbow>
   </div>
 </div>
 

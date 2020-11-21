@@ -1,24 +1,24 @@
-<div class="row" [ngStyle]="{'background-color': 'rgb('+uiModeSolidParameter.rgb.r+','+uiModeSolidParameter.rgb.g+','+uiModeSolidParameter.rgb.b+')'}">
+<div *ngIf="modeSolidParameter" class="row" [ngStyle]="{'background-color': 'rgb('+modeSolidParameter.rgb.r+','+modeSolidParameter.rgb.g+','+modeSolidParameter.rgb.b+')'}">
 
     <div class="row">
-      <div class="col s2"><input type="number" min="0" max="255" (change)="setModeSolidParameter()" [(ngModel)]="uiModeSolidParameter.rgb.r" /></div>
-      <div class="col s10"><input type="range" min="0" max="255" (change)="setModeSolidParameter()" [(ngModel)]="uiModeSolidParameter.rgb.r" /></div>
+      <div class="col s2"><input type="number" min="0" max="255" (change)="setModeSolidParameter()" [(ngModel)]="modeSolidParameter.rgb.r" /></div>
+      <div class="col s10"><input type="range" min="0" max="255" (change)="setModeSolidParameter()" [(ngModel)]="modeSolidParameter.rgb.r" /></div>
     </div>
 
     <div class="row">
-      <div class="col s2"><input type="number" min="0" max="255" (change)="setModeSolidParameter()" [(ngModel)]="uiModeSolidParameter.rgb.g" /></div>
-      <div class="col s10"><input type="range" min="0" max="255" (change)="setModeSolidParameter()" [(ngModel)]="uiModeSolidParameter.rgb.g" /></div>
+      <div class="col s2"><input type="number" min="0" max="255" (change)="setModeSolidParameter()" [(ngModel)]="modeSolidParameter.rgb.g" /></div>
+      <div class="col s10"><input type="range" min="0" max="255" (change)="setModeSolidParameter()" [(ngModel)]="modeSolidParameter.rgb.g" /></div>
     </div>
 
     <div class="row">
-      <div class="col s2"><input type="number" min="0" max="255" (change)="setModeSolidParameter()" [(ngModel)]="uiModeSolidParameter.rgb.b" /></div>
-      <div class="col s10"><input type="range" min="0" max="255" (change)="setModeSolidParameter()" [(ngModel)]="uiModeSolidParameter.rgb.b" /></div>
+      <div class="col s2"><input type="number" min="0" max="255" (change)="setModeSolidParameter()" [(ngModel)]="modeSolidParameter.rgb.b" /></div>
+      <div class="col s10"><input type="range" min="0" max="255" (change)="setModeSolidParameter()" [(ngModel)]="modeSolidParameter.rgb.b" /></div>
     </div>
 
 </div>
 
-<div class="row" [ngStyle]="{'background-color': 'rgba(255,255,255,'+uiModeSolidParameter.brightness+')'}">
-  <input type="range" min="0" max="1.0" step="0.01" (change)="setModeSolidParameter()" [(ngModel)]="uiModeSolidParameter.brightness" />
+<div *ngIf="modeSolidParameter && modeSolidLimits" class="row" [ngStyle]="{'background-color': 'rgba(255,255,255,'+modeSolidParameter.brightness+')'}">
+  <input type="range" [min]="modeSolidLimits.minBrightness" [max]="modeSolidLimits.maxBrightness" step="0.01" (change)="setModeSolidParameter()" [(ngModel)]="modeSolidParameter.brightness" />
 </div>
 
 <!-- <div class="row" style="margin-top: 10px;">

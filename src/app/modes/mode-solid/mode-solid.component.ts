@@ -11,6 +11,10 @@ interface ModeSolidParameter {
   rgb: RGB,
   brightness: number,
 }
+interface ModeSolidLimits {
+  minBrightness: number,
+  maxBrightness: number,
+}
 
 @Component({
   selector: 'app-mode-solid',
@@ -18,27 +22,25 @@ interface ModeSolidParameter {
   styleUrls: ['./mode-solid.component.scss']
 })
 export class ModeSolidComponent implements OnInit {
+  public backModeSolidParameter: ModeSolidParameter
   public modeSolidParameter: ModeSolidParameter
-  public uiModeSolidParameter: ModeSolidParameter
+  public modeSolidLimits: ModeSolidLimits
+
 
   constructor(private httpClient: HttpClient, private updateService: UpdateService) {
-    this.modeSolidParameter = {
-      rgb: { r: 0, g: 0, b: 0 },
-      brightness: 1.0
-    }
-    this.uiModeSolidParameter = this.modeSolidParameter
   }
 
   ngOnInit(): void {
     this.updateModeSolidParameter();
+    this.updateModeSolidLimits();
     this.updateService.registerPolling({ cb: () => { this.updateModeSolidParameter() }, timeout: 500 })
   }
 
   updateModeSolidParameter() {
     this.httpClient.get<ModeSolidParameter>(REST_MODE_SOLID_URL).subscribe((data: ModeSolidParameter) => {
-      if (!deepEqual(this.modeSolidParameter, data)) {
-        this.modeSolidParameter = data
-        this.uiModeSolidParameter = deepCopy(this.modeSolidParameter)
+      if (!deepEqual(this.backModeSolidParameter, data)) {
+        this.backModeSolidParameter = data
+        this.modeSolidParameter = deepCopy(this.backModeSolidParameter)
       }
     }
     )
@@ -46,7 +48,11 @@ export class ModeSolidComponent implements OnInit {
 
   setModeSolidParameter() {
     console.log("set")
-    this.httpClient.post<ModeSolidParameter>(REST_MODE_SOLID_URL, this.uiModeSolidParameter, {}).subscribe()
+    this.httpClient.post<ModeSolidParameter>(REST_MODE_SOLID_URL, this.modeSolidParameter, {}).subscribe()
+  }
+
+  updateModeSolidLimits() {
+    this.httpClient.get<ModeSolidLimits>(REST_MODE_SOLID_URL + "/limits").subscribe((data: ModeSolidLimits) => { this.modeSolidLimits = data })
   }
 
 }
