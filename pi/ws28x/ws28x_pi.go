@@ -3,6 +3,8 @@
 package ws28x
 
 import (
+	"time"
+
 	log "github.com/sirupsen/logrus"
 
 	"periph.io/x/periph/conn/physic"
@@ -50,7 +52,7 @@ func (self *PiWs28xConnector) listen(dev *nrzled.Dev) {
 			log.Fatal(err)
 		}
 
-		// time.Sleep(50 * time.Microsecond)
+		time.Sleep(50 * time.Microsecond)
 
 	}
 }

@@ -3,26 +3,35 @@ package mode
 import (
 	"LEDean/led/color"
 	"fmt"
+	"time"
 
 	"github.com/sdomino/scribble"
 	log "github.com/sirupsen/logrus"
+)
+
+const (
+	REFRESH_RATE_NS = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 30) * time.Nanosecond)
 )
 
 type ModeController struct {
 	modes            []Mode
 	modeSolid        *ModeSolid
 	modeSolidRainbow *ModeSolidRainbow
-	index            uint8
-	dbDriver         *scribble.Driver
+	// modeTransitionRainbow *ModeTransitionRainbow
+	modeRunningLed *ModeRunningLed
+	index          uint8
+	dbDriver       *scribble.Driver
 }
 
 func NewModeController(leds []color.RGB, cUpdate *chan bool, dbDriver *scribble.Driver) *ModeController {
 	modes := ModeController{
 		modeSolid:        NewModeSolid(leds, cUpdate, dbDriver),
-		modeSolidRainbow: NewModeRainbowSolid(leds, cUpdate, dbDriver),
-		dbDriver:         dbDriver,
+		modeSolidRainbow: NewModeSolidRainbow(leds, cUpdate, dbDriver),
+		// modeTransitionRainbow: NewModeTransitionRainbow(leds, cUpdate, dbDriver),
+		modeRunningLed: NewModeRunningLed(leds, cUpdate, dbDriver),
+		dbDriver:       dbDriver,
 	}
-	modes.modes = []Mode{modes.modeSolid, modes.modeSolidRainbow}
+	modes.modes = []Mode{modes.modeSolid, modes.modeSolidRainbow, modes.modeRunningLed}
 
 	err := dbDriver.Read("modeController", "index", &modes.index)
 	if err != nil {

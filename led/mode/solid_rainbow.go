@@ -11,15 +11,14 @@ import (
 )
 
 type ModeSolidRainbow struct {
-	dbDriver      *scribble.Driver
-	leds          []color.RGB
-	cUpdate       *chan bool
-	parameter     ModeSolidRainbowParameter
-	limits        ModeSolidRainbowLimits
-	refreshRateNs time.Duration
-	shouldExit    bool
-	hsv           color.HSV
-	stepSizeHue   float64
+	dbDriver    *scribble.Driver
+	leds        []color.RGB
+	cUpdate     *chan bool
+	parameter   ModeSolidRainbowParameter
+	limits      ModeSolidRainbowLimits
+	cExit       chan bool
+	hsv         color.HSV
+	stepSizeHue float64
 }
 
 type ModeSolidRainbowParameter struct {
@@ -33,20 +32,18 @@ type ModeSolidRainbowLimits struct {
 	MaxBrightness  float64 `json:"maxBrightness"`
 }
 
-func NewModeRainbowSolid(leds []color.RGB, cUpdate *chan bool, dbDriver *scribble.Driver) *ModeSolidRainbow {
+func NewModeSolidRainbow(leds []color.RGB, cUpdate *chan bool, dbDriver *scribble.Driver) *ModeSolidRainbow {
 	self := ModeSolidRainbow{
 		dbDriver: dbDriver,
 		leds:     leds,
 		cUpdate:  cUpdate,
 		limits: ModeSolidRainbowLimits{
-			MinRoundTimeMs: 3000,   //2s
+			MinRoundTimeMs: 2000,   //2s
 			MaxRoundTimeMs: 300000, //5min
 			MinBrightness:  0.1,
 			MaxBrightness:  1.0,
 		},
-		refreshRateNs: time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 30) * time.Nanosecond), //30fps -> 33.33ms
-		// refreshRateNs: time.Duration(100 * time.Millisecond),
-		shouldExit: false,
+		cExit: make(chan bool, 1),
 	}
 
 	self.Randomize()
@@ -74,32 +71,41 @@ func (self *ModeSolidRainbow) SetParameter(parm interface{}) {
 		self.parameter = parm.(ModeSolidRainbowParameter)
 		self.dbDriver.Write(self.GetFriendlyName(), "parameter", self.parameter)
 		self.hsv.V = self.parameter.Brightness
-		self.stepSizeHue = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(self.refreshRateNs) / 1000 / 1000 / 1000)
+		self.stepSizeHue = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(REFRESH_RATE_NS) / 1000 / 1000 / 1000)
 	}
 }
 
 func (self *ModeSolidRainbow) Activate() {
 	log.Debugf("start "+self.GetFriendlyName()+" with:\n %s\n", self.GetParameterJson())
+	ticker := time.NewTicker(REFRESH_RATE_NS)
 
-	self.shouldExit = false
 	go func() {
-		rgb := color.RGB{}
-		for !self.shouldExit {
-			self.hsv.H += self.stepSizeHue
-			for self.hsv.H > 360.0 {
-				self.hsv.H -= 360.0
+		for {
+			select {
+			case <-self.cExit:
+				ticker.Stop()
+				return
+			case <-ticker.C:
+				self.renderLoop()
 			}
-			rgb = self.hsv.ToRGB()
-			for i := 0; i < len(self.leds); i++ {
-				self.leds[i] = rgb
-			}
-			*self.cUpdate <- true
-			time.Sleep(self.refreshRateNs)
 		}
 	}()
 }
+func (self *ModeSolidRainbow) renderLoop() {
+	rgb := color.RGB{}
+	self.hsv.H += self.stepSizeHue
+	for self.hsv.H > 360.0 {
+		self.hsv.H -= 360.0
+	}
+	rgb = self.hsv.ToRGB()
+	for i := 0; i < len(self.leds); i++ {
+		self.leds[i] = rgb
+	}
+	*self.cUpdate <- true
+}
+
 func (self *ModeSolidRainbow) Deactivate() {
-	self.shouldExit = true
+	self.cExit <- true
 }
 
 func (self *ModeSolidRainbow) Randomize() {
