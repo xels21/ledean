@@ -1,0 +1,79 @@
+<div *ngIf="modeRunningLedParameter && modeRunningLedLimits">
+
+  <div class="row" [ngStyle]="{'background-color': 'rgba(255,255,255,'+modeRunningLedParameter.brightness+')'}">
+    <div class="input-field col s3">
+      <input id="brightness" type="number" [(ngModel)]="modeRunningLedParameter.brightness"
+        (change)="setModeRunningLedParameter()" />
+      <label for="brightness">brightness</label>
+    </div>
+
+    <div class="col s9 valign-wrapper" style="min-height: 70px;">
+      <input type="range" [min]="modeRunningLedLimits.minBrightness" [max]="modeRunningLedLimits.maxBrightness"
+        step="0.01" (change)="setModeRunningLedParameter()" [(ngModel)]="modeRunningLedParameter.brightness" />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="input-field col s3">
+      <input id="fadePct" type="number" [(ngModel)]="modeRunningLedParameter.fadePct"
+        (change)="setModeRunningLedParameter()" />
+      <label for="fadePct">fadePct</label>
+    </div>
+
+    <div class="col s9 valign-wrapper" style="min-height: 70px;">
+      <input type="range" [min]="modeRunningLedLimits.minFadePct" [max]="modeRunningLedLimits.maxFadePct" step="0.01"
+        (change)="setModeRunningLedParameter()" [(ngModel)]="modeRunningLedParameter.fadePct" />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="input-field col s3">
+      <input id="round_time_Ms" type="number" [(ngModel)]="modeRunningLedParameter.roundTimeMs"
+        (change)="setModeRunningLedParameter()">
+      <label for="round_time_Ms">Round Time(ms)</label>
+    </div>
+
+    <input class="col s9" type="range" [min]="modeRunningLedLimits.minRoundTimeMs"
+      [max]="modeRunningLedLimits.maxRoundTimeMs" step="1" (change)="setModeRunningLedParameter()"
+      [(ngModel)]="modeRunningLedParameter.roundTimeMs" />
+  </div>
+
+
+
+  <div class="row" [ngStyle]="{'background-color': 'hsl('+modeRunningLedParameter.hueFrom+',100%,50%)'}">
+    <div class="input-field col s3">
+      <input id="hueFrom" type="number" [(ngModel)]="modeRunningLedParameter.hueFrom"
+        (change)="setModeRunningLedParameter()" />
+      <label for="hueFrom">hueFrom</label>
+    </div>
+
+    <div class="col s9 valign-wrapper" style="min-height: 70px;">
+      <input type="range" min=0 max=360
+        step="0.01" (change)="setModeRunningLedParameter()" [(ngModel)]="modeRunningLedParameter.hueFrom" />
+    </div>
+  </div>
+
+  <div class="row" [ngStyle]="{'background-color': 'hsl('+modeRunningLedParameter.hueTo+',100%,50%)'}">
+    <div class="input-field col s3">
+      <input id="hueTo" type="number" [(ngModel)]="modeRunningLedParameter.hueTo"
+        (change)="setModeRunningLedParameter()" />
+      <label for="hueFrom">hueTo</label>
+    </div>
+
+    <div class="col s9 valign-wrapper" style="min-height: 70px;">
+      <input type="range" min=0 max=360
+        step="0.01" (change)="setModeRunningLedParameter()" [(ngModel)]="modeRunningLedParameter.hueTo" />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="input-field col s3">
+      <input id="style" type="text" [(ngModel)]="modeRunningLedParameter.style"
+        (change)="setModeRunningLedParameter()" />
+      <label for="style">style</label>
+    </div>
+
+    <!-- <div class="col s9 valign-wrapper" style="min-height: 70px;"><input type="range" min=0 max=360step="0.01" (change)="setModeRunningLedParameter()" [(ngModel)]="modeRunningLedParameter.style" /></div> -->
+  </div>
+
+</div>

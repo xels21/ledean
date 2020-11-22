@@ -35,7 +35,7 @@ export class ModeSolidRainbowComponent implements OnInit {
     this.updateModeSolidRainbowParameter();
     this.updateModeSolidRainbowLimits();
     this.updateService.registerPolling({ cb: () => { this.updateModeSolidRainbowParameter() }, timeout: 500 })
-    setTimeout( ()=>{M.updateTextFields()},50);
+    setTimeout( ()=>{M.updateTextFields()},100);
   }
 
   updateModeSolidRainbowParameter() {

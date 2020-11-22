@@ -15,6 +15,7 @@ import { NavigationComponent } from './navigation/navigation.component';
 import { ModesComponent } from './modes/modes.component';
 import { ModeSolidComponent } from './modes/mode-solid/mode-solid.component';
 import { ModeSolidRainbowComponent } from './modes/mode-solid-rainbow/mode-solid-rainbow.component';
+import { ModeRunningLedComponent } from './modes/mode-running-led/mode-running-led.component';
 
 @NgModule({
   imports: [
@@ -29,7 +30,8 @@ import { ModeSolidRainbowComponent } from './modes/mode-solid-rainbow/mode-solid
     NavigationComponent,
     ModesComponent,
     ModeSolidComponent,
-    ModeSolidRainbowComponent
+    ModeSolidRainbowComponent,
+    ModeRunningLedComponent
   ],
   providers: [
     LedsService,

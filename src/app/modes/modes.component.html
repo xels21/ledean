@@ -7,7 +7,9 @@
       <li class="tab col s3"><a href="#ModeSolid" (click)="modesService.switchState('ModeSolid')">Solid</a>
       </li>
       <li class="tab col s3"><a href="#ModeSolidRainbow"
-          (click)="modesService.switchState('ModeSolidRainbow')">RainbowSolid</a></li>
+        (click)="modesService.switchState('ModeSolidRainbow')">RainbowSolid</a></li>
+        <li class="tab col s3"><a href="#ModeRunningLed"
+          (click)="modesService.switchState('ModeRunningLed')">RunningLed</a></li>
     </ul>
   </div>
   <div id="ModeSolid" class="col s12">
@@ -15,6 +17,9 @@
   </div>
   <div id="ModeSolidRainbow" class="col s12">
     <app-mode-solid-rainbow></app-mode-solid-rainbow>
+  </div>
+  <div id="ModeRunningLed" class="col s12">
+    <app-mode-running-led></app-mode-running-led>
   </div>
 </div>
 
