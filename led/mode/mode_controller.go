@@ -14,24 +14,24 @@ const (
 )
 
 type ModeController struct {
-	modes            []Mode
-	modeSolid        *ModeSolid
-	modeSolidRainbow *ModeSolidRainbow
-	// modeTransitionRainbow *ModeTransitionRainbow
-	modeRunningLed *ModeRunningLed
-	index          uint8
-	dbDriver       *scribble.Driver
+	modes                 []Mode
+	modeSolid             *ModeSolid
+	modeSolidRainbow      *ModeSolidRainbow
+	modeTransitionRainbow *ModeTransitionRainbow
+	modeRunningLed        *ModeRunningLed
+	index                 uint8
+	dbDriver              *scribble.Driver
 }
 
 func NewModeController(leds []color.RGB, cUpdate *chan bool, dbDriver *scribble.Driver) *ModeController {
 	modes := ModeController{
-		modeSolid:        NewModeSolid(leds, cUpdate, dbDriver),
-		modeSolidRainbow: NewModeSolidRainbow(leds, cUpdate, dbDriver),
-		// modeTransitionRainbow: NewModeTransitionRainbow(leds, cUpdate, dbDriver),
-		modeRunningLed: NewModeRunningLed(leds, cUpdate, dbDriver),
-		dbDriver:       dbDriver,
+		modeSolid:             NewModeSolid(leds, cUpdate, dbDriver),
+		modeSolidRainbow:      NewModeSolidRainbow(leds, cUpdate, dbDriver),
+		modeTransitionRainbow: NewModeTransitionRainbow(leds, cUpdate, dbDriver),
+		modeRunningLed:        NewModeRunningLed(leds, cUpdate, dbDriver),
+		dbDriver:              dbDriver,
 	}
-	modes.modes = []Mode{modes.modeSolid, modes.modeSolidRainbow, modes.modeRunningLed}
+	modes.modes = []Mode{modes.modeSolid, modes.modeSolidRainbow, modes.modeTransitionRainbow, modes.modeRunningLed}
 
 	err := dbDriver.Read("modeController", "index", &modes.index)
 	if err != nil {

@@ -36,6 +36,10 @@ func Start(addr string, port int, path2Frontend string, ledController *led.LedCo
 	router.HandleFunc("/"+(mode.ModeSolidRainbow).GetFriendlyName(mode.ModeSolidRainbow{}), MakeModeSolidRainbowHandler(ledController)).Methods("POST")
 	router.HandleFunc("/"+(mode.ModeSolidRainbow).GetFriendlyName(mode.ModeSolidRainbow{})+"/limits", MakeGetModeSolidRainbowLimitsHandler(ledController)).Methods("GET")
 
+	router.HandleFunc("/"+(mode.ModeTransitionRainbow).GetFriendlyName(mode.ModeTransitionRainbow{}), MakeGetModeTransitionRainbowHandler(ledController)).Methods("GET")
+	router.HandleFunc("/"+(mode.ModeTransitionRainbow).GetFriendlyName(mode.ModeTransitionRainbow{}), MakeModeTransitionRainbowHandler(ledController)).Methods("POST")
+	router.HandleFunc("/"+(mode.ModeTransitionRainbow).GetFriendlyName(mode.ModeTransitionRainbow{})+"/limits", MakeGetModeTransitionRainbowLimitsHandler(ledController)).Methods("GET")
+
 	router.HandleFunc("/"+(mode.ModeRunningLed).GetFriendlyName(mode.ModeRunningLed{}), MakeGetModeRunningLedHandler(ledController)).Methods("GET")
 	router.HandleFunc("/"+(mode.ModeRunningLed).GetFriendlyName(mode.ModeRunningLed{}), MakeModeRunningLedHandler(ledController)).Methods("POST")
 	router.HandleFunc("/"+(mode.ModeRunningLed).GetFriendlyName(mode.ModeRunningLed{})+"/limits", MakeGetModeRunningLedLimitsHandler(ledController)).Methods("GET")

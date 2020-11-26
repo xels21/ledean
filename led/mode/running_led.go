@@ -173,7 +173,11 @@ func (self *ModeRunningLed) renderLoop() {
 
 	c := color.HSV{H: 0.0, S: 1.0, V: 0.0}
 	for i, activatedLed := range self.activatedLeds {
-		c.H = self.parameter.HueFrom + (self.hueDistanceFct * self.hueDistance * activatedLed)
+		if i == activeLedIdx {
+			c.H = self.parameter.HueTo
+		} else {
+			c.H = self.parameter.HueFrom + (self.hueDistanceFct * self.hueDistance * activatedLed)
+		}
 		c.V = activatedLed
 		self.leds[i] = c.ToRGB()
 	}
