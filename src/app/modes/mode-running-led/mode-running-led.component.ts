@@ -8,8 +8,12 @@ import { deepCopy } from '../../lib/deep-copy';
 import { deepEqual } from 'fast-equals';
 
 interface ModeRunningLedParameter {
-  roundTimeMs: number,
   brightness: number,
+  fadePct: number,
+  roundTimeMs: number,
+  hueFrom: number,
+  huerTo: number,
+  style: RunningLedStyle,
 }
 interface ModeRunningLedLimits {
   minRoundTimeMs: number,
@@ -18,7 +22,11 @@ interface ModeRunningLedLimits {
   maxBrightness: number,
 }
 
-type RunningLedStyle = "linear" | "trigonometric"
+// type RunningLedStyle = "linear" | "trigonometric"
+export enum RunningLedStyle {
+  LINEAR = "linear",
+  TRIGONOMETRIC = "trigonometric",
+}
 
 @Component({
   selector: 'app-mode-running-led',
@@ -37,7 +45,7 @@ export class ModeRunningLedComponent implements OnInit {
     this.updateModeRunningLedParameter();
     this.updateModeRunningLedLimits();
     this.updateService.registerPolling({ cb: () => { this.updateModeRunningLedParameter() }, timeout: 500 })
-    setTimeout( ()=>{M.updateTextFields()},100);
+    setTimeout(() => { M.updateTextFields() }, 100);
   }
 
   updateModeRunningLedParameter() {
@@ -58,6 +66,13 @@ export class ModeRunningLedComponent implements OnInit {
 
   updateModeRunningLedLimits() {
     this.httpClient.get<ModeRunningLedLimits>(REST_MODE_RUNNING_LED_URL + "/limits").subscribe((data: ModeRunningLedLimits) => { this.modeRunningLedLimits = data })
+  }
+
+  getAllStyles() {
+    return new Array<RunningLedStyle>(
+      RunningLedStyle.LINEAR,
+      RunningLedStyle.TRIGONOMETRIC,
+    )
   }
 
 }

@@ -14,7 +14,8 @@ export class LedsService {
   public pollingTimeout:number
 
   constructor(private httpClient: HttpClient, private updateService: UpdateService) {
-    this.pollingTimeout=300
+    this.pollingTimeout=100
+    // this.pollingTimeout=300
     updateService.registerPolling({ cb: ()=>{this.updateLeds()}, timeout: this.pollingTimeout })
   }
 

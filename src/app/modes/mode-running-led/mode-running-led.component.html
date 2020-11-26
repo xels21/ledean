@@ -73,7 +73,11 @@
       <label for="style">style</label>
     </div>
 
-    <!-- <div class="col s9 valign-wrapper" style="min-height: 70px;"><input type="range" min=0 max=360step="0.01" (change)="setModeRunningLedParameter()" [(ngModel)]="modeRunningLedParameter.style" /></div> -->
+    <div class="col s9 valign-wrapper" style="min-height: 70px;">
+        <select class="browser-default" [(ngModel)]="modeRunningLedParameter.style" (change)="setModeRunningLedParameter()">
+          <option *ngFor="let style of getAllStyles()" [text]="style"></option>
+        </select>
+    </div>
   </div>
 
 </div>
