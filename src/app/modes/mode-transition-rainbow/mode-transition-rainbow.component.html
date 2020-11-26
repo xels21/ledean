@@ -1,0 +1,35 @@
+<div *ngIf="modeTransitionRainbowParameter && modeTransitionRainbowLimits" class="row">
+
+  <div class="input-field col s3">
+    <input id="round_time_Ms" type="number" [(ngModel)]="modeTransitionRainbowParameter.roundTimeMs" (change)="setModeTransitionRainbowParameter()">
+    <label for="round_time_Ms">Round Time(ms)</label>
+  </div>
+
+  <input class="col s9" type="range" [min]="modeTransitionRainbowLimits.minRoundTimeMs"
+    [max]="modeTransitionRainbowLimits.maxRoundTimeMs" step="1" (change)="setModeTransitionRainbowParameter()"
+    [(ngModel)]="modeTransitionRainbowParameter.roundTimeMs" />
+</div>
+
+<div *ngIf="modeTransitionRainbowParameter && modeTransitionRainbowLimits" class="row"
+  [ngStyle]="{'background-color': 'rgba(255,255,255,'+modeTransitionRainbowParameter.brightness+')'}">
+  <div class="input-field col s3">
+    <input id="brightness" type="number" [(ngModel)]="modeTransitionRainbowParameter.brightness" (change)="setModeTransitionRainbowParameter()">
+    <label for="brightness">Brightness</label>
+  </div>
+  <div class="col s9 valign-wrapper" style="min-height: 110px;">
+    <input type="range" [min]="modeTransitionRainbowLimits.minBrightness " [max]="modeTransitionRainbowLimits.maxBrightness"
+      step="0.01" (change)="setModeTransitionRainbowParameter()" [(ngModel)]="modeTransitionRainbowParameter.brightness" />
+  </div>
+</div>
+
+<!-- <div *ngIf="modeTransitionRainbowParameter && modeTransitionRainbowLimits" class="row" [ngStyle]="{'background-color': 'rgba(255,255,255,'+modeTransitionRainbowParameter.brightness+')'}"> -->
+  <div *ngIf="modeTransitionRainbowParameter && modeTransitionRainbowLimits" class="row" >
+  <div class="input-field col s3">
+    <input id="spectrum" type="number" [(ngModel)]="modeTransitionRainbowParameter.spectrum" (change)="setModeTransitionRainbowParameter()">
+    <label for="spectrum">Spectrum</label>
+  </div>
+  <div class="col s9 valign-wrapper" style="min-height: 110px;">
+    <input type="range" [min]="modeTransitionRainbowLimits.minSpectrum" [max]="modeTransitionRainbowLimits.maxSpectrum"
+      step="0.01" (change)="setModeTransitionRainbowParameter()" [(ngModel)]="modeTransitionRainbowParameter.spectrum" />
+  </div>
+</div>
