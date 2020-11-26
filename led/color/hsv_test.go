@@ -29,5 +29,24 @@ func TestHsvToRgb(t *testing.T) {
 	assert.InDelta(t, expectedRgb.R, rgb.R, 1)
 	assert.InDelta(t, expectedRgb.G, rgb.G, 1)
 	assert.InDelta(t, expectedRgb.B, rgb.B, 1)
+}
 
+func TestHsvAdd(t *testing.T) {
+	c1 := color.HSV{H: 0.0, S: 1.0, V: 0.5}
+	c2 := color.HSV{H: 0.0, S: 1.0, V: 0.2}
+	expected := color.HSV{H: 0.0, S: 1.0, V: 0.7}
+	c1.Add(c2)
+	assert.InDelta(t, expected.H, c1.H, 1.0)
+	assert.InDelta(t, expected.S, c1.S, 0.05)
+	assert.InDelta(t, expected.V, c1.V, 0.05)
+}
+
+func TestHsvSub(t *testing.T) {
+	c1 := color.HSV{H: 0.0, S: 1.0, V: 0.5}
+	c2 := color.HSV{H: 0.0, S: 1.0, V: 0.2}
+	expected := color.HSV{H: 0.0, S: 1.0, V: 0.3}
+	c1.Sub(c2)
+	assert.InDelta(t, expected.H, c1.H, 1.0)
+	assert.InDelta(t, expected.S, c1.S, 0.05)
+	assert.InDelta(t, expected.V, c1.V, 0.05)
 }

@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	REFRESH_RATE_NS = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 30) * time.Nanosecond)
+	REFRESH_INTERVAL_NS = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 30) * time.Nanosecond)
 )
 
 type ModeController struct {

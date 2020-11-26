@@ -1,6 +1,7 @@
 package color
 
 import (
+	"LEDean/helper"
 	"encoding/json"
 	"math"
 )
@@ -63,4 +64,15 @@ func rgb2hue(r float64, b float64, g float64, maxC float64, minC float64) float6
 
 func (self *RGB) ToSpi() []byte {
 	return []byte{self.G, self.R, self.B}
+}
+
+func (self *RGB) Add(toAdd RGB) {
+	self.R = uint8(helper.MinInt16(int16(self.R)+int16(toAdd.R), 255))
+	self.G = uint8(helper.MinInt16(int16(self.G)+int16(toAdd.G), 255))
+	self.B = uint8(helper.MinInt16(int16(self.B)+int16(toAdd.B), 255))
+}
+func (self *RGB) Sub(toAdd RGB) {
+	self.R = uint8(helper.MaxInt16(int16(self.R)-int16(toAdd.R), 0))
+	self.G = uint8(helper.MaxInt16(int16(self.G)-int16(toAdd.G), 0))
+	self.B = uint8(helper.MaxInt16(int16(self.B)-int16(toAdd.B), 0))
 }

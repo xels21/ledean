@@ -54,3 +54,23 @@ func (self *HSV) ToRGB() RGB {
 		B: uint8(b * 255),
 	}
 }
+
+func (self *HSV) Add(toAdd HSV) {
+	self.AddRgb(toAdd.ToRGB())
+}
+
+func (self *HSV) AddRgb(toAdd RGB) {
+	selfRgb := self.ToRGB()
+	selfRgb.Add(toAdd)
+	*self = selfRgb.ToHsv()
+}
+
+func (self *HSV) Sub(toSub HSV) {
+	self.SubRgb(toSub.ToRGB())
+}
+
+func (self *HSV) SubRgb(toSub RGB) {
+	selfRgb := self.ToRGB()
+	selfRgb.Sub(toSub)
+	*self = selfRgb.ToHsv()
+}

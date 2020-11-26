@@ -82,9 +82,9 @@ func (self *ModeTransitionRainbow) SetParameter(parm interface{}) {
 	case ModeTransitionRainbowParameter:
 		self.parameter = parm.(ModeTransitionRainbowParameter)
 		self.dbDriver.Write(self.GetFriendlyName(), "parameter", self.parameter)
-		self.positionStepSize = 360 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(REFRESH_RATE_NS) / 1000 / 1000 / 1000)
+		self.positionStepSize = 360 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(REFRESH_INTERVAL_NS) / 1000 / 1000 / 1000)
 		// self.hsv.V = self.parameter.Brightness
-		// self.stepSizeHue = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(REFRESH_RATE_NS) / 1000 / 1000 / 1000)
+		// self.stepSizeHue = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(REFRESH_INTERVAL_NS) / 1000 / 1000 / 1000)
 	}
 }
 
@@ -104,7 +104,7 @@ func (self *ModeTransitionRainbow) Activate() {
 				self.leds[i] = rgb
 			}
 			*self.cUpdate <- true
-			time.Sleep(REFRESH_RATE_NS)
+			time.Sleep(REFRESH_INTERVAL_NS)
 		}
 	}()
 }

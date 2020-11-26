@@ -71,13 +71,13 @@ func (self *ModeSolidRainbow) SetParameter(parm interface{}) {
 		self.parameter = parm.(ModeSolidRainbowParameter)
 		self.dbDriver.Write(self.GetFriendlyName(), "parameter", self.parameter)
 		self.hsv.V = self.parameter.Brightness
-		self.stepSizeHue = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(REFRESH_RATE_NS) / 1000 / 1000 / 1000)
+		self.stepSizeHue = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(REFRESH_INTERVAL_NS) / 1000 / 1000 / 1000)
 	}
 }
 
 func (self *ModeSolidRainbow) Activate() {
 	log.Debugf("start "+self.GetFriendlyName()+" with:\n %s\n", self.GetParameterJson())
-	ticker := time.NewTicker(REFRESH_RATE_NS)
+	ticker := time.NewTicker(REFRESH_INTERVAL_NS)
 
 	go func() {
 		for {
