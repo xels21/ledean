@@ -11,6 +11,7 @@ interface ModeTransitionRainbowParameter {
   roundTimeMs: number,
   brightness: number,
   spectrum: number,
+  reverse: boolean,
 }
 interface ModeTransitionRainbowLimits {
   minRoundTimeMs: number,

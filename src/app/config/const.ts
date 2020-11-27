@@ -4,6 +4,8 @@ export const REST_PORT = "2211";
 export const REST_PREFIX_URL = REST_PROTOCOL + "://" + REST_ADRESS+":"+REST_PORT+"/"
 
 export const REST_GET_LEDS_URL = REST_PREFIX_URL + "leds"
+export const REST_GET_LEDS_COUNT_URL = REST_GET_LEDS_URL + "/count"
+export const REST_GET_LEDS_ROWS_URL = REST_GET_LEDS_URL + "/rows"
 
 export const REST_PRESS_SINGLE_URL = REST_PREFIX_URL + "press_single"
 export const REST_PRESS_DOUBLE_URL = REST_PREFIX_URL + "press_double"
