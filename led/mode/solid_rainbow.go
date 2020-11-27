@@ -32,7 +32,7 @@ type ModeSolidRainbowLimits struct {
 	MaxBrightness  float64 `json:"maxBrightness"`
 }
 
-func NewModeSolidRainbow(leds []color.RGB, cUpdate *chan bool, dbDriver *scribble.Driver) *ModeSolidRainbow {
+func NewModeSolidRainbow(dbDriver *scribble.Driver, cUpdate *chan bool, leds []color.RGB) *ModeSolidRainbow {
 	self := ModeSolidRainbow{
 		dbDriver: dbDriver,
 		leds:     leds,

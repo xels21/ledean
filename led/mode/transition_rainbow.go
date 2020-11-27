@@ -13,10 +13,12 @@ import (
 type ModeTransitionRainbow struct {
 	dbDriver            *scribble.Driver
 	leds                []color.RGB
+	led_rows            int
+	led_per_row         int
 	cUpdate             *chan bool
 	parameter           ModeTransitionRainbowParameter
 	limits              ModeTransitionRainbowLimits
-	ledsHsv             []color.HSV
+	singleRowledsHSV    []color.HSV
 	progressDeg         float64 //from 0.0 to 360.0
 	progressDegStepSize float64
 	cExit               chan bool
@@ -28,6 +30,7 @@ type ModeTransitionRainbowParameter struct {
 	Brightness  float64 `json:"brightness"`
 	Spectrum    float64 `json:"spectrum"`
 	RoundTimeMs uint32  `json:"roundTimeMs"`
+	Reverse     bool    `json:"reverse"`
 }
 type ModeTransitionRainbowLimits struct {
 	MinRoundTimeMs uint32  `json:"minRoundTimeMs"`
@@ -38,11 +41,13 @@ type ModeTransitionRainbowLimits struct {
 	MaxSpectrum    float64 `json:"maxSpectrum"`
 }
 
-func NewModeTransitionRainbow(leds []color.RGB, cUpdate *chan bool, dbDriver *scribble.Driver) *ModeTransitionRainbow {
+func NewModeTransitionRainbow(dbDriver *scribble.Driver, cUpdate *chan bool, leds []color.RGB, led_rows int) *ModeTransitionRainbow {
 	self := ModeTransitionRainbow{
-		dbDriver: dbDriver,
-		leds:     leds,
-		cUpdate:  cUpdate,
+		dbDriver:    dbDriver,
+		leds:        leds,
+		led_rows:    led_rows,
+		led_per_row: len(leds) / led_rows,
+		cUpdate:     cUpdate,
 		limits: ModeTransitionRainbowLimits{
 			MinRoundTimeMs: 500,
 			MaxRoundTimeMs: 30000,
@@ -53,11 +58,11 @@ func NewModeTransitionRainbow(leds []color.RGB, cUpdate *chan bool, dbDriver *sc
 		},
 		progressDeg: 0.0,
 		cExit:       make(chan bool, 1),
-		ledsHsv:     make([]color.HSV, len(leds)),
 	}
 
-	for i := 0; i < len(self.ledsHsv); i++ {
-		self.ledsHsv[i] = color.HSV{H: 0.0, S: 1.0, V: 0.0}
+	self.singleRowledsHSV = make([]color.HSV, self.led_per_row)
+	for i := 0; i < self.led_per_row; i++ {
+		self.singleRowledsHSV[i] = color.HSV{H: 0.0, S: 1.0, V: 0.0}
 	}
 
 	self.Randomize()
@@ -85,13 +90,14 @@ func (self *ModeTransitionRainbow) SetParameter(parm interface{}) {
 		self.parameter = parm.(ModeTransitionRainbowParameter)
 		self.dbDriver.Write(self.GetFriendlyName(), "parameter", self.parameter)
 		self.progressDegStepSize = 360 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(REFRESH_INTERVAL_NS) / 1000 / 1000 / 1000)
-		for i := 0; i < len(self.ledsHsv); i++ {
-			self.ledsHsv[i].H = self.ledsHsv[0].H + float64(i)/float64(len(self.ledsHsv))*self.parameter.Spectrum*360.0
-			self.ledsHsv[i].V = self.parameter.Brightness
+		// for r := 0; r < self.led_rows; r++ {
+		for ri := 0; ri < self.led_per_row; ri++ {
+			// i := r*self.led_per_row + ri
+			self.singleRowledsHSV[ri].H = self.singleRowledsHSV[0].H + float64(ri)/float64(self.led_per_row)*self.parameter.Spectrum*360.0
+			self.singleRowledsHSV[ri].V = self.parameter.Brightness
 		}
+		// }
 
-		// self.hsv.V = self.parameter.Brightness
-		// self.stepSizeHue = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(REFRESH_INTERVAL_NS) / 1000 / 1000 / 1000)
 	}
 }
 
@@ -113,13 +119,27 @@ func (self *ModeTransitionRainbow) Activate() {
 }
 
 func (self *ModeTransitionRainbow) renderLoop() {
-	for i := 0; i < len(self.ledsHsv); i++ {
-		self.ledsHsv[i].H += self.progressDegStepSize
-		if self.ledsHsv[i].H > 360.0 {
-			self.ledsHsv[i].H -= 360.0
+	for ri := 0; ri < len(self.leds)/self.led_rows; ri++ {
+		if !self.parameter.Reverse {
+			self.singleRowledsHSV[ri].H += self.progressDegStepSize
+			if self.singleRowledsHSV[ri].H > 360.0 {
+				self.singleRowledsHSV[ri].H -= 360.0
+			}
+		} else {
+			self.singleRowledsHSV[ri].H -= self.progressDegStepSize
+			if self.singleRowledsHSV[ri].H < 0.0 {
+				self.singleRowledsHSV[ri].H += 360.0
+			}
 		}
-		self.leds[i] = self.ledsHsv[i].ToRGB()
 	}
+
+	for r := 0; r < self.led_rows; r++ {
+		for ri := 0; ri < len(self.leds)/self.led_rows; ri++ {
+			i := r*self.led_per_row + ri
+			self.leds[i] = self.singleRowledsHSV[ri].ToRGB()
+		}
+	}
+
 	*self.cUpdate <- true
 }
 
@@ -133,5 +153,6 @@ func (self *ModeTransitionRainbow) Randomize() {
 		RoundTimeMs: uint32(rand.Float32()*float32(self.limits.MaxRoundTimeMs-self.limits.MinRoundTimeMs)) + self.limits.MinRoundTimeMs,
 		Brightness:  rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
 		Spectrum:    rand.Float64()*(self.limits.MaxSpectrum-self.limits.MinSpectrum) + self.limits.MinSpectrum,
+		Reverse:     rand.Int()%2 == 1,
 	})
 }

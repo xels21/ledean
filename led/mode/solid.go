@@ -27,7 +27,7 @@ type ModeSolidLimits struct {
 	MaxBrightness float64 `json:"maxBrightness"`
 }
 
-func NewModeSolid(leds []color.RGB, cUpdate *chan bool, dbDriver *scribble.Driver) *ModeSolid {
+func NewModeSolid(dbDriver *scribble.Driver, cUpdate *chan bool, leds []color.RGB) *ModeSolid {
 	self := ModeSolid{
 		dbDriver: dbDriver,
 		leds:     leds,

@@ -34,7 +34,7 @@ func Run(parm *Parameter) LEDeanInstance {
 	pi_ws28xConnector := ws28x.NewPiWs28xConnector(parm.SpiInfo)
 	pi_ws28xConnector.Connect(parm.LedCount)
 
-	ledController := led.NewLedController(parm.LedCount, pi_ws28xConnector, pi_button, dbDriver)
+	ledController := led.NewLedController(parm.LedCount, parm.LedRows, pi_ws28xConnector, pi_button, dbDriver)
 
 	pi_button.AddCbPressSingle(func() { log.Info("PRESS_SINGLE") })
 	pi_button.AddCbPressDouble(func() { log.Info("PRESS_DOUBLE") })

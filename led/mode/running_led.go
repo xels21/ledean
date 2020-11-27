@@ -21,12 +21,14 @@ type RunningLedStyle string
 type ModeRunningLed struct {
 	dbDriver            *scribble.Driver
 	leds                []color.RGB
+	led_rows            int
+	led_per_row         int
 	cUpdate             *chan bool
 	parameter           ModeRunningLedParameter
 	limits              ModeRunningLedLimits
 	cExit               chan bool
 	ticker              time.Ticker
-	ledsHsv             []color.HSV
+	ledsSingleRowRGB    []color.RGB
 	activatedLeds       []float64
 	positionDeg         float64
 	positionDegStepSize float64
@@ -53,11 +55,13 @@ type ModeRunningLedLimits struct {
 	MaxFadePct     float64 `json:"maxFadePct"`
 }
 
-func NewModeRunningLed(leds []color.RGB, cUpdate *chan bool, dbDriver *scribble.Driver) *ModeRunningLed {
+func NewModeRunningLed(dbDriver *scribble.Driver, cUpdate *chan bool, leds []color.RGB, led_rows int) *ModeRunningLed {
 	self := ModeRunningLed{
-		dbDriver: dbDriver,
-		leds:     leds,
-		cUpdate:  cUpdate,
+		dbDriver:    dbDriver,
+		leds:        leds,
+		led_rows:    led_rows,
+		led_per_row: len(leds) / led_rows,
+		cUpdate:     cUpdate,
 		limits: ModeRunningLedLimits{
 			MinRoundTimeMs: 1000,  //1s
 			MaxRoundTimeMs: 30000, //30s
@@ -66,10 +70,10 @@ func NewModeRunningLed(leds []color.RGB, cUpdate *chan bool, dbDriver *scribble.
 			MinFadePct:     0.0,
 			MaxFadePct:     1.0,
 		},
-		positionDeg:   0.0,
-		ledsHsv:       make([]color.HSV, len(leds)),
-		activatedLeds: make([]float64, len(leds)),
-		cExit:         make(chan bool, 1),
+		positionDeg:      0.0,
+		ledsSingleRowRGB: make([]color.RGB, len(leds)/led_rows),
+		activatedLeds:    make([]float64, len(leds)/led_rows),
+		cExit:            make(chan bool, 1),
 	}
 
 	self.Randomize()
@@ -103,7 +107,7 @@ func (self *ModeRunningLed) SetParameter(parm interface{}) {
 		}
 		self.positionDegStepSize = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(REFRESH_INTERVAL_NS) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
 		self.darkenStepSize = (1 / self.parameter.FadePct) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(REFRESH_INTERVAL_NS) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
-		self.lightenStepSize = 2 * self.parameter.Brightness * float64(len(self.leds)) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(REFRESH_INTERVAL_NS) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
+		self.lightenStepSize = 2 * self.parameter.Brightness * (float64(len(self.leds)) / float64(self.led_rows)) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(REFRESH_INTERVAL_NS) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
 		// self.brightnessStepSize = self.positionDegStepSize * self.parameter.FadePct
 	}
 }
@@ -144,7 +148,6 @@ func (self *ModeRunningLed) renderLoop() {
 		self.positionDeg -= 360.0
 	}
 
-	color.HsvArrClear(self.ledsHsv)
 	self.darkenLeds()
 
 	var activeLedIdx int
@@ -173,14 +176,22 @@ func (self *ModeRunningLed) renderLoop() {
 
 	c := color.HSV{H: 0.0, S: 1.0, V: 0.0}
 	for i, activatedLed := range self.activatedLeds {
-		if i == activeLedIdx {
-			c.H = self.parameter.HueTo
-		} else {
-			c.H = self.parameter.HueFrom + (self.hueDistanceFct * self.hueDistance * activatedLed)
-		}
+		// if i == activeLedIdx {
+		// c.H = self.parameter.HueTo
+		// } else {
+		c.H = self.parameter.HueFrom + (self.hueDistanceFct * self.hueDistance * activatedLed)
+		// }
 		c.V = activatedLed
-		self.leds[i] = c.ToRGB()
+		self.ledsSingleRowRGB[i] = c.ToRGB()
 	}
+
+	for r := 0; r < self.led_rows; r++ {
+		for ri := 0; ri < len(self.leds)/self.led_rows; ri++ {
+			i := r*self.led_per_row + ri
+			self.leds[i] = self.ledsSingleRowRGB[ri]
+		}
+	}
+
 	*self.cUpdate <- true
 }
 

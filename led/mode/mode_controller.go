@@ -23,12 +23,12 @@ type ModeController struct {
 	dbDriver              *scribble.Driver
 }
 
-func NewModeController(leds []color.RGB, cUpdate *chan bool, dbDriver *scribble.Driver) *ModeController {
+func NewModeController(dbDriver *scribble.Driver, cUpdate *chan bool, leds []color.RGB, led_rows int) *ModeController {
 	modes := ModeController{
-		modeSolid:             NewModeSolid(leds, cUpdate, dbDriver),
-		modeSolidRainbow:      NewModeSolidRainbow(leds, cUpdate, dbDriver),
-		modeTransitionRainbow: NewModeTransitionRainbow(leds, cUpdate, dbDriver),
-		modeRunningLed:        NewModeRunningLed(leds, cUpdate, dbDriver),
+		modeSolid:             NewModeSolid(dbDriver, cUpdate, leds),
+		modeSolidRainbow:      NewModeSolidRainbow(dbDriver, cUpdate, leds),
+		modeTransitionRainbow: NewModeTransitionRainbow(dbDriver, cUpdate, leds, led_rows),
+		modeRunningLed:        NewModeRunningLed(dbDriver, cUpdate, leds, led_rows),
 		dbDriver:              dbDriver,
 	}
 	modes.modes = []Mode{modes.modeSolid, modes.modeSolidRainbow, modes.modeTransitionRainbow, modes.modeRunningLed}

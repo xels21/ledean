@@ -22,6 +22,8 @@ func Start(addr string, port int, path2Frontend string, ledController *led.LedCo
 	router := mux.NewRouter().StrictSlash(true)
 
 	router.HandleFunc("/leds", MakeGetLedHandler(ledController)).Methods("GET")
+	router.HandleFunc("/leds/{parameter}", MakeLedHandler(ledController)).Methods("GET")
+	router.HandleFunc("/leds_rows", MakeGetLedHandler(ledController)).Methods("GET")
 	router.HandleFunc("/press_single", MakePressSingleHandler(ledController, piButton))
 	router.HandleFunc("/press_double", MakePressDoubleHandler(ledController, piButton))
 	router.HandleFunc("/press_long", MakePressLongHandler(ledController, piButton))

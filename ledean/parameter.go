@@ -12,7 +12,7 @@ type Parameter struct {
 	PressLongMs        int    `json:"pressLongMs"`
 	PressDoubleTimeout int    `json:"pressDoubleTimeout"`
 	LedCount           int    `json:"ledCount"`
-	LedSplit           int    `json:"ledSplit"`
+	LedRows            int    `json:"ledRows"`
 	LogLevel           string `json:"logLevel"`
 	Path2Frontend      string `json:"path2Frontend"`
 	Address            string `json:"address"`
@@ -40,7 +40,7 @@ func GetParameter() *Parameter {
 	flag.IntVar(&parm.PressLongMs, "_long_long_ms", 1200, "Time for the button long press")
 	flag.IntVar(&parm.PressDoubleTimeout, "double_press_timeout", 350, "Time between single and double press")
 	flag.IntVar(&parm.LedCount, "led_count", 0, "Amount of leds")
-	flag.IntVar(&parm.LedSplit, "led_split", 0, "split of led (2nd row)")
+	flag.IntVar(&parm.LedRows, "led_rows", 1, "Amount of led rows")
 	flag.StringVar(&parm.LogLevel, "log_level", "info", `log level. possibile: 
 	- panic
 	- fatal
@@ -64,6 +64,9 @@ func GetParameter() *Parameter {
 func (self *Parameter) Check() {
 	if self.LedCount <= 0 {
 		log.Panic("Error in parameter 'led_count'\n  - At least one led has to be connected")
+	}
+	if self.LedCount%self.LedRows != 0 {
+		log.Panic("Error in parameter 'led_count' and 'led_rows'\n  - Amount of led have to be equal to each row (e.g. led_count:20, led_rows:2, => 10 leds per row")
 	}
 
 }

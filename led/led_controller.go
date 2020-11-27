@@ -13,7 +13,7 @@ import (
 
 type LedController struct {
 	cUpdate          chan bool
-	led_count        int
+	led_rows         int
 	piWs28xConnector *ws28x.PiWs28xConnector
 	piButton         *button.PiButton
 	leds             []color.RGB
@@ -22,10 +22,10 @@ type LedController struct {
 	modeController   *mode.ModeController //[]mode.Mode
 }
 
-func NewLedController(led_count int, piWs28xConnector *ws28x.PiWs28xConnector, piButton *button.PiButton, dbDriver *scribble.Driver) *LedController {
+func NewLedController(led_count int, led_rows int, piWs28xConnector *ws28x.PiWs28xConnector, piButton *button.PiButton, dbDriver *scribble.Driver) *LedController {
 	var self LedController = LedController{
 		cUpdate:          make(chan bool, 1),
-		led_count:        led_count,
+		led_rows:         led_rows,
 		piWs28xConnector: piWs28xConnector,
 		piButton:         piButton,
 		leds:             make([]color.RGB, led_count),
@@ -33,7 +33,7 @@ func NewLedController(led_count int, piWs28xConnector *ws28x.PiWs28xConnector, p
 		active:           false,
 	}
 
-	self.modeController = mode.NewModeController(self.leds, &self.cUpdate, dbDriver)
+	self.modeController = mode.NewModeController(dbDriver, &self.cUpdate, self.leds, self.led_rows)
 
 	self.registerEvents()
 	self.Clear()
@@ -76,6 +76,12 @@ func (self *LedController) GetModeResolver() []string {
 
 func (self *LedController) GetLeds() []color.RGB {
 	return self.leds
+}
+func (self *LedController) GetLedCount() int {
+	return len(self.leds)
+}
+func (self *LedController) GetLedRows() int {
+	return self.led_rows
 }
 
 func (self *LedController) GetLedsJson() []byte {
@@ -157,7 +163,7 @@ func (self *LedController) Render() {
 }
 
 func (self *LedController) leds2Buffer() {
-	self.buffer = make([]byte, 0, 9*self.led_count)
+	self.buffer = make([]byte, 0, 9*len(self.leds))
 	for _, led := range self.leds {
 		self.buffer = append(self.buffer, led.ToSpi()...)
 	}
