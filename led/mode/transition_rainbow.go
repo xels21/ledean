@@ -65,7 +65,12 @@ func NewModeTransitionRainbow(dbDriver *scribble.Driver, cUpdate *chan bool, led
 		self.singleRowledsHSV[i] = color.HSV{H: 0.0, S: 1.0, V: 0.0}
 	}
 
-	self.Randomize()
+	err := dbDriver.Read(self.GetFriendlyName(), "parameter", &self.parameter)
+	if err != nil {
+		self.Randomize()
+	} else {
+		self.postSetParameter()
+	}
 
 	return &self
 }
@@ -89,15 +94,16 @@ func (self *ModeTransitionRainbow) SetParameter(parm interface{}) {
 	case ModeTransitionRainbowParameter:
 		self.parameter = parm.(ModeTransitionRainbowParameter)
 		self.dbDriver.Write(self.GetFriendlyName(), "parameter", self.parameter)
-		self.progressDegStepSize = 360 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(REFRESH_INTERVAL_NS) / 1000 / 1000 / 1000)
-		// for r := 0; r < self.led_rows; r++ {
-		for ri := 0; ri < self.led_per_row; ri++ {
-			// i := r*self.led_per_row + ri
-			self.singleRowledsHSV[ri].H = self.singleRowledsHSV[0].H + float64(ri)/float64(self.led_per_row)*self.parameter.Spectrum*360.0
-			self.singleRowledsHSV[ri].V = self.parameter.Brightness
-		}
-		// }
+		self.postSetParameter()
 
+	}
+}
+
+func (self *ModeTransitionRainbow) postSetParameter() {
+	self.progressDegStepSize = 360 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(REFRESH_INTERVAL_NS) / 1000 / 1000 / 1000)
+	for ri := 0; ri < self.led_per_row; ri++ {
+		self.singleRowledsHSV[ri].H = self.singleRowledsHSV[0].H + float64(ri)/float64(self.led_per_row)*self.parameter.Spectrum*360.0
+		self.singleRowledsHSV[ri].V = self.parameter.Brightness
 	}
 }
 

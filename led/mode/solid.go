@@ -38,9 +38,11 @@ func NewModeSolid(dbDriver *scribble.Driver, cUpdate *chan bool, leds []color.RG
 		},
 	}
 
-	err := dbDriver.Read("modeController", "index", &self.parameter)
+	err := dbDriver.Read(self.GetFriendlyName(), "parameter", &self.parameter)
 	if err != nil {
 		self.Randomize()
+	} else {
+		self.postSetParameter()
 	}
 
 	return &self
@@ -65,8 +67,11 @@ func (self *ModeSolid) SetParameter(parm interface{}) {
 	case ModeSolidParameter:
 		self.parameter = parm.(ModeSolidParameter)
 		self.dbDriver.Write(self.GetFriendlyName(), "parameter", self.parameter)
-		// self.Activate()
+		self.postSetParameter()
 	}
+}
+
+func (self *ModeSolid) postSetParameter() {
 }
 
 func (self *ModeSolid) Activate() {

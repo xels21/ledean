@@ -42,7 +42,9 @@ func Run(parm *Parameter) LEDeanInstance {
 
 	go webserver.Start(parm.Address, parm.Port, parm.Path2Frontend, ledController, pi_button)
 
-	ledController.Start()
+	if parm.DirectStart {
+		ledController.Start()
+	}
 
 	return LEDeanInstance{
 		pi_button:         pi_button,

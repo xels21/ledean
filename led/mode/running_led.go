@@ -76,7 +76,12 @@ func NewModeRunningLed(dbDriver *scribble.Driver, cUpdate *chan bool, leds []col
 		cExit:            make(chan bool, 1),
 	}
 
-	self.Randomize()
+	err := dbDriver.Read(self.GetFriendlyName(), "parameter", &self.parameter)
+	if err != nil {
+		self.Randomize()
+	} else {
+		self.postSetParameter()
+	}
 
 	return &self
 }
@@ -100,16 +105,19 @@ func (self *ModeRunningLed) SetParameter(parm interface{}) {
 	case ModeRunningLedParameter:
 		self.parameter = parm.(ModeRunningLedParameter)
 		self.dbDriver.Write(self.GetFriendlyName(), "parameter", self.parameter)
-		self.hueDistance = math.Abs(self.parameter.HueFrom - self.parameter.HueTo)
-		self.hueDistanceFct = 1.0
-		if self.parameter.HueFrom > self.parameter.HueTo {
-			self.hueDistanceFct = -1.0
-		}
-		self.positionDegStepSize = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(REFRESH_INTERVAL_NS) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
-		self.darkenStepSize = (1 / self.parameter.FadePct) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(REFRESH_INTERVAL_NS) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
-		self.lightenStepSize = 2 * self.parameter.Brightness * (float64(len(self.leds)) / float64(self.led_rows)) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(REFRESH_INTERVAL_NS) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
-		// self.brightnessStepSize = self.positionDegStepSize * self.parameter.FadePct
+		self.postSetParameter()
 	}
+}
+
+func (self *ModeRunningLed) postSetParameter() {
+	self.hueDistance = math.Abs(self.parameter.HueFrom - self.parameter.HueTo)
+	self.hueDistanceFct = 1.0
+	if self.parameter.HueFrom > self.parameter.HueTo {
+		self.hueDistanceFct = -1.0
+	}
+	self.positionDegStepSize = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(REFRESH_INTERVAL_NS) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
+	self.darkenStepSize = (1 / self.parameter.FadePct) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(REFRESH_INTERVAL_NS) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
+	self.lightenStepSize = 2 * self.parameter.Brightness * (float64(len(self.leds)) / float64(self.led_rows)) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(REFRESH_INTERVAL_NS) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
 }
 
 func (self *ModeRunningLed) Activate() {

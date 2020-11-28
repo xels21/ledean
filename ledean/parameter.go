@@ -13,6 +13,7 @@ type Parameter struct {
 	PressDoubleTimeout int    `json:"pressDoubleTimeout"`
 	LedCount           int    `json:"ledCount"`
 	LedRows            int    `json:"ledRows"`
+	DirectStart        bool   `json:"directStart"`
 	LogLevel           string `json:"logLevel"`
 	Path2Frontend      string `json:"path2Frontend"`
 	Address            string `json:"address"`
@@ -41,6 +42,7 @@ func GetParameter() *Parameter {
 	flag.IntVar(&parm.PressDoubleTimeout, "double_press_timeout", 350, "Time between single and double press")
 	flag.IntVar(&parm.LedCount, "led_count", 0, "Amount of leds")
 	flag.IntVar(&parm.LedRows, "led_rows", 1, "Amount of led rows")
+	flag.BoolVar(&parm.DirectStart, "direct_start", false, "Wheter the display of the LEDs should be activated on startup")
 	flag.StringVar(&parm.LogLevel, "log_level", "info", `log level. possibile: 
 	- panic
 	- fatal
