@@ -134,7 +134,9 @@ func (self *LedController) Restart() {
 
 func (self *LedController) NextMode() {
 	log.Info("nextMode")
-	self.modeController.DeactivateCurrentMode()
+	if self.active {
+		self.modeController.DeactivateCurrentMode()
+	}
 	self.modeController.NextMode()
 	// self.modeController.RandomizeCurrentMode()
 	if self.active {
@@ -144,7 +146,9 @@ func (self *LedController) NextMode() {
 
 func (self *LedController) Randomize() {
 	log.Info("Randomize")
-	self.modeController.DeactivateCurrentMode()
+	if self.active {
+		self.modeController.DeactivateCurrentMode()
+	}
 	self.modeController.RandomizeCurrentMode()
 	if self.active {
 		self.modeController.ActivateCurrentMode()

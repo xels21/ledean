@@ -1,0 +1,10 @@
+[Unit]
+Description=LEDean service
+
+[Service]
+Type=simple
+ExecStart=/home/pi/ledean/start.sh
+ExecStop=/home/pi/ledean/kill.sh
+
+[Install]
+WantedBy=multi-user.target
