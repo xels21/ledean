@@ -1,8 +1,8 @@
 package webserver
 
 import (
-	"LEDean/led"
 	"encoding/json"
+	"ledean/mode"
 	"net/http"
 	"strconv"
 
@@ -10,9 +10,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func MakeModeGetHandler(ledController *led.LedController) http.HandlerFunc {
+func MakeModeGetHandler(modeController *mode.ModeController) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		msg, err := json.Marshal(ledController.GetModeIndex())
+		msg, err := json.Marshal(modeController.GetIndex())
 		if err != nil {
 			msg = []byte{}
 		}
@@ -21,26 +21,26 @@ func MakeModeGetHandler(ledController *led.LedController) http.HandlerFunc {
 	}
 }
 
-func MakeModeHandler(ledController *led.LedController) http.HandlerFunc {
+func MakeModeHandler(modeController *mode.ModeController) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		modeStr := mux.Vars(r)["mode"]
 		msg := []byte{}
 		var err error
 		if modeStr == "resolver" {
-			msg, err = json.Marshal(ledController.GetModeResolver())
+			msg, err = json.Marshal(modeController.GetModeResolver())
 			if err != nil {
 				msg = []byte{}
 			}
 		} else if modeStr == "randomize" {
-			ledController.Randomize()
+			modeController.Randomize()
 		} else {
 			mode, err := strconv.Atoi(modeStr)
-			if err != nil || mode < 0 || mode > int(ledController.GetModeLength()) {
+			if err != nil || mode < 0 || mode > int(modeController.GetLength()) {
 				log.Info("Wrong mode: " + modeStr)
 			} else {
-				ledController.SwitchModeIndex(uint8(mode))
+				modeController.SwitchIndex(uint8(mode))
 
-				msg, err = json.Marshal(ledController.GetModeIndex())
+				msg, err = json.Marshal(modeController.GetIndex())
 				if err != nil {
 					msg = []byte{}
 				}

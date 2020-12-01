@@ -1,8 +1,9 @@
 package mode
 
 import (
-	"LEDean/led/color"
 	"encoding/json"
+	"ledean/color"
+	"ledean/display"
 	"math/rand"
 	"time"
 
@@ -12,8 +13,7 @@ import (
 
 type ModeSolidRainbow struct {
 	dbDriver    *scribble.Driver
-	leds        []color.RGB
-	cUpdate     *chan bool
+	display     *display.Display
 	parameter   ModeSolidRainbowParameter
 	limits      ModeSolidRainbowLimits
 	cExit       chan bool
@@ -33,11 +33,10 @@ type ModeSolidRainbowLimits struct {
 	MaxBrightness  float64 `json:"maxBrightness"`
 }
 
-func NewModeSolidRainbow(dbDriver *scribble.Driver, cUpdate *chan bool, leds []color.RGB) *ModeSolidRainbow {
+func NewModeSolidRainbow(dbDriver *scribble.Driver, display *display.Display) *ModeSolidRainbow {
 	self := ModeSolidRainbow{
 		dbDriver: dbDriver,
-		leds:     leds,
-		cUpdate:  cUpdate,
+		display:  display,
 		limits: ModeSolidRainbowLimits{
 			MinRoundTimeMs: 2000,   //2s
 			MaxRoundTimeMs: 300000, //5min
@@ -107,10 +106,8 @@ func (self *ModeSolidRainbow) renderLoop() {
 		self.parameter.Hsv.H -= 360.0
 	}
 	rgb = self.parameter.Hsv.ToRGB()
-	for i := 0; i < len(self.leds); i++ {
-		self.leds[i] = rgb
-	}
-	*self.cUpdate <- true
+	self.display.AllSolid(rgb)
+	self.display.Render()
 }
 
 func (self *ModeSolidRainbow) Deactivate() {

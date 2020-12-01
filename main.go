@@ -1,9 +1,9 @@
 package main
 
 import (
-	"LEDean/ledean"
 	"encoding/json"
 	"fmt"
+	"ledean/ledean"
 
 	log "github.com/sirupsen/logrus"
 )

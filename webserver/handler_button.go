@@ -1,19 +1,18 @@
 package webserver
 
 import (
-	"LEDean/led"
-	"LEDean/pi/button"
+	"ledean/pi/button"
 	"net/http"
 )
 
-func MakePressSingleHandler(ledController *led.LedController, piButton *button.PiButton) http.HandlerFunc {
+func MakePressSingleHandler(piButton *button.PiButton) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		piButton.PressSingle()
 		w.Write([]byte{})
 	}
 }
-func MakePressDoubleHandler(ledController *led.LedController, piButton *button.PiButton) http.HandlerFunc {
+func MakePressDoubleHandler(piButton *button.PiButton) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		piButton.PressDouble()
@@ -21,7 +20,7 @@ func MakePressDoubleHandler(ledController *led.LedController, piButton *button.P
 	}
 }
 
-func MakePressLongHandler(ledController *led.LedController, piButton *button.PiButton) http.HandlerFunc {
+func MakePressLongHandler(piButton *button.PiButton) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		piButton.PressLong()

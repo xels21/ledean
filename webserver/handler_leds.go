@@ -1,32 +1,32 @@
 package webserver
 
 import (
-	"LEDean/led"
 	"encoding/json"
+	"ledean/display"
 	"net/http"
 
 	"github.com/gorilla/mux"
 )
 
-func MakeGetLedHandler(ledController *led.LedController) http.HandlerFunc {
+func MakeGetLedHandler(display *display.Display) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(ledController.GetLedsJson())
+		w.Write(display.GetLedsJson())
 	}
 }
 
-func MakeLedHandler(ledController *led.LedController) http.HandlerFunc {
+func MakeLedHandler(display *display.Display) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		parameter := mux.Vars(r)["parameter"]
 		msg := []byte{}
 		var err error
 		if parameter == "count" {
-			msg, err = json.Marshal(ledController.GetLedCount())
+			msg, err = json.Marshal(display.GetLedCount())
 			if err != nil {
 				msg = []byte{}
 			}
 		} else if parameter == "rows" {
-			msg, err = json.Marshal(ledController.GetLedRows())
+			msg, err = json.Marshal(display.GetLedRows())
 			if err != nil {
 				msg = []byte{}
 			}

@@ -1,7 +1,7 @@
 package color_test
 
 import (
-	"LEDean/led/color"
+	"ledean/color"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

@@ -1,8 +1,9 @@
 package mode
 
 import (
-	"LEDean/led/color"
 	"encoding/json"
+	"ledean/color"
+	"ledean/display"
 	"math/rand"
 	"time"
 
@@ -12,16 +13,14 @@ import (
 
 type ModeTransitionRainbow struct {
 	dbDriver            *scribble.Driver
-	leds                []color.RGB
-	led_rows            int
-	led_per_row         int
-	cUpdate             *chan bool
+	display             *display.Display
 	parameter           ModeTransitionRainbowParameter
 	limits              ModeTransitionRainbowLimits
-	singleRowledsHSV    []color.HSV
+	cUpdate             *chan bool
+	cExit               chan bool
+	ledsHSV             []color.HSV
 	progressDeg         float64 //from 0.0 to 360.0
 	progressDegStepSize float64
-	cExit               chan bool
 
 	// stepSizeHue float64
 }
@@ -41,13 +40,10 @@ type ModeTransitionRainbowLimits struct {
 	MaxSpectrum    float64 `json:"maxSpectrum"`
 }
 
-func NewModeTransitionRainbow(dbDriver *scribble.Driver, cUpdate *chan bool, leds []color.RGB, led_rows int) *ModeTransitionRainbow {
+func NewModeTransitionRainbow(dbDriver *scribble.Driver, display *display.Display) *ModeTransitionRainbow {
 	self := ModeTransitionRainbow{
-		dbDriver:    dbDriver,
-		leds:        leds,
-		led_rows:    led_rows,
-		led_per_row: len(leds) / led_rows,
-		cUpdate:     cUpdate,
+		dbDriver: dbDriver,
+		display:  display,
 		limits: ModeTransitionRainbowLimits{
 			MinRoundTimeMs: 500,
 			MaxRoundTimeMs: 30000,
@@ -56,13 +52,13 @@ func NewModeTransitionRainbow(dbDriver *scribble.Driver, cUpdate *chan bool, led
 			MinSpectrum:    0.1,
 			MaxSpectrum:    2.0,
 		},
-		progressDeg: 0.0,
 		cExit:       make(chan bool, 1),
+		progressDeg: 0.0,
 	}
 
-	self.singleRowledsHSV = make([]color.HSV, self.led_per_row)
-	for i := 0; i < self.led_per_row; i++ {
-		self.singleRowledsHSV[i] = color.HSV{H: 0.0, S: 1.0, V: 0.0}
+	self.ledsHSV = make([]color.HSV, self.display.GetRowLedCount())
+	for i := 0; i < len(self.ledsHSV); i++ {
+		self.ledsHSV[i] = color.HSV{H: 0.0, S: 1.0, V: 0.0}
 	}
 
 	err := dbDriver.Read(self.GetFriendlyName(), "parameter", &self.parameter)
@@ -101,9 +97,9 @@ func (self *ModeTransitionRainbow) SetParameter(parm interface{}) {
 
 func (self *ModeTransitionRainbow) postSetParameter() {
 	self.progressDegStepSize = 360 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(REFRESH_INTERVAL_NS) / 1000 / 1000 / 1000)
-	for ri := 0; ri < self.led_per_row; ri++ {
-		self.singleRowledsHSV[ri].H = self.singleRowledsHSV[0].H + float64(ri)/float64(self.led_per_row)*self.parameter.Spectrum*360.0
-		self.singleRowledsHSV[ri].V = self.parameter.Brightness
+	for i := 0; i < len(self.ledsHSV); i++ {
+		self.ledsHSV[i].H = self.ledsHSV[0].H + float64(i)/float64(len(self.ledsHSV))*self.parameter.Spectrum*360.0
+		self.ledsHSV[i].V = self.parameter.Brightness
 	}
 }
 
@@ -125,28 +121,22 @@ func (self *ModeTransitionRainbow) Activate() {
 }
 
 func (self *ModeTransitionRainbow) renderLoop() {
-	for ri := 0; ri < len(self.leds)/self.led_rows; ri++ {
+	for i := 0; i < len(self.ledsHSV); i++ {
 		if !self.parameter.Reverse {
-			self.singleRowledsHSV[ri].H += self.progressDegStepSize
-			if self.singleRowledsHSV[ri].H > 360.0 {
-				self.singleRowledsHSV[ri].H -= 360.0
+			self.ledsHSV[i].H += self.progressDegStepSize
+			if self.ledsHSV[i].H > 360.0 {
+				self.ledsHSV[i].H -= 360.0
 			}
 		} else {
-			self.singleRowledsHSV[ri].H -= self.progressDegStepSize
-			if self.singleRowledsHSV[ri].H < 0.0 {
-				self.singleRowledsHSV[ri].H += 360.0
+			self.ledsHSV[i].H -= self.progressDegStepSize
+			if self.ledsHSV[i].H < 0.0 {
+				self.ledsHSV[i].H += 360.0
 			}
 		}
 	}
 
-	for r := 0; r < self.led_rows; r++ {
-		for ri := 0; ri < len(self.leds)/self.led_rows; ri++ {
-			i := r*self.led_per_row + ri
-			self.leds[i] = self.singleRowledsHSV[ri].ToRGB()
-		}
-	}
-
-	*self.cUpdate <- true
+	self.display.ApplySingleRowHSV(self.ledsHSV)
+	self.display.Render()
 }
 
 func (self *ModeTransitionRainbow) Deactivate() {

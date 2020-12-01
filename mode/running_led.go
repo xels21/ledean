@@ -1,8 +1,9 @@
 package mode
 
 import (
-	"LEDean/led/color"
 	"encoding/json"
+	"ledean/color"
+	"ledean/display"
 	"math"
 	"math/rand"
 	"time"
@@ -20,15 +21,11 @@ type RunningLedStyle string
 
 type ModeRunningLed struct {
 	dbDriver            *scribble.Driver
-	leds                []color.RGB
-	led_rows            int
-	led_per_row         int
-	cUpdate             *chan bool
+	display             *display.Display
 	parameter           ModeRunningLedParameter
 	limits              ModeRunningLedLimits
 	cExit               chan bool
-	ticker              time.Ticker
-	ledsSingleRowRGB    []color.RGB
+	ledsRGB             []color.RGB
 	activatedLeds       []float64
 	positionDeg         float64
 	positionDegStepSize float64
@@ -55,13 +52,10 @@ type ModeRunningLedLimits struct {
 	MaxFadePct     float64 `json:"maxFadePct"`
 }
 
-func NewModeRunningLed(dbDriver *scribble.Driver, cUpdate *chan bool, leds []color.RGB, led_rows int) *ModeRunningLed {
+func NewModeRunningLed(dbDriver *scribble.Driver, display *display.Display) *ModeRunningLed {
 	self := ModeRunningLed{
-		dbDriver:    dbDriver,
-		leds:        leds,
-		led_rows:    led_rows,
-		led_per_row: len(leds) / led_rows,
-		cUpdate:     cUpdate,
+		dbDriver: dbDriver,
+		display:  display,
 		limits: ModeRunningLedLimits{
 			MinRoundTimeMs: 1000,  //1s
 			MaxRoundTimeMs: 30000, //30s
@@ -70,10 +64,10 @@ func NewModeRunningLed(dbDriver *scribble.Driver, cUpdate *chan bool, leds []col
 			MinFadePct:     0.0,
 			MaxFadePct:     1.0,
 		},
-		positionDeg:      0.0,
-		ledsSingleRowRGB: make([]color.RGB, len(leds)/led_rows),
-		activatedLeds:    make([]float64, len(leds)/led_rows),
-		cExit:            make(chan bool, 1),
+		positionDeg:   0.0,
+		ledsRGB:       make([]color.RGB, display.GetRowLedCount()),
+		activatedLeds: make([]float64, display.GetRowLedCount()),
+		cExit:         make(chan bool, 1),
 	}
 
 	err := dbDriver.Read(self.GetFriendlyName(), "parameter", &self.parameter)
@@ -117,7 +111,7 @@ func (self *ModeRunningLed) postSetParameter() {
 	}
 	self.positionDegStepSize = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(REFRESH_INTERVAL_NS) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
 	self.darkenStepSize = (1 / self.parameter.FadePct) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(REFRESH_INTERVAL_NS) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
-	self.lightenStepSize = 2 * self.parameter.Brightness * (float64(len(self.leds)) / float64(self.led_rows)) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(REFRESH_INTERVAL_NS) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
+	self.lightenStepSize = 2 * self.parameter.Brightness * (float64(self.display.GetRowLedCount())) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(REFRESH_INTERVAL_NS) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
 }
 
 func (self *ModeRunningLed) Activate() {
@@ -190,17 +184,11 @@ func (self *ModeRunningLed) renderLoop() {
 		c.H = self.parameter.HueFrom + (self.hueDistanceFct * self.hueDistance * activatedLed)
 		// }
 		c.V = activatedLed
-		self.ledsSingleRowRGB[i] = c.ToRGB()
+		self.ledsRGB[i] = c.ToRGB()
 	}
 
-	for r := 0; r < self.led_rows; r++ {
-		for ri := 0; ri < len(self.leds)/self.led_rows; ri++ {
-			i := r*self.led_per_row + ri
-			self.leds[i] = self.ledsSingleRowRGB[ri]
-		}
-	}
-
-	*self.cUpdate <- true
+	self.display.ApplySingleRow(self.ledsRGB)
+	self.display.Render()
 }
 
 func (self *ModeRunningLed) AddRunningLed(position float64, speed float64) {

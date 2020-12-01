@@ -1,8 +1,9 @@
 package mode
 
 import (
-	"LEDean/led/color"
 	"encoding/json"
+	"ledean/color"
+	"ledean/display"
 	"math/rand"
 	"time"
 
@@ -12,26 +13,25 @@ import (
 
 type ModeSolid struct {
 	dbDriver  *scribble.Driver
+	display   *display.Display
 	parameter ModeSolidParameter
 	limits    ModeSolidLimits
-	leds      []color.RGB
-	cUpdate   *chan bool
 }
 
 type ModeSolidParameter struct {
 	RGB        color.RGB `json:"rgb"`
 	Brightness float64   `json:"brightness"`
 }
+
 type ModeSolidLimits struct {
 	MinBrightness float64 `json:"minBrightness"`
 	MaxBrightness float64 `json:"maxBrightness"`
 }
 
-func NewModeSolid(dbDriver *scribble.Driver, cUpdate *chan bool, leds []color.RGB) *ModeSolid {
+func NewModeSolid(dbDriver *scribble.Driver, display *display.Display) *ModeSolid {
 	self := ModeSolid{
 		dbDriver: dbDriver,
-		leds:     leds,
-		cUpdate:  cUpdate,
+		display:  display,
 		limits: ModeSolidLimits{
 			MinBrightness: 0.0,
 			MaxBrightness: 1.0,
@@ -83,11 +83,8 @@ func (self *ModeSolid) Activate() {
 		B: uint8(float64(self.parameter.RGB.B) * self.parameter.Brightness),
 	}
 
-	for i := 0; i < len(self.leds); i++ {
-		self.leds[i] = rgb
-	}
-	*self.cUpdate <- true
-
+	self.display.AllSolid(rgb)
+	self.display.Render()
 }
 func (self *ModeSolid) Deactivate() {
 }

@@ -1,9 +1,9 @@
 package webserver
 
 import (
-	"LEDean/led"
-	"LEDean/led/mode"
-	"LEDean/pi/button"
+	"ledean/display"
+	"ledean/mode"
+	"ledean/pi/button"
 	"log"
 	"net/http"
 	"strconv"
@@ -12,7 +12,7 @@ import (
 	"github.com/rs/cors"
 )
 
-func Start(addr string, port int, path2Frontend string, ledController *led.LedController, piButton *button.PiButton) {
+func Start(addr string, port int, path2Frontend string, display *display.Display, modeController *mode.ModeController, piButton *button.PiButton) {
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
 		// AllowedOrigins: []string{"http://127.0.0.1*", "http://localhost*"},
@@ -21,30 +21,31 @@ func Start(addr string, port int, path2Frontend string, ledController *led.LedCo
 	})
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/leds", MakeGetLedHandler(ledController)).Methods("GET")
-	router.HandleFunc("/leds/{parameter}", MakeLedHandler(ledController)).Methods("GET")
-	router.HandleFunc("/leds_rows", MakeGetLedHandler(ledController)).Methods("GET")
-	router.HandleFunc("/press_single", MakePressSingleHandler(ledController, piButton))
-	router.HandleFunc("/press_double", MakePressDoubleHandler(ledController, piButton))
-	router.HandleFunc("/press_long", MakePressLongHandler(ledController, piButton))
-	router.HandleFunc("/mode/", MakeModeGetHandler(ledController))
-	router.HandleFunc("/mode/{mode}", MakeModeHandler(ledController))
+	router.HandleFunc("/leds", MakeGetLedHandler(display)).Methods("GET")
+	router.HandleFunc("/leds/{parameter}", MakeLedHandler(display)).Methods("GET")
 
-	router.HandleFunc("/"+(mode.ModeSolid).GetFriendlyName(mode.ModeSolid{}), MakeGetModeSolidHandler(ledController)).Methods("GET")
-	router.HandleFunc("/"+(mode.ModeSolid).GetFriendlyName(mode.ModeSolid{}), MakeModeSolidHandler(ledController)).Methods("POST")
-	router.HandleFunc("/"+(mode.ModeSolid).GetFriendlyName(mode.ModeSolid{})+"/limits", MakeGetModeSolidLimitsHandler(ledController)).Methods("GET")
+	router.HandleFunc("/press_single", MakePressSingleHandler(piButton))
+	router.HandleFunc("/press_double", MakePressDoubleHandler(piButton))
+	router.HandleFunc("/press_long", MakePressLongHandler(piButton))
 
-	router.HandleFunc("/"+(mode.ModeSolidRainbow).GetFriendlyName(mode.ModeSolidRainbow{}), MakeGetModeSolidRainbowHandler(ledController)).Methods("GET")
-	router.HandleFunc("/"+(mode.ModeSolidRainbow).GetFriendlyName(mode.ModeSolidRainbow{}), MakeModeSolidRainbowHandler(ledController)).Methods("POST")
-	router.HandleFunc("/"+(mode.ModeSolidRainbow).GetFriendlyName(mode.ModeSolidRainbow{})+"/limits", MakeGetModeSolidRainbowLimitsHandler(ledController)).Methods("GET")
+	router.HandleFunc("/mode/", MakeModeGetHandler(modeController))
+	router.HandleFunc("/mode/{mode}", MakeModeHandler(modeController))
 
-	router.HandleFunc("/"+(mode.ModeTransitionRainbow).GetFriendlyName(mode.ModeTransitionRainbow{}), MakeGetModeTransitionRainbowHandler(ledController)).Methods("GET")
-	router.HandleFunc("/"+(mode.ModeTransitionRainbow).GetFriendlyName(mode.ModeTransitionRainbow{}), MakeModeTransitionRainbowHandler(ledController)).Methods("POST")
-	router.HandleFunc("/"+(mode.ModeTransitionRainbow).GetFriendlyName(mode.ModeTransitionRainbow{})+"/limits", MakeGetModeTransitionRainbowLimitsHandler(ledController)).Methods("GET")
+	router.HandleFunc("/"+(mode.ModeSolid).GetFriendlyName(mode.ModeSolid{}), MakeGetModeSolidHandler(modeController)).Methods("GET")
+	router.HandleFunc("/"+(mode.ModeSolid).GetFriendlyName(mode.ModeSolid{}), MakeModeSolidHandler(modeController)).Methods("POST")
+	router.HandleFunc("/"+(mode.ModeSolid).GetFriendlyName(mode.ModeSolid{})+"/limits", MakeGetModeSolidLimitsHandler(modeController)).Methods("GET")
 
-	router.HandleFunc("/"+(mode.ModeRunningLed).GetFriendlyName(mode.ModeRunningLed{}), MakeGetModeRunningLedHandler(ledController)).Methods("GET")
-	router.HandleFunc("/"+(mode.ModeRunningLed).GetFriendlyName(mode.ModeRunningLed{}), MakeModeRunningLedHandler(ledController)).Methods("POST")
-	router.HandleFunc("/"+(mode.ModeRunningLed).GetFriendlyName(mode.ModeRunningLed{})+"/limits", MakeGetModeRunningLedLimitsHandler(ledController)).Methods("GET")
+	router.HandleFunc("/"+(mode.ModeSolidRainbow).GetFriendlyName(mode.ModeSolidRainbow{}), MakeGetModeSolidRainbowHandler(modeController)).Methods("GET")
+	router.HandleFunc("/"+(mode.ModeSolidRainbow).GetFriendlyName(mode.ModeSolidRainbow{}), MakeModeSolidRainbowHandler(modeController)).Methods("POST")
+	router.HandleFunc("/"+(mode.ModeSolidRainbow).GetFriendlyName(mode.ModeSolidRainbow{})+"/limits", MakeGetModeSolidRainbowLimitsHandler(modeController)).Methods("GET")
+
+	router.HandleFunc("/"+(mode.ModeTransitionRainbow).GetFriendlyName(mode.ModeTransitionRainbow{}), MakeGetModeTransitionRainbowHandler(modeController)).Methods("GET")
+	router.HandleFunc("/"+(mode.ModeTransitionRainbow).GetFriendlyName(mode.ModeTransitionRainbow{}), MakeModeTransitionRainbowHandler(modeController)).Methods("POST")
+	router.HandleFunc("/"+(mode.ModeTransitionRainbow).GetFriendlyName(mode.ModeTransitionRainbow{})+"/limits", MakeGetModeTransitionRainbowLimitsHandler(modeController)).Methods("GET")
+
+	router.HandleFunc("/"+(mode.ModeRunningLed).GetFriendlyName(mode.ModeRunningLed{}), MakeGetModeRunningLedHandler(modeController)).Methods("GET")
+	router.HandleFunc("/"+(mode.ModeRunningLed).GetFriendlyName(mode.ModeRunningLed{}), MakeModeRunningLedHandler(modeController)).Methods("POST")
+	router.HandleFunc("/"+(mode.ModeRunningLed).GetFriendlyName(mode.ModeRunningLed{})+"/limits", MakeGetModeRunningLedLimitsHandler(modeController)).Methods("GET")
 
 	if path2Frontend != "" {
 		router.PathPrefix("/").Handler(http.FileServer(http.Dir(path2Frontend)))

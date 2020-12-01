@@ -1,17 +1,16 @@
 package webserver
 
 import (
-	"LEDean/led"
-	"LEDean/led/mode"
 	"encoding/json"
 	"io/ioutil"
+	"ledean/mode"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
 )
 
-func MakeGetModeSolidRainbowHandler(ledController *led.LedController) http.HandlerFunc {
-	mode, err := ledController.GetModeRef((mode.ModeSolidRainbow).GetFriendlyName(mode.ModeSolidRainbow{}))
+func MakeGetModeSolidRainbowHandler(modeController *mode.ModeController) http.HandlerFunc {
+	mode, err := modeController.GetModeRef((mode.ModeSolidRainbow).GetFriendlyName(mode.ModeSolidRainbow{}))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -23,8 +22,8 @@ func MakeGetModeSolidRainbowHandler(ledController *led.LedController) http.Handl
 	}
 }
 
-func MakeModeSolidRainbowHandler(ledController *led.LedController) http.HandlerFunc {
-	modeSolid, err := ledController.GetModeRef((mode.ModeSolidRainbow).GetFriendlyName(mode.ModeSolidRainbow{}))
+func MakeModeSolidRainbowHandler(modeController *mode.ModeController) http.HandlerFunc {
+	modeSolid, err := modeController.GetModeRef((mode.ModeSolidRainbow).GetFriendlyName(mode.ModeSolidRainbow{}))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -47,7 +46,7 @@ func MakeModeSolidRainbowHandler(ledController *led.LedController) http.HandlerF
 		}
 
 		(*modeSolid).SetParameter(modeSolidRainbowParameter)
-		ledController.Restart()
+		modeController.Restart()
 
 		msg := []byte{}
 
@@ -56,8 +55,8 @@ func MakeModeSolidRainbowHandler(ledController *led.LedController) http.HandlerF
 	}
 }
 
-func MakeGetModeSolidRainbowLimitsHandler(ledController *led.LedController) http.HandlerFunc {
-	mode, err := ledController.GetModeRef((mode.ModeSolidRainbow).GetFriendlyName(mode.ModeSolidRainbow{}))
+func MakeGetModeSolidRainbowLimitsHandler(modeController *mode.ModeController) http.HandlerFunc {
+	mode, err := modeController.GetModeRef((mode.ModeSolidRainbow).GetFriendlyName(mode.ModeSolidRainbow{}))
 	if err != nil {
 		log.Fatal(err)
 	}

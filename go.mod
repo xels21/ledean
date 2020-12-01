@@ -1,4 +1,4 @@
-module LEDean
+module ledean
 
 go 1.15
 
