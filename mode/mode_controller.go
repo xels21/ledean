@@ -101,11 +101,11 @@ func (self *ModeController) SwitchIndex(index uint8) {
 	resume := self.active
 
 	if self.active {
-		self.Stop()
+		self.DeactivateCurrentMode()
 	}
 	self.SetIndex(index)
 	if resume {
-		self.Start()
+		self.ActivateCurrentMode()
 	}
 }
 

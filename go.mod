@@ -9,8 +9,9 @@ require (
 	github.com/lucasb-eyer/go-colorful v1.0.3
 	github.com/rs/cors v1.7.0
 	github.com/sdomino/scribble v0.0.0-20200707180004-3cc68461d505
-	github.com/sirupsen/logrus v1.7.0
+	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/objx v0.3.0 // indirect
 	github.com/stretchr/testify v1.5.1
-	periph.io/x/periph v3.6.4+incompatible
+	golang.org/x/sys v0.0.0-20210309074719-68d13333faf2 // indirect
+	periph.io/x/periph v3.6.7+incompatible
 )

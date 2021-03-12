@@ -2,6 +2,8 @@ package ledean
 
 import (
 	"flag"
+	"regexp"
+	"strconv"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -19,6 +21,7 @@ type Parameter struct {
 	Address            string `json:"address"`
 	Port               int    `json:"port"`
 	Path2DB            string `json:"path2Db"`
+	ReverseRows        string `json:"reverseRows"`
 
 	// PathToDB       string
 	// Pw             string
@@ -55,6 +58,7 @@ func GetParameter() *Parameter {
 	flag.StringVar(&parm.Address, "address", "127.0.0.1", "Local adress. Set it to '' to make the interface globally adressable")
 	flag.IntVar(&parm.Port, "port", 2211, "Port for webserver")
 	flag.StringVar(&parm.Path2DB, "path2db", "db", "Path to DB folder (folder with json files)")
+	flag.StringVar(&parm.ReverseRows, "reverse_rows", "", "defines, which rows should be reversed (e.g. if second row is reversed: 0,1,0,0")
 	// pathToDB := flag.String("db", "../db", "Path to database folder")
 	// pw := flag.String("pw", "", "Generate pw for user management")
 	// pathToFrontEnd := flag.String("frontend", "../FrontRbc", "Path to frontend folder.\n"+
@@ -69,6 +73,9 @@ func (self *Parameter) Check() {
 	}
 	if self.LedCount%self.LedRows != 0 {
 		log.Panic("Error in parameter 'led_count' and 'led_rows'\n  - Amount of led have to be equal to each row (e.g. led_count:20, led_rows:2, => 10 leds per row")
+	}
+	if !regexp.MustCompile("^(([01]?)|([01](,[01]){0," + strconv.Itoa(self.LedRows-1) + "}))$").Match([]byte(self.ReverseRows)) {
+		log.Panic("Reverse Rows are set in a wrong way")
 	}
 
 }

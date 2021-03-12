@@ -33,7 +33,7 @@ func Run(parm *Parameter) *LEDeanInstance {
 	self.piButton = button.NewPiButton(parm.GpioButton, parm.PressLongMs, parm.PressDoubleTimeout)
 	self.piButton.Register()
 
-	self.display = display.NewDisplay(parm.LedCount, parm.LedRows, parm.SpiInfo)
+	self.display = display.NewDisplay(parm.LedCount, parm.LedRows, parm.SpiInfo, parm.ReverseRows)
 	self.modeController = mode.NewModeController(self.dbDriver, self.display, self.piButton)
 
 	self.piButton.AddCbPressSingle(func() { log.Info("PRESS_SINGLE") })

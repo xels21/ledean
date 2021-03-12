@@ -4,27 +4,41 @@ import (
 	"encoding/json"
 	"ledean/color"
 	"ledean/pi/ws28x"
+	"strings"
 )
 
 type Display struct {
-	led_count        int
-	led_rows         int
-	leds_per_row     int
-	piWs28xConnector *ws28x.PiWs28xConnector
-	leds             []color.RGB
-	buffer           []byte
+	led_count            int
+	led_rows             int
+	leds_per_row         int
+	singleRowRGB         []color.RGB
+	reversedSingleRowRGB []color.RGB
+	reverse_rows         []bool
+	piWs28xConnector     *ws28x.PiWs28xConnector
+	leds                 []color.RGB
+	buffer               []byte
 	// active           bool
 	// modeController *mode.ModeController //[]mode.Mode
 }
 
-func NewDisplay(led_count int, led_rows int, spiInfo string) *Display {
+func NewDisplay(led_count int, led_rows int, spiInfo string, reverse_rows_raw string) *Display {
 	self := Display{
-		led_count:    led_count,
-		led_rows:     led_rows,
-		leds_per_row: led_count / led_rows,
-		leds:         make([]color.RGB, led_count),
-		buffer:       make([]byte, 9*led_count),
+		led_count:            led_count,
+		led_rows:             led_rows,
+		leds_per_row:         led_count / led_rows,
+		singleRowRGB:         make([]color.RGB, led_count/led_rows),
+		reversedSingleRowRGB: make([]color.RGB, led_count/led_rows),
+		reverse_rows:         make([]bool, led_rows),
+		leds:                 make([]color.RGB, led_count),
+		buffer:               make([]byte, 9*led_count),
 		// active:    false,
+	}
+
+	reverse_rows_arr := strings.Split(reverse_rows_raw, ",")
+	for i := 0; i < len(reverse_rows_arr); i++ {
+		if reverse_rows_arr[i] == "1" {
+			self.reverse_rows[i] = true
+		}
 	}
 
 	self.piWs28xConnector = ws28x.NewPiWs28xConnector(spiInfo)
@@ -78,20 +92,37 @@ func (self *Display) GetLedsJson() []byte {
 	}
 	return msg
 }
-func (self *Display) ApplySingleRow(singleRow []color.RGB) {
+
+func reverseRgb(fromRGBs []color.RGB, toRGBs []color.RGB) {
+	for i, j := 0, len(fromRGBs)-1; i < j; i, j = i+1, j-1 {
+		toRGBs[i], toRGBs[j] = fromRGBs[j], fromRGBs[i]
+	}
+}
+
+func (self *Display) applySingleRow() {
+	var usedRow *[]color.RGB
+	reverseRgb(self.singleRowRGB, self.reversedSingleRowRGB)
 	for r := 0; r < self.led_rows; r++ {
+		if self.reverse_rows[r] {
+			usedRow = &self.reversedSingleRowRGB
+		} else {
+			usedRow = &self.singleRowRGB
+		}
 		for ri := 0; ri < self.leds_per_row; ri++ {
 			i := r*self.leds_per_row + ri
-			self.leds[i] = singleRow[ri]
+			self.leds[i] = (*usedRow)[ri]
 		}
 	}
 }
+func (self *Display) ApplySingleRowRGB(singleRow []color.RGB) {
+	self.singleRowRGB = singleRow
+	self.applySingleRow()
+}
 func (self *Display) ApplySingleRowHSV(singleRow []color.HSV) {
-	singleRowRGB := make([]color.RGB, len(singleRow))
 	for i := 0; i < len(singleRow); i++ {
-		singleRowRGB[i] = singleRow[i].ToRGB()
+		self.singleRowRGB[i] = singleRow[i].ToRGB()
 	}
-	self.ApplySingleRow(singleRowRGB)
+	self.applySingleRow()
 }
 
 func (self *Display) Render() {

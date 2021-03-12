@@ -187,7 +187,7 @@ func (self *ModeRunningLed) renderLoop() {
 		self.ledsRGB[i] = c.ToRGB()
 	}
 
-	self.display.ApplySingleRow(self.ledsRGB)
+	self.display.ApplySingleRowRGB(self.ledsRGB)
 	self.display.Render()
 }
 
