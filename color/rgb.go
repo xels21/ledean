@@ -1,8 +1,8 @@
 package color
 
 import (
-	"ledean/helper"
 	"encoding/json"
+	"ledean/helper"
 	"math"
 )
 
@@ -63,7 +63,7 @@ func rgb2hue(r float64, b float64, g float64, maxC float64, minC float64) float6
 }
 
 func (self *RGB) ToSpi() []byte {
-	return []byte{self.G, self.R, self.B}
+	return []byte{self.R, self.G, self.B}
 }
 
 func (self *RGB) Add(toAdd RGB) {

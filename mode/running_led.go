@@ -109,14 +109,14 @@ func (self *ModeRunningLed) postSetParameter() {
 	if self.parameter.HueFrom > self.parameter.HueTo {
 		self.hueDistanceFct = -1.0
 	}
-	self.positionDegStepSize = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(REFRESH_INTERVAL_NS) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
-	self.darkenStepSize = (1 / self.parameter.FadePct) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(REFRESH_INTERVAL_NS) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
-	self.lightenStepSize = 2 * self.parameter.Brightness * (float64(self.display.GetRowLedCount())) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(REFRESH_INTERVAL_NS) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
+	self.positionDegStepSize = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(FPS80) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
+	self.darkenStepSize = (1 / self.parameter.FadePct) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(FPS80) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
+	self.lightenStepSize = 2 * self.parameter.Brightness * (float64(self.display.GetRowLedCount())) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(FPS80) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
 }
 
 func (self *ModeRunningLed) Activate() {
 	log.Debugf("start "+self.GetFriendlyName()+" with:\n %s\n", self.GetParameterJson())
-	ticker := time.NewTicker(REFRESH_INTERVAL_NS)
+	ticker := time.NewTicker(FPS80)
 
 	go func() {
 		for {
@@ -143,17 +143,8 @@ func (self *ModeRunningLed) darkenLeds() {
 	}
 }
 
-func (self *ModeRunningLed) renderLoop() {
-
-	self.positionDeg += self.positionDegStepSize
-	if self.positionDeg >= 360.0 {
-		self.positionDeg -= 360.0
-	}
-
-	self.darkenLeds()
-
+func (self *ModeRunningLed) getActiveLedIdx() int {
 	var activeLedIdx int
-
 	switch self.parameter.Style {
 	case RunningLedStyleLinear:
 		position := self.positionDeg / 180.0
@@ -161,16 +152,28 @@ func (self *ModeRunningLed) renderLoop() {
 			position = 2.0 - position
 		}
 		activeLedIdx = int(position * float64(len(self.activatedLeds)))
-
 		break
 	case RunningLedStyleTrigonometric:
 		activeLedIdx = int(((math.Cos((self.positionDeg+180.0)*math.Pi/180.0) + 1.0) / 2) * float64(len(self.activatedLeds)))
 		break
 	}
+	return activeLedIdx
+}
 
-	if self.activatedLeds[activeLedIdx] != 0.0 {
-		self.activatedLeds[activeLedIdx] += self.darkenStepSize
+func (self *ModeRunningLed) stepForward() {
+	self.positionDeg += self.positionDegStepSize
+	if self.positionDeg >= 360.0 {
+		self.positionDeg -= 360.0
 	}
+}
+
+func (self *ModeRunningLed) renderLoop() {
+	self.stepForward()
+	activeLedIdx := self.getActiveLedIdx()
+	//prevent darken active led while lighning it up
+	self.activatedLeds[activeLedIdx] += self.darkenStepSize
+	self.darkenLeds()
+
 	self.activatedLeds[activeLedIdx] += self.lightenStepSize
 	if self.activatedLeds[activeLedIdx] > 1.0 {
 		self.activatedLeds[activeLedIdx] = 1.0
