@@ -22,3 +22,34 @@
                       _-39-|O O|-40-----GPIO21
                            '---'
                        40W 0.1" PIN HDR
+
+
+
+
+
+
+// WRONG (for now)
+// IGNORE THIS!
+Raspberry Pi Zero (J8 Header)
+                           .---.
+                 3.3v----1-|O O|--2--5v
+     (SDA1 I2C) GPIO8----3-|O O|--4--5v
+     (SCL1 I2C) GPIO9----5-|O O|--6--Gnd
+                GPIO7----7-|O O|--8--GPIO15
+                  Gnd----9-|O O|-10--GPIO16
+                GPIO0---11-|O O|-12--GPIO1
+                GPIO2---13-|O O|-14--Gnd
+                GPIO3---15-|O O|-16--GPIO4
+                  3.3v--17-|O O|-18--GPIO5
+     (MOSI SPI) GPIO12--19-|O O|-20--Gnd
+     (MISO SPI) GPIO13--21-|O O|-22--GPIO6
+     (SCLK SPI) GPIO14--23-|O O|-24--GPIO10
+                   Gnd--25-|O O|-26--GPIO11
+                  SDA0--27-|O O|-28--GPIO31
+                GPIO21--29-|O O|-30--Gnd
+                GPIO22--31-|O O|-32--GPIO26
+                GPIO23--33-|O O|-34--Gnd
+                GPIO24--35-|O O|-36--GPIO27
+                GPIO25--37-|O O|-38--GPIO28
+                   Gnd--39-|O O|-40--GPIO29
+                           `---´

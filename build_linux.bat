@@ -3,7 +3,10 @@
 @REM set GOARCH=arm64
 set GOARCH=arm
 set GOOS=linux
-set GOARM=7
+@REM Pi 4
+@REM set GOARM=7
+@REM Pi Zero
+set GOARM=6
 
 echo building for: %GOOS%(%GOARCH%)...
 

@@ -22,7 +22,7 @@ func (self *PiWs28xConnector) Connect(ledCount int) error {
 	opts := &nrzled.Opts{
 		Channels:  3,
 		NumPixels: ledCount,
-		Freq:      2500 * physic.KiloHertz, //should be 800khz...
+		Freq:      2500 * physic.KiloHertz, //should be 3*800khz...
 
 	}
 	var dev *nrzled.Dev
