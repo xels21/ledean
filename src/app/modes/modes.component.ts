@@ -3,10 +3,6 @@ import { ModesService } from './modes.service'
 import { HttpClient } from '@angular/common/http';
 import { REST_RANDOMIZE_URL } from '../config/const';
 
-import * as M from 'materialize-css';
-import * as $ from "jquery";
-// import $ from "jquery";
-
 @Component({
   selector: 'app-modes',
   templateUrl: './modes.component.html',
