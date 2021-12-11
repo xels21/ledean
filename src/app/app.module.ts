@@ -17,6 +17,7 @@ import { ModeSolidComponent } from './modes/mode-solid/mode-solid.component';
 import { ModeSolidRainbowComponent } from './modes/mode-solid-rainbow/mode-solid-rainbow.component';
 import { ModeRunningLedComponent } from './modes/mode-running-led/mode-running-led.component';
 import { ModeTransitionRainbowComponent } from './modes/mode-transition-rainbow/mode-transition-rainbow.component';
+import { ModeEmitterComponent } from './modes/mode-emitter/mode-emitter.component';
 
 @NgModule({
   imports: [
@@ -33,7 +34,8 @@ import { ModeTransitionRainbowComponent } from './modes/mode-transition-rainbow/
     ModeSolidComponent,
     ModeSolidRainbowComponent,
     ModeRunningLedComponent,
-    ModeTransitionRainbowComponent
+    ModeTransitionRainbowComponent,
+    ModeEmitterComponent
   ],
   providers: [
     LedsService,

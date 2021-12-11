@@ -1,0 +1,4 @@
+
+<div *ngIf="modeEmitterParameter && modeEmitterLimits" class="row">
+<input type="range" [min]="modeEmitterLimits.minEmitCount" [max]="modeEmitterLimits.maxEmitCount" step="1" (change)="setModeEmitterParameter()" [(ngModel)]="modeEmitterParameter.emitCount" />
+</div>

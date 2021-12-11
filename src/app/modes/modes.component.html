@@ -4,14 +4,14 @@
     <div class="col s12">
       <ul class="tabs">
         <!-- <li class="tab col s3"><a href="#ModeSolid" [ngClass]="{'active': modesService.isActive('ModeSolid')}" (click)="modesService.switchState('ModeSolid')">Solid</a> -->
-        <li class="tab col s3"><a href="#ModeSolid" (click)="modesService.switchState('ModeSolid')">Solid</a>
-        </li>
-        <li class="tab col s3"><a href="#ModeSolidRainbow"
+        <li class="tab col "><a href="#ModeSolid" (click)="modesService.switchState('ModeSolid')">Solid</a></li>
+        <li class="tab col "><a href="#ModeSolidRainbow"
             (click)="modesService.switchState('ModeSolidRainbow')">RainbowSolid</a></li>
-        <li class="tab col s3"><a href="#ModeTransitionRainbow"
+        <li class="tab col "><a href="#ModeTransitionRainbow"
             (click)="modesService.switchState('ModeTransitionRainbow')">TransitionRainbow</a></li>
-        <li class="tab col s3"><a href="#ModeRunningLed"
+        <li class="tab col "><a href="#ModeRunningLed"
             (click)="modesService.switchState('ModeRunningLed')">RunningLed</a></li>
+        <li class="tab col "><a href="#ModeEmitter" (click)="modesService.switchState('ModeEmitter')">Emitter</a></li>
       </ul>
     </div>
     <div id="ModeSolid" class="col s12">
@@ -25,6 +25,9 @@
     </div>
     <div id="ModeRunningLed" class="col s12">
       <app-mode-running-led></app-mode-running-led>
+    </div>
+    <div id="ModeEmitter" class="col s12">
+      <app-mode-emitter></app-mode-emitter>
     </div>
   </div>
 
