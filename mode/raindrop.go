@@ -80,7 +80,7 @@ package mode
 // 		cExit:            make(chan bool, 1),
 // 	}
 
-// 	err := dbDriver.Read(self.GetFriendlyName(), "parameter", &self.parameter)
+// 	err := dbDriver.Read(self.GetName(), "parameter", &self.parameter)
 // 	if err != nil {
 // 		self.Randomize()
 // 	} else {
@@ -90,7 +90,7 @@ package mode
 // 	return &self
 // }
 
-// func (ModeRaindrop) GetFriendlyName() string {
+// func (ModeRaindrop) GetName() string {
 // 	return "ModeRaindrop"
 // }
 
@@ -104,11 +104,11 @@ package mode
 // 	return msg
 // }
 
-// func (self *ModeRaindrop) SetParameter(parm interface{}) {
+// func (self *ModeRaindrop) setParameter(parm interface{}) {
 // 	switch parm.(type) {
 // 	case ModeRaindropParameter:
 // 		self.parameter = parm.(ModeRaindropParameter)
-// 		self.dbDriver.Write(self.GetFriendlyName(), "parameter", self.parameter)
+// 		self.dbDriver.Write(self.GetName(), "parameter", self.parameter)
 // 		self.postSetParameter()
 // 	}
 // }
@@ -119,14 +119,14 @@ package mode
 // 	if self.parameter.HueFrom > self.parameter.HueTo {
 // 		self.hueDistanceFct = -1.0
 // 	}
-// 	self.positionDegStepSize = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(REFRESH_INTERVAL_NS) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
-// 	self.darkenStepSize = (1 / self.parameter.FadePct) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(REFRESH_INTERVAL_NS) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
-// 	self.lightenStepSize = 2 * self.parameter.Brightness * (float64(len(self.leds)) / float64(self.led_rows)) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(REFRESH_INTERVAL_NS) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
+// 	self.positionDegStepSize = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(RefreshIntervalNs) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
+// 	self.darkenStepSize = (1 / self.parameter.FadePct) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(RefreshIntervalNs) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
+// 	self.lightenStepSize = 2 * self.parameter.Brightness * (float64(len(self.leds)) / float64(self.led_rows)) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(RefreshIntervalNs) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
 // }
 
 // func (self *ModeRaindrop) Activate() {
-// 	log.Debugf("start "+self.GetFriendlyName()+" with:\n %s\n", self.GetParameterJson())
-// 	ticker := time.NewTicker(REFRESH_INTERVAL_NS)
+// 	log.Debugf("start "+self.GetName()+" with:\n %s\n", self.GetParameterJson())
+// 	ticker := time.NewTicker(RefreshIntervalNs)
 
 // 	go func() {
 // 		for {
@@ -218,7 +218,7 @@ package mode
 // func (self *ModeRaindrop) Randomize() {
 // 	rand.Seed(time.Now().UnixNano())
 
-// 	self.SetParameter(ModeRaindropParameter{
+// 	self.setParameter(ModeRaindropParameter{
 // 		Brightness:  rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
 // 		FadePct:     rand.Float64()*(self.limits.MaxFadePct-self.limits.MinFadePct) + self.limits.MinFadePct,
 // 		HueFrom:     rand.Float64() * 360.0,

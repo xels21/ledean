@@ -8,16 +8,12 @@ import (
 	"time"
 
 	"github.com/sdomino/scribble"
-	log "github.com/sirupsen/logrus"
 )
 
 type ModeSolidRainbow struct {
-	dbDriver    *scribble.Driver
-	display     *display.Display
+	ModeSuper
 	parameter   ModeSolidRainbowParameter
 	limits      ModeSolidRainbowLimits
-	cExit       chan bool
-	hsv         color.HSV
 	stepSizeHue float64
 }
 
@@ -35,18 +31,17 @@ type ModeSolidRainbowLimits struct {
 
 func NewModeSolidRainbow(dbDriver *scribble.Driver, display *display.Display) *ModeSolidRainbow {
 	self := ModeSolidRainbow{
-		dbDriver: dbDriver,
-		display:  display,
 		limits: ModeSolidRainbowLimits{
 			MinRoundTimeMs: 2000,   //2s
 			MaxRoundTimeMs: 300000, //5min
 			MinBrightness:  0.1,
 			MaxBrightness:  1.0,
 		},
-		cExit: make(chan bool, 1),
 	}
 
-	err := dbDriver.Read(self.GetFriendlyName(), "parameter", &self.parameter)
+	self.ModeSuper = *NewModeSuper(dbDriver, display, "ModeSolidRainbow", RenderTypeDynamic, self.calcDisplay)
+
+	err := dbDriver.Read(self.GetName(), "parameter", &self.parameter)
 	if err != nil {
 		self.Randomize()
 	} else {
@@ -56,50 +51,33 @@ func NewModeSolidRainbow(dbDriver *scribble.Driver, display *display.Display) *M
 	return &self
 }
 
-func (ModeSolidRainbow) GetFriendlyName() string {
-	return "ModeSolidRainbow"
-}
+func (self *ModeSolidRainbow) GetParameter() interface{} { return &self.parameter }
+func (self *ModeSolidRainbow) GetLimits() interface{}    { return &self.limits }
 
-func (self *ModeSolidRainbow) GetParameterJson() []byte {
-	msg, _ := json.Marshal(self.parameter)
-	return msg
-}
+func (self *ModeSolidRainbow) TrySetParameter(b []byte) error {
+	var tempPar ModeSolidRainbowParameter
+	err := json.Unmarshal(b, &tempPar)
 
-func (self *ModeSolidRainbow) GetLimitsJson() []byte {
-	msg, _ := json.Marshal(self.limits)
-	return msg
-}
-
-func (self *ModeSolidRainbow) SetParameter(parm interface{}) {
-	switch parm.(type) {
-	case ModeSolidRainbowParameter:
-		self.parameter = parm.(ModeSolidRainbowParameter)
-		self.dbDriver.Write(self.GetFriendlyName(), "parameter", self.parameter)
-		self.postSetParameter()
+	if err != nil {
+		return err
 	}
+
+	self.setParameter(tempPar)
+	return nil
 }
+
+func (self *ModeSolidRainbow) setParameter(parm ModeSolidRainbowParameter) {
+	self.parameter = parm
+	self.dbDriver.Write(self.GetName(), "parameter", self.parameter)
+	self.postSetParameter()
+}
+
 func (self *ModeSolidRainbow) postSetParameter() {
 	self.parameter.Hsv.V = self.parameter.Brightness
-	self.stepSizeHue = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(REFRESH_INTERVAL_NS) / 1000 / 1000 / 1000)
+	self.stepSizeHue = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(RefreshIntervalNs) / 1000 / 1000 / 1000)
 }
 
-func (self *ModeSolidRainbow) Activate() {
-	log.Debugf("start "+self.GetFriendlyName()+" with:\n %s\n", self.GetParameterJson())
-	ticker := time.NewTicker(REFRESH_INTERVAL_NS)
-
-	go func() {
-		for {
-			select {
-			case <-self.cExit:
-				ticker.Stop()
-				return
-			case <-ticker.C:
-				self.renderLoop()
-			}
-		}
-	}()
-}
-func (self *ModeSolidRainbow) renderLoop() {
+func (self *ModeSolidRainbow) calcDisplay() {
 	rgb := color.RGB{}
 	self.parameter.Hsv.H += self.stepSizeHue
 	for self.parameter.Hsv.H > 360.0 {
@@ -107,16 +85,11 @@ func (self *ModeSolidRainbow) renderLoop() {
 	}
 	rgb = self.parameter.Hsv.ToRGB()
 	self.display.AllSolid(rgb)
-	self.display.Render()
-}
-
-func (self *ModeSolidRainbow) Deactivate() {
-	self.cExit <- true
 }
 
 func (self *ModeSolidRainbow) Randomize() {
 	rand.Seed(time.Now().UnixNano())
-	self.SetParameter(ModeSolidRainbowParameter{
+	self.setParameter(ModeSolidRainbowParameter{
 		RoundTimeMs: uint32(rand.Float32()*float32(self.limits.MaxRoundTimeMs-self.limits.MinRoundTimeMs)) + self.limits.MinRoundTimeMs,
 		Brightness:  rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
 		Hsv: color.HSV{

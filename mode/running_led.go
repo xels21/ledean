@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/sdomino/scribble"
-	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -20,11 +19,9 @@ const (
 type RunningLedStyle string
 
 type ModeRunningLed struct {
-	dbDriver            *scribble.Driver
-	display             *display.Display
+	ModeSuper
 	parameter           ModeRunningLedParameter
 	limits              ModeRunningLedLimits
-	cExit               chan bool
 	ledsRGB             []color.RGB
 	activatedLeds       []float64
 	positionDeg         float64
@@ -54,8 +51,6 @@ type ModeRunningLedLimits struct {
 
 func NewModeRunningLed(dbDriver *scribble.Driver, display *display.Display) *ModeRunningLed {
 	self := ModeRunningLed{
-		dbDriver: dbDriver,
-		display:  display,
 		limits: ModeRunningLedLimits{
 			MinRoundTimeMs: 1000,  //1s
 			MaxRoundTimeMs: 30000, //30s
@@ -67,10 +62,11 @@ func NewModeRunningLed(dbDriver *scribble.Driver, display *display.Display) *Mod
 		positionDeg:   0.0,
 		ledsRGB:       make([]color.RGB, display.GetRowLedCount()),
 		activatedLeds: make([]float64, display.GetRowLedCount()),
-		cExit:         make(chan bool, 1),
 	}
 
-	err := dbDriver.Read(self.GetFriendlyName(), "parameter", &self.parameter)
+	self.ModeSuper = *NewModeSuper(dbDriver, display, "ModeRunningLed", RenderTypeDynamic, self.calcDisplay)
+
+	err := dbDriver.Read(self.GetName(), "parameter", &self.parameter)
 	if err != nil {
 		self.Randomize()
 	} else {
@@ -80,27 +76,24 @@ func NewModeRunningLed(dbDriver *scribble.Driver, display *display.Display) *Mod
 	return &self
 }
 
-func (ModeRunningLed) GetFriendlyName() string {
-	return "ModeRunningLed"
-}
+func (self *ModeRunningLed) GetParameter() interface{} { return &self.parameter }
+func (self *ModeRunningLed) GetLimits() interface{}    { return &self.limits }
 
-func (self *ModeRunningLed) GetParameterJson() []byte {
-	msg, _ := json.Marshal(self.parameter)
-	return msg
-}
+func (self *ModeRunningLed) TrySetParameter(b []byte) error {
+	var tempPar ModeRunningLedParameter
+	err := json.Unmarshal(b, &tempPar)
 
-func (self *ModeRunningLed) GetLimitsJson() []byte {
-	msg, _ := json.Marshal(self.limits)
-	return msg
-}
-
-func (self *ModeRunningLed) SetParameter(parm interface{}) {
-	switch parm.(type) {
-	case ModeRunningLedParameter:
-		self.parameter = parm.(ModeRunningLedParameter)
-		self.dbDriver.Write(self.GetFriendlyName(), "parameter", self.parameter)
-		self.postSetParameter()
+	if err != nil {
+		return err
 	}
+
+	self.setParameter(tempPar)
+	return nil
+}
+func (self *ModeRunningLed) setParameter(parm ModeRunningLedParameter) {
+	self.parameter = parm
+	self.dbDriver.Write(self.GetName(), "parameter", self.parameter)
+	self.postSetParameter()
 }
 
 func (self *ModeRunningLed) postSetParameter() {
@@ -112,23 +105,6 @@ func (self *ModeRunningLed) postSetParameter() {
 	self.positionDegStepSize = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(FPS80) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
 	self.darkenStepSize = (1 / self.parameter.FadePct) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(FPS80) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
 	self.lightenStepSize = 2 * self.parameter.Brightness * (float64(self.display.GetRowLedCount())) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(FPS80) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
-}
-
-func (self *ModeRunningLed) Activate() {
-	log.Debugf("start "+self.GetFriendlyName()+" with:\n %s\n", self.GetParameterJson())
-	ticker := time.NewTicker(FPS80)
-
-	go func() {
-		for {
-			select {
-			case <-self.cExit:
-				ticker.Stop()
-				return
-			case <-ticker.C:
-				self.renderLoop()
-			}
-		}
-	}()
 }
 
 func (self *ModeRunningLed) darkenLeds() {
@@ -152,10 +128,8 @@ func (self *ModeRunningLed) getActiveLedIdx() int {
 			position = 2.0 - position
 		}
 		activeLedIdx = int(position * float64(len(self.activatedLeds)))
-		break
 	case RunningLedStyleTrigonometric:
 		activeLedIdx = int(((math.Cos((self.positionDeg+180.0)*math.Pi/180.0) + 1.0) / 2) * float64(len(self.activatedLeds)))
-		break
 	}
 	return activeLedIdx
 }
@@ -167,7 +141,7 @@ func (self *ModeRunningLed) stepForward() {
 	}
 }
 
-func (self *ModeRunningLed) renderLoop() {
+func (self *ModeRunningLed) calcDisplay() {
 	self.stepForward()
 	activeLedIdx := self.getActiveLedIdx()
 	//prevent darken active led while lighning it up
@@ -198,14 +172,10 @@ func (self *ModeRunningLed) AddRunningLed(position float64, speed float64) {
 
 }
 
-func (self *ModeRunningLed) Deactivate() {
-	self.cExit <- true
-}
-
 func (self *ModeRunningLed) Randomize() {
 	rand.Seed(time.Now().UnixNano())
 
-	self.SetParameter(ModeRunningLedParameter{
+	self.setParameter(ModeRunningLedParameter{
 		Brightness:  rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
 		FadePct:     rand.Float64()*(self.limits.MaxFadePct-self.limits.MinFadePct) + self.limits.MinFadePct,
 		HueFrom:     rand.Float64() * 360.0,

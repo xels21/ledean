@@ -8,12 +8,10 @@ import (
 	"time"
 
 	"github.com/sdomino/scribble"
-	log "github.com/sirupsen/logrus"
 )
 
 type ModeSolid struct {
-	dbDriver  *scribble.Driver
-	display   *display.Display
+	ModeSuper
 	parameter ModeSolidParameter
 	limits    ModeSolidLimits
 }
@@ -30,53 +28,22 @@ type ModeSolidLimits struct {
 
 func NewModeSolid(dbDriver *scribble.Driver, display *display.Display) *ModeSolid {
 	self := ModeSolid{
-		dbDriver: dbDriver,
-		display:  display,
 		limits: ModeSolidLimits{
 			MinBrightness: 0.0,
 			MaxBrightness: 1.0,
 		},
 	}
+	self.ModeSuper = *NewModeSuper(dbDriver, display, "ModeSolid", RenderTypeStatic, self.calcDisplay)
 
-	err := dbDriver.Read(self.GetFriendlyName(), "parameter", &self.parameter)
+	err := dbDriver.Read(self.name, "parameter", &self.parameter)
 	if err != nil {
 		self.Randomize()
-	} else {
-		self.postSetParameter()
 	}
 
 	return &self
 }
 
-func (ModeSolid) GetFriendlyName() string {
-	return "ModeSolid"
-}
-
-func (self *ModeSolid) GetParameterJson() []byte {
-	json, _ := json.Marshal(self.parameter)
-	return json
-}
-
-func (self *ModeSolid) GetLimitsJson() []byte {
-	json, _ := json.Marshal(self.limits)
-	return json
-}
-
-func (self *ModeSolid) SetParameter(parm interface{}) {
-	switch parm.(type) {
-	case ModeSolidParameter:
-		self.parameter = parm.(ModeSolidParameter)
-		self.dbDriver.Write(self.GetFriendlyName(), "parameter", self.parameter)
-		self.postSetParameter()
-	}
-}
-
-func (self *ModeSolid) postSetParameter() {
-}
-
-func (self *ModeSolid) Activate() {
-	log.Debugf("start "+self.GetFriendlyName()+" with:\n %s\n", self.GetParameterJson())
-
+func (self *ModeSolid) calcDisplay() {
 	rgb := color.RGB{
 		R: uint8(float64(self.parameter.RGB.R) * self.parameter.Brightness),
 		G: uint8(float64(self.parameter.RGB.G) * self.parameter.Brightness),
@@ -84,9 +51,26 @@ func (self *ModeSolid) Activate() {
 	}
 
 	self.display.AllSolid(rgb)
-	self.display.Render()
 }
-func (self *ModeSolid) Deactivate() {
+
+func (self *ModeSolid) GetParameter() interface{} { return &self.parameter }
+func (self *ModeSolid) GetLimits() interface{}    { return &self.limits }
+
+func (self *ModeSolid) TrySetParameter(b []byte) error {
+	var tempPar ModeSolidParameter
+	err := json.Unmarshal(b, &tempPar)
+
+	if err != nil {
+		return err
+	}
+
+	self.setParameter(tempPar)
+	return nil
+}
+
+func (self *ModeSolid) setParameter(parm ModeSolidParameter) {
+	self.parameter = parm
+	self.dbDriver.Write(self.name, "parameter", self.parameter)
 }
 
 func (self *ModeSolid) Randomize() {
@@ -99,5 +83,5 @@ func (self *ModeSolid) Randomize() {
 			B: uint8(rand.Intn(255)),
 		},
 	}
-	self.SetParameter(parameter)
+	self.setParameter(parameter)
 }

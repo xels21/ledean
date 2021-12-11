@@ -11,17 +11,17 @@ import (
 )
 
 const (
-	FPS30               = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 30) * time.Nanosecond)
-	FPS40               = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 40) * time.Nanosecond)
-	FPS50               = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 50) * time.Nanosecond)
-	FPS60               = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 60) * time.Nanosecond)
-	FPS70               = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 70) * time.Nanosecond)
-	FPS80               = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 80) * time.Nanosecond)
-	FPS90               = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 90) * time.Nanosecond)
-	FPS100              = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 100) * time.Nanosecond)
-	FPS110              = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 110) * time.Nanosecond)
-	FPS120              = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 120) * time.Nanosecond)
-	REFRESH_INTERVAL_NS = FPS30
+	FPS30             = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 30) * time.Nanosecond)
+	FPS40             = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 40) * time.Nanosecond)
+	FPS50             = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 50) * time.Nanosecond)
+	FPS60             = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 60) * time.Nanosecond)
+	FPS70             = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 70) * time.Nanosecond)
+	FPS80             = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 80) * time.Nanosecond)
+	FPS90             = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 90) * time.Nanosecond)
+	FPS100            = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 100) * time.Nanosecond)
+	FPS110            = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 110) * time.Nanosecond)
+	FPS120            = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 120) * time.Nanosecond)
+	RefreshIntervalNs = FPS40
 )
 
 type ModeController struct {
@@ -88,15 +88,15 @@ func (self *ModeController) GetModeResolver() []string {
 	// m = make(map[int]string)
 	modesString := make([]string, 0, self.modesLength)
 	for _, mode := range self.modes {
-		modesString = append(modesString, mode.GetFriendlyName())
+		modesString = append(modesString, mode.GetName())
 	}
 	return modesString
 }
 
 func (self *ModeController) GetModeRef(friendlyName string) (*Mode, error) {
 	// tempModes := self.GetModes()
-	for i, _ := range self.modes {
-		if self.modes[i].GetFriendlyName() == friendlyName {
+	for i := range self.modes {
+		if self.modes[i].GetName() == friendlyName {
 			return &(self.modes[i]), nil
 		}
 	}

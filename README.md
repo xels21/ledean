@@ -28,44 +28,44 @@ and the frontend with
 save the output on the raspberry on any folder, eg:
 
 /home/pi/ledean
-
+```
 ├── db
-│   ├── modeController
-│   │   └── index.json
-│   ├── ModeRunningLed
-│   │   └── parameter.json
-│   ├── ModeSolid
-│   │   └── parameter.json
-│   ├── ModeSolidRainbow
-│   │   └── parameter.json
-│   └── ModeTransitionRainbow
-│       └── parameter.json
+│   ├── modeController
+│   │   └── index.json
+│   ├── ModeRunningLed
+│   │   └── parameter.json
+│   ├── ModeSolid
+│   │   └── parameter.json
+│   ├── ModeSolidRainbow
+│   │   └── parameter.json
+│   └── ModeTransitionRainbow
+│       └── parameter.json
 ├── debug.sh
 ├── frontend
-│   ├── favicon.ico
-│   ├── index.html
-│   ├── main.js
-│   ├── main.js.map
-│   ├── MaterialIcons-Regular.eot
-│   ├── MaterialIcons-Regular.ttf
-│   ├── MaterialIcons-Regular.woff
-│   ├── MaterialIcons-Regular.woff2
-│   ├── polyfills.js
-│   ├── polyfills.js.map
-│   ├── runtime.js
-│   ├── runtime.js.map
-│   ├── scripts.js
-│   ├── scripts.js.map
-│   ├── styles.js
-│   ├── styles.js.map
-│   ├── vendor.js
-│   └── vendor.js.map
+│   ├── favicon.ico
+│   ├── index.html
+│   ├── main.js
+│   ├── main.js.map
+│   ├── MaterialIcons-Regular.eot
+│   ├── MaterialIcons-Regular.ttf
+│   ├── MaterialIcons-Regular.woff
+│   ├── MaterialIcons-Regular.woff2
+│   ├── polyfills.js
+│   ├── polyfills.js.map
+│   ├── runtime.js
+│   ├── runtime.js.map
+│   ├── scripts.js
+│   ├── scripts.js.map
+│   ├── styles.js
+│   ├── styles.js.map
+│   ├── vendor.js
+│   └── vendor.js.map
 ├── kill.sh
 ├── ledean
 ├── log.txt
 ├── start copy.sh
 └── start.sh
-
+```
 
 
 ### Config

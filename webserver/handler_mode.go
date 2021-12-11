@@ -2,6 +2,7 @@ package webserver
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"ledean/mode"
 	"net/http"
 	"strconv"
@@ -46,6 +47,52 @@ func MakeModeHandler(modeController *mode.ModeController) http.HandlerFunc {
 				}
 			}
 		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(msg)
+	}
+}
+
+func MakeGetModeParameterHandler(pMode mode.Mode) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		msg, err := json.Marshal(pMode.GetParameter())
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(msg)
+	}
+}
+
+func MakeGetModeLimitsHandler(pMode mode.Mode) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		msg, err := json.Marshal(pMode.GetLimits())
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(msg)
+	}
+}
+
+func MakePostModeParameterHandler(modeController *mode.ModeController, pMode mode.Mode) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		b, err := ioutil.ReadAll(r.Body)
+		defer r.Body.Close()
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		err = pMode.TrySetParameter(b)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+		modeController.Restart()
+
+		msg := []byte{}
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(msg)
 	}
