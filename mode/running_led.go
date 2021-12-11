@@ -165,7 +165,6 @@ func (self *ModeRunningLed) calcDisplay() {
 	}
 
 	self.display.ApplySingleRowRGB(self.ledsRGB)
-	self.display.Render()
 }
 
 func (self *ModeRunningLed) AddRunningLed(position float64, speed float64) {

@@ -2,7 +2,7 @@ package color
 
 func RgbArr2HsvArr(leds []RGB) []HSV {
 	hsvArr := make([]HSV, len(leds))
-	for i, _ := range leds {
+	for i := range leds {
 		hsvArr[i] = leds[i].ToHsv()
 	}
 	return hsvArr
@@ -10,7 +10,7 @@ func RgbArr2HsvArr(leds []RGB) []HSV {
 
 func HsvArr2RgbArr(leds []HSV) []RGB {
 	rgbArr := make([]RGB, len(leds))
-	for i, _ := range leds {
+	for i := range leds {
 		rgbArr[i] = leds[i].ToRGB()
 	}
 	return rgbArr

@@ -36,6 +36,7 @@ type ModeController struct {
 	modeSolidRainbow      *ModeSolidRainbow
 	modeTransitionRainbow *ModeTransitionRainbow
 	modeRunningLed        *ModeRunningLed
+	modeEmitter           *ModeEmitter
 }
 
 func NewModeController(dbDriver *scribble.Driver, display *display.Display, piButton *button.PiButton) *ModeController {
@@ -48,8 +49,9 @@ func NewModeController(dbDriver *scribble.Driver, display *display.Display, piBu
 		modeSolidRainbow:      NewModeSolidRainbow(dbDriver, display),
 		modeTransitionRainbow: NewModeTransitionRainbow(dbDriver, display),
 		modeRunningLed:        NewModeRunningLed(dbDriver, display),
+		modeEmitter:           NewModeEmitter(dbDriver, display),
 	}
-	self.modes = []Mode{self.modeSolid, self.modeSolidRainbow, self.modeTransitionRainbow, self.modeRunningLed}
+	self.modes = []Mode{self.modeSolid, self.modeSolidRainbow, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter}
 	self.modesLength = uint8(len(self.modes))
 
 	err := dbDriver.Read("modeController", "modesIndex", &self.modesIndex)
