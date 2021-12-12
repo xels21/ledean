@@ -1,17 +1,18 @@
-<!-- <div style="height:20px;width:100%">
 
-</div> -->
-
-<!-- <div *ngFor="let number of ledsService.ledCount" class="col">{{num}}</div> -->
-<div class="row">
-  <div *ngFor="let led of ledsService.leds" class="col"
-    style="height:40px;border-radius:2px;"
-    [ngStyle]="{'transition':ledsService.pollingTimeout+'ms','width': 90/ledsService.leds.length + '%', 'margin':'0% ' + 5/ledsService.leds.length + '%', 'background-color': 'rgb('+led.r+','+led.g+','+led.b+')', 'box-shadow': '0px 0px 30px rgba('+led.r+','+led.g+','+led.b+',0.7)'}">
+<!-- Template for each row -->
+<!--
+<div class="row" *ngFor="let _ of [].constructor(ledsService.ledRows); let rowI = index" style="margin: 10px 0px">
+  <div *ngFor="let led of ledsService.leds | slice : rowI/ledsService.ledRows*ledsService.ledCount : (rowI+1)/ledsService.ledRows*ledsService.ledCount" class="col"
+    style="height:40px;border-radius:2px;padding:0px"
+    [ngStyle]="{'transition':ledsService.pollingTimeout+'ms','width': 90/ledsService.leds.length*ledsService.ledRows + '%', 'margin':'0% ' + 5/ledsService.leds.length*ledsService.ledRows + '%', 'background-color': 'rgb('+led.r+','+led.g+','+led.b+')', 'box-shadow': '0px 0px 30px rgba('+led.r+','+led.g+','+led.b+',0.7)'}">
   </div>
 </div>
+-->
 
-<!-- <span *ngFor="let led of ledsService.leds">
-  {{led.r}}
-  {{led.g}}
-  {{led.b}}
-</span> -->
+
+<div class="row" style="padding: 0px 2px">
+  <div *ngFor="let led of ledsService.leds | slice : 0 : 1 / ledsService.ledRows * ledsService.ledCount" class="col"
+    style="height:40px;border-radius:2px;padding:0px"
+    [ngStyle]="{'transition':ledsService.pollingTimeout+'ms','width': 90/ledsService.leds.length*ledsService.ledRows + '%', 'margin':'0% ' + 5/ledsService.leds.length*ledsService.ledRows + '%', 'background-color': 'rgb('+led.r+','+led.g+','+led.b+')', 'box-shadow': '0px 0px 30px rgba('+led.r+','+led.g+','+led.b+',0.7)'}">
+  </div>
+</div>
