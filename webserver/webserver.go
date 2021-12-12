@@ -5,6 +5,7 @@ import (
 	"ledean/mode"
 	"ledean/pi/button"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -28,6 +29,8 @@ func Start(addr string, port int, path2Frontend string, display *display.Display
 	router.HandleFunc("/press_double", MakePressDoubleHandler(piButton))
 	router.HandleFunc("/press_long", MakePressLongHandler(piButton))
 
+	router.HandleFunc("/exit", MakeExitHandler())
+
 	router.HandleFunc("/mode/", MakeModeGetHandler(modeController))
 	router.HandleFunc("/mode/{mode}", MakeModeHandler(modeController))
 
@@ -44,4 +47,13 @@ func Start(addr string, port int, path2Frontend string, display *display.Display
 
 	log.Fatal(http.ListenAndServe(addr+":"+strconv.Itoa(int(port)), c.Handler(router)))
 	// log.Fatal(http.ListenAndServe(addr+":"+strconv.Itoa(int(port)), router))
+}
+
+func MakeExitHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Info("Exit api was called. Shutting down LEDean")
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte{})
+		os.Exit(0)
+	}
 }

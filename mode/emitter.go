@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"ledean/color"
 	"ledean/display"
+	"math"
 	"math/rand"
 	"time"
 
@@ -34,15 +35,38 @@ type ModeEmit struct {
 	ProgressPerStep float64
 }
 
-func (self *ModeEmit) addToLeds(leds []color.HSV) {
-	if self.ProgressPer < 0 {
-		return
-	}
-	startI := int(self.PositionPer * float64(len(leds)))
+func (self *ModeEmit) addPulseToLeds(leds []color.HSV) {
+	self.addDropToLeds(leds)
+	// startI := int(self.PositionPer * float64(len(leds)))
+
+	// affectedLedsCount := self.ProgressPer * len(leds) * self.ImpactPer
 	// impactLedCount := self.ImpactPer * float64(len(leds)) / 2
 
-	leds[startI].Add(color.HSV{H: self.HueFrom, S: 1.0, V: self.ProgressPer})
+	// leds[startI].Add(color.HSV{H: self.HueFrom, S: 1.0, V: self.ProgressPer})
 }
+
+func (self *ModeEmit) addDropToLeds(leds []color.HSV) {
+	startI := int(self.PositionPer * float64(len(leds)))
+
+	affectedLedsCountf := self.ProgressPer * float64(len(leds)) * self.ImpactPer / 2
+	for i := 0; i <= int(affectedLedsCountf); i++ {
+		rest := math.Min(affectedLedsCountf-float64(i), 1.0)
+		hsv := color.HSV{H: self.HueFrom, S: 1.0, V: rest}
+		if i == 0 {
+			leds[startI+i].Add(hsv)
+			continue
+		}
+		if startI+i < len(leds) {
+			leds[startI+i].Add(hsv)
+		}
+		if startI-i >= 0 {
+			leds[startI-i].Add(hsv)
+		}
+	}
+	// impactLedCount := self.ImpactPer * float64(len(leds)) / 2
+
+}
+
 func (self *ModeEmit) stepForward() {
 	self.ProgressPer += self.ProgressPerStep
 	if self.ProgressPer > 1.0 {
@@ -110,7 +134,17 @@ func (self *ModeEmitter) calcDisplay() {
 	color.HsvArrClear(self.ledsHSV)
 	for i := range self.emits {
 		self.emits[i].stepForward()
-		self.emits[i].addToLeds(self.ledsHSV)
+		if self.emits[i].ProgressPer < 0 {
+			continue
+		}
+
+		switch self.parameter.EmitStyle {
+		case EmitStylePulse:
+			self.emits[i].addPulseToLeds(self.ledsHSV)
+		case EmitStyleDrop:
+			self.emits[i].addDropToLeds(self.ledsHSV)
+		}
+
 	}
 	self.display.ApplySingleRowHSV(self.ledsHSV)
 }

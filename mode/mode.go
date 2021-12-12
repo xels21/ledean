@@ -56,8 +56,6 @@ func (self *ModeSuper) GetName() string {
 }
 
 func (self *ModeSuper) Activate() {
-	log.Debugf("start " + self.name)
-
 	switch self.renderType {
 	case RenderTypeStatic:
 		self.calcDisplay()

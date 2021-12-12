@@ -1,6 +1,7 @@
 package mode
 
 import (
+	"encoding/json"
 	"fmt"
 	"ledean/display"
 	"ledean/pi/button"
@@ -77,6 +78,8 @@ func (self *ModeController) NextMode() {
 }
 
 func (self *ModeController) ActivateCurrentMode() {
+	parm, _ := json.Marshal(self.modes[self.modesIndex].GetParameter())
+	log.Debugf("Start: `%s` with parameter: `%s`", self.modes[self.modesIndex].GetName(), parm)
 	self.modes[self.modesIndex].Activate()
 }
 func (self *ModeController) DeactivateCurrentMode() {
