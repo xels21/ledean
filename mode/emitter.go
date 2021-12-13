@@ -14,7 +14,8 @@ import (
 type EmitStyle uint8
 
 const (
-	MaxCooldown float64 = 0.2 //20%
+	MaxCooldown   float64 = 0.2 //20%
+	MinBrightness float64 = 0.3
 )
 
 const (
@@ -26,6 +27,7 @@ const (
 type ModeEmit struct {
 	HueFrom         float64
 	HueTo           float64
+	Brightness      float64
 	MinLifetimeMs   uint32
 	MaxLifetimeMs   uint32
 	LifetimeMs      uint32
@@ -36,22 +38,44 @@ type ModeEmit struct {
 }
 
 func (self *ModeEmit) addPulseToLeds(leds []color.HSV) {
-	self.addDropToLeds(leds)
-	// startI := int(self.PositionPer * float64(len(leds)))
+	startI := int(self.PositionPer * float64(len(leds)))
+	prog := ((math.Cos(math.Pi+self.ProgressPer*2*math.Pi) + 1) / 2)
 
-	// affectedLedsCount := self.ProgressPer * len(leds) * self.ImpactPer
-	// impactLedCount := self.ImpactPer * float64(len(leds)) / 2
+	affectedLedsCountf := prog * float64(len(leds)) * self.ImpactPer / 2
+	h := self.HueFrom + (self.HueTo-self.HueFrom)*prog
+	if h < 0.0 {
+		h += 360.0
+	}
+	if h > 360.0 {
+		h -= 360.0
+	}
 
-	// leds[startI].Add(color.HSV{H: self.HueFrom, S: 1.0, V: self.ProgressPer})
+	for i := 0; i <= int(affectedLedsCountf); i++ {
+		rest := math.Min(affectedLedsCountf-float64(i), 1.0)
+		hsv := color.HSV{H: h, S: 1.0, V: rest}
+		if i == 0 {
+			leds[startI+i].Add(hsv)
+			continue
+		}
+		if startI+i < len(leds) {
+			leds[startI+i].Add(hsv)
+		}
+		if startI-i >= 0 {
+			leds[startI-i].Add(hsv)
+		}
+	}
+	// self.addDropToLeds(leds)
 }
 
 func (self *ModeEmit) addDropToLeds(leds []color.HSV) {
+	self.addDropToLeds(leds)
+	return
 	startI := int(self.PositionPer * float64(len(leds)))
 
 	affectedLedsCountf := self.ProgressPer * float64(len(leds)) * self.ImpactPer / 2
 	for i := 0; i <= int(affectedLedsCountf); i++ {
 		rest := math.Min(affectedLedsCountf-float64(i), 1.0)
-		hsv := color.HSV{H: self.HueFrom, S: 1.0, V: rest}
+		hsv := color.HSV{H: self.HueFrom, S: 1.0, V: rest * self.Brightness}
 		if i == 0 {
 			leds[startI+i].Add(hsv)
 			continue
@@ -75,7 +99,8 @@ func (self *ModeEmit) stepForward() {
 }
 func (self *ModeEmit) randomize() {
 	self.HueFrom = rand.Float64() * 360.0
-	self.HueTo = rand.Float64() * 360.0
+	self.HueTo = self.HueFrom + ((rand.Float64() - 0.5) * 360.0 * 0.5)
+	self.Brightness = MinBrightness + ((1.0 - MinBrightness) * rand.Float64())
 	self.ImpactPer = rand.Float64()
 	self.LifetimeMs = rand.Uint32()%(self.MaxLifetimeMs-self.MinLifetimeMs) + self.MinLifetimeMs
 	self.PositionPer = rand.Float64()
