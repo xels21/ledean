@@ -8,6 +8,7 @@ import { AppComponent } from './app.component';
 import { LedsService } from './leds/leds.service';
 import { ButtonService } from './button/button.service';
 import { UpdateService } from './update/update.service';
+import { SystemService } from './system/system.service';
 
 import { LedDisplayComponent } from './led-display/led-display.component';
 import { ButtonComponent } from './button/button.component';
@@ -40,7 +41,8 @@ import { ModeEmitterComponent } from './modes/mode-emitter/mode-emitter.componen
   providers: [
     LedsService,
     ButtonService,
-    UpdateService
+    UpdateService,
+    SystemService
   ],
   bootstrap: [AppComponent]
 })

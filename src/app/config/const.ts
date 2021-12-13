@@ -3,6 +3,8 @@ export const REST_ADRESS = window.location.hostname
 export const REST_PORT = "2211";
 export const REST_PREFIX_URL = REST_PROTOCOL + "://" + REST_ADRESS+":"+REST_PORT+"/"
 
+export const REST_GET_SYSTEM_EXIT_URL = REST_PREFIX_URL + "exit"
+
 export const REST_GET_LEDS_URL = REST_PREFIX_URL + "leds"
 export const REST_GET_LEDS_COUNT_URL = REST_GET_LEDS_URL + "/count"
 export const REST_GET_LEDS_ROWS_URL = REST_GET_LEDS_URL + "/rows"
