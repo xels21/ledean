@@ -14,8 +14,7 @@ import (
 type EmitStyle uint8
 
 const (
-	MaxCooldown   float64 = 0.2 //20%
-	MinBrightness float64 = 0.3
+	MaxCooldown float64 = 0.2 //20%
 )
 
 const (
@@ -25,11 +24,10 @@ const (
 )
 
 type ModeEmit struct {
+	limits          *ModeEmitterLimits
 	HueFrom         float64
 	HueTo           float64
 	Brightness      float64
-	MinLifetimeMs   uint32
-	MaxLifetimeMs   uint32
 	LifetimeMs      uint32
 	PositionPer     float64
 	ImpactPer       float64
@@ -52,7 +50,7 @@ func (self *ModeEmit) addPulseToLeds(leds []color.HSV) {
 
 	for i := 0; i <= int(affectedLedsCountf); i++ {
 		rest := math.Min(affectedLedsCountf-float64(i), 1.0)
-		hsv := color.HSV{H: h, S: 1.0, V: rest}
+		hsv := color.HSV{H: h, S: 1.0, V: rest * self.Brightness}
 		if i == 0 {
 			leds[startI+i].Add(hsv)
 			continue
@@ -100,9 +98,9 @@ func (self *ModeEmit) stepForward() {
 func (self *ModeEmit) randomize() {
 	self.HueFrom = rand.Float64() * 360.0
 	self.HueTo = self.HueFrom + ((rand.Float64() - 0.5) * 360.0 * 0.5)
-	self.Brightness = MinBrightness + ((1.0 - MinBrightness) * rand.Float64())
+	self.Brightness = self.limits.MinBrightness + ((self.limits.MaxBrightness - self.limits.MinBrightness) * rand.Float64())
 	self.ImpactPer = rand.Float64()
-	self.LifetimeMs = rand.Uint32()%(self.MaxLifetimeMs-self.MinLifetimeMs) + self.MinLifetimeMs
+	self.LifetimeMs = rand.Uint32()%(self.limits.MaxEmitLifetimeMs-self.limits.MinEmitLifetimeMs) + self.limits.MinEmitLifetimeMs
 	self.PositionPer = rand.Float64()
 	self.ProgressPerStep = 1.0 / (float64(self.LifetimeMs) / 1000) * (float64(RefreshIntervalNs) / 1000 / 1000 / 1000)
 	self.ProgressPer = -rand.Float64() * MaxCooldown
@@ -117,17 +115,20 @@ type ModeEmitter struct {
 }
 
 type ModeEmitterParameter struct {
-	EmitCount uint32    `json:"emitCount"`
+	EmitCount uint8     `json:"emitCount"`
 	EmitStyle EmitStyle `json:"emitStyle"`
 	// RGB        color.RGB `json:"rgb"`
-	// Brightness float64   `json:"brightness"`
+	MinBrightness float64 `json:"minBrightness"`
+	MaxBrightness float64 `json:"maxBrightness"`
 }
 
 type ModeEmitterLimits struct {
-	MinEmitCount      uint32 `json:"minEmitCount"`
-	MaxEmitCount      uint32 `json:"maxEmitCount"`
-	MinEmitLifetimeMs uint32 `json:"minEmitLifetimeMs"`
-	MaxEmitLifetimeMs uint32 `json:"maxEmitLifetimeMs"`
+	MinEmitCount      uint8   `json:"minEmitCount"`
+	MaxEmitCount      uint8   `json:"maxEmitCount"`
+	MinEmitLifetimeMs uint32  `json:"minEmitLifetimeMs"`
+	MaxEmitLifetimeMs uint32  `json:"maxEmitLifetimeMs"`
+	MinBrightness     float64 `json:"minBrightness"`
+	MaxBrightness     float64 `json:"maxBrightness"`
 }
 
 func NewModeEmitter(dbDriver *scribble.Driver, display *display.Display) *ModeEmitter {
@@ -137,10 +138,16 @@ func NewModeEmitter(dbDriver *scribble.Driver, display *display.Display) *ModeEm
 			MaxEmitCount:      5,
 			MinEmitLifetimeMs: 500,
 			MaxEmitLifetimeMs: 7000,
+			MinBrightness:     0.05,
+			MaxBrightness:     1.0,
 		},
 	}
 	self.ModeSuper = *NewModeSuper(dbDriver, display, "ModeEmitter", RenderTypeDynamic, self.calcDisplay)
 	self.ledsHSV = make([]color.HSV, display.GetRowLedCount())
+	self.emits = make([]ModeEmit, self.limits.MaxEmitCount)
+	for i := uint8(0); i < self.limits.MaxEmitCount; i++ {
+		self.emits[i].limits = &self.limits
+	}
 
 	err := dbDriver.Read(self.name, "parameter", &self.parameter)
 	if err != nil {
@@ -187,10 +194,7 @@ func (self *ModeEmitter) TrySetParameter(b []byte) error {
 }
 
 func (self *ModeEmitter) postSetParameter() {
-	self.emits = make([]ModeEmit, self.parameter.EmitCount)
-	for i := range self.emits {
-		self.emits[i].MinLifetimeMs = self.limits.MinEmitLifetimeMs
-		self.emits[i].MaxLifetimeMs = self.limits.MaxEmitLifetimeMs
+	for i := uint8(0); i < self.parameter.EmitCount; i++ {
 		self.emits[i].randomize()
 	}
 }
@@ -204,7 +208,7 @@ func (self *ModeEmitter) setParameter(parm ModeEmitterParameter) {
 func (self *ModeEmitter) Randomize() {
 	rand.Seed(time.Now().UnixNano())
 	parameter := ModeEmitterParameter{
-		EmitCount: rand.Uint32()%(self.limits.MaxEmitCount-self.limits.MinEmitCount) + self.limits.MinEmitCount,
+		EmitCount: uint8(rand.Uint32())%(self.limits.MaxEmitCount-self.limits.MinEmitCount) + self.limits.MinEmitCount,
 		EmitStyle: EmitStyle(rand.Uint32() % uint32(EmitStyleCount)),
 	}
 	self.setParameter(parameter)
