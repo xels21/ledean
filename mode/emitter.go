@@ -24,7 +24,7 @@ const (
 )
 
 type ModeEmit struct {
-	limits          *ModeEmitterLimits
+	pParameter      *ModeEmitterParameter
 	HueFrom         float64
 	HueTo           float64
 	Brightness      float64
@@ -66,7 +66,7 @@ func (self *ModeEmit) addPulseToLeds(leds []color.HSV) {
 }
 
 func (self *ModeEmit) addDropToLeds(leds []color.HSV) {
-	self.addDropToLeds(leds)
+	self.addPulseToLeds(leds)
 	return
 	startI := int(self.PositionPer * float64(len(leds)))
 
@@ -98,9 +98,13 @@ func (self *ModeEmit) stepForward() {
 func (self *ModeEmit) randomize() {
 	self.HueFrom = rand.Float64() * 360.0
 	self.HueTo = self.HueFrom + ((rand.Float64() - 0.5) * 360.0 * 0.5)
-	self.Brightness = self.limits.MinBrightness + ((self.limits.MaxBrightness - self.limits.MinBrightness) * rand.Float64())
+	self.Brightness = self.pParameter.MinBrightness + ((self.pParameter.MaxBrightness - self.pParameter.MinBrightness) * rand.Float64())
 	self.ImpactPer = rand.Float64()
-	self.LifetimeMs = rand.Uint32()%(self.limits.MaxEmitLifetimeMs-self.limits.MinEmitLifetimeMs) + self.limits.MinEmitLifetimeMs
+	if self.pParameter.MinEmitLifetimeMs == self.pParameter.MaxEmitLifetimeMs {
+		self.LifetimeMs = self.pParameter.MinEmitLifetimeMs
+	} else {
+		self.LifetimeMs = rand.Uint32()%(self.pParameter.MaxEmitLifetimeMs-self.pParameter.MinEmitLifetimeMs) + self.pParameter.MinEmitLifetimeMs
+	}
 	self.PositionPer = rand.Float64()
 	self.ProgressPerStep = 1.0 / (float64(self.LifetimeMs) / 1000) * (float64(RefreshIntervalNs) / 1000 / 1000 / 1000)
 	self.ProgressPer = -rand.Float64() * MaxCooldown
@@ -115,11 +119,12 @@ type ModeEmitter struct {
 }
 
 type ModeEmitterParameter struct {
-	EmitCount uint8     `json:"emitCount"`
-	EmitStyle EmitStyle `json:"emitStyle"`
-	// RGB        color.RGB `json:"rgb"`
-	MinBrightness float64 `json:"minBrightness"`
-	MaxBrightness float64 `json:"maxBrightness"`
+	EmitCount         uint8     `json:"emitCount"`
+	EmitStyle         EmitStyle `json:"emitStyle"`
+	MinBrightness     float64   `json:"minBrightness"`
+	MaxBrightness     float64   `json:"maxBrightness"`
+	MinEmitLifetimeMs uint32    `json:"minEmitLifetimeMs"`
+	MaxEmitLifetimeMs uint32    `json:"maxEmitLifetimeMs"`
 }
 
 type ModeEmitterLimits struct {
@@ -146,7 +151,7 @@ func NewModeEmitter(dbDriver *scribble.Driver, display *display.Display) *ModeEm
 	self.ledsHSV = make([]color.HSV, display.GetRowLedCount())
 	self.emits = make([]ModeEmit, self.limits.MaxEmitCount)
 	for i := uint8(0); i < self.limits.MaxEmitCount; i++ {
-		self.emits[i].limits = &self.limits
+		self.emits[i].pParameter = &self.parameter
 	}
 
 	err := dbDriver.Read(self.name, "parameter", &self.parameter)
@@ -164,7 +169,7 @@ func (self *ModeEmitter) GetLimits() interface{}    { return &self.limits }
 
 func (self *ModeEmitter) calcDisplay() {
 	color.HsvArrClear(self.ledsHSV)
-	for i := range self.emits {
+	for i := uint8(0); i < self.parameter.EmitCount; i++ {
 		self.emits[i].stepForward()
 		if self.emits[i].ProgressPer < 0 {
 			continue
@@ -207,9 +212,15 @@ func (self *ModeEmitter) setParameter(parm ModeEmitterParameter) {
 
 func (self *ModeEmitter) Randomize() {
 	rand.Seed(time.Now().UnixNano())
+	minBrightness := self.limits.MinBrightness + (rand.Float64() * (self.limits.MaxBrightness - self.limits.MinBrightness))
+	minEmitLifetimeMs := self.limits.MinEmitLifetimeMs + (rand.Uint32() % (self.limits.MaxEmitLifetimeMs - self.limits.MinEmitLifetimeMs))
 	parameter := ModeEmitterParameter{
-		EmitCount: uint8(rand.Uint32())%(self.limits.MaxEmitCount-self.limits.MinEmitCount) + self.limits.MinEmitCount,
-		EmitStyle: EmitStyle(rand.Uint32() % uint32(EmitStyleCount)),
+		EmitCount:         uint8(rand.Uint32())%(self.limits.MaxEmitCount-self.limits.MinEmitCount+1) + self.limits.MinEmitCount,
+		EmitStyle:         EmitStyle(rand.Uint32() % uint32(EmitStyleCount)),
+		MinBrightness:     minBrightness,
+		MaxBrightness:     minBrightness + (rand.Float64() * (self.limits.MaxBrightness - minBrightness)),
+		MinEmitLifetimeMs: minEmitLifetimeMs,
+		MaxEmitLifetimeMs: minEmitLifetimeMs + (rand.Uint32() % (self.limits.MaxEmitLifetimeMs - minEmitLifetimeMs)),
 	}
 	self.setParameter(parameter)
 }
