@@ -31,7 +31,7 @@ export enum RunningLedStyle {
 @Component({
   selector: 'app-mode-running-led',
   templateUrl: './mode-running-led.component.html',
-  styleUrls: ['./mode-running-led.component.scss']
+  styleUrls: ['./mode-running-led.component.scss','../../app.component.scss']
 })
 export class ModeRunningLedComponent implements OnInit {
   public backModeRunningLedParameter: ModeRunningLedParameter

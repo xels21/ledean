@@ -7,7 +7,7 @@
       <label for="brightness">brightness</label>
     </div>
 
-    <div class="col s9 valign-wrapper" style="min-height: 70px;">
+    <div class="col s9 valign-wrapper generic-slider">
       <input type="range" [min]="modeRunningLedLimits.minBrightness" [max]="modeRunningLedLimits.maxBrightness"
         step="0.01" (change)="setModeRunningLedParameter()" [(ngModel)]="modeRunningLedParameter.brightness" />
     </div>
@@ -20,7 +20,7 @@
       <label for="fadePct">fadePct</label>
     </div>
 
-    <div class="col s9 valign-wrapper" style="min-height: 70px;">
+    <div class="col s9 valign-wrapper generic-slider">
       <input type="range" [min]="modeRunningLedLimits.minFadePct" [max]="modeRunningLedLimits.maxFadePct" step="0.01"
         (change)="setModeRunningLedParameter()" [(ngModel)]="modeRunningLedParameter.fadePct" />
     </div>
@@ -33,9 +33,10 @@
       <label for="round_time_Ms">Round Time(ms)</label>
     </div>
 
-    <input class="col s9" type="range" [min]="modeRunningLedLimits.minRoundTimeMs"
-      [max]="modeRunningLedLimits.maxRoundTimeMs" step="1" (change)="setModeRunningLedParameter()"
-      [(ngModel)]="modeRunningLedParameter.roundTimeMs" />
+    <div class="col s9 valign-wrapper generic-slider">
+      <input type="range" [min]="modeRunningLedLimits.minRoundTimeMs" [max]="modeRunningLedLimits.maxRoundTimeMs"
+        step="1" (change)="setModeRunningLedParameter()" [(ngModel)]="modeRunningLedParameter.roundTimeMs" />
+    </div>
   </div>
 
 
@@ -47,9 +48,9 @@
       <label for="hueFrom">hueFrom</label>
     </div>
 
-    <div class="col s9 valign-wrapper" style="min-height: 70px;">
-      <input type="range" min=0 max=360
-        step="0.01" (change)="setModeRunningLedParameter()" [(ngModel)]="modeRunningLedParameter.hueFrom" />
+    <div class="col s9 valign-wrapper generic-slider">
+      <input type="range" min=0 max=360 step="0.01" (change)="setModeRunningLedParameter()"
+        [(ngModel)]="modeRunningLedParameter.hueFrom" />
     </div>
   </div>
 
@@ -60,9 +61,9 @@
       <label for="hueFrom">hueTo</label>
     </div>
 
-    <div class="col s9 valign-wrapper" style="min-height: 70px;">
-      <input type="range" min=0 max=360
-        step="0.01" (change)="setModeRunningLedParameter()" [(ngModel)]="modeRunningLedParameter.hueTo" />
+    <div class="col s9 valign-wrapper generic-slider">
+      <input type="range" min=0 max=360 step="0.01" (change)="setModeRunningLedParameter()"
+        [(ngModel)]="modeRunningLedParameter.hueTo" />
     </div>
   </div>
 
@@ -73,10 +74,11 @@
       <label for="style">style</label>
     </div>
 
-    <div class="col s9 valign-wrapper" style="min-height: 70px;">
-        <select class="browser-default" [(ngModel)]="modeRunningLedParameter.style" (change)="setModeRunningLedParameter()">
-          <option *ngFor="let style of getAllStyles()" [text]="style"></option>
-        </select>
+    <div class="col s9 valign-wrapper generic-slider">
+      <select class="browser-default" [(ngModel)]="modeRunningLedParameter.style"
+        (change)="setModeRunningLedParameter()">
+        <option *ngFor="let style of getAllStyles()" [text]="style"></option>
+      </select>
     </div>
   </div>
 

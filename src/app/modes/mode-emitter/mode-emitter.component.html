@@ -1,4 +1,36 @@
+<div *ngIf="modeEmitterParameter && modeEmitterLimits">
+  <div class="row">
+    <div class="col s3">
+      <input id="emitCount" type="number" [min]="modeEmitterLimits.minEmitCount" [max]="modeEmitterLimits.maxEmitCount"
+        (change)="setModeEmitterParameter()" [(ngModel)]="modeEmitterParameter.emitCount" />
+      <label for="emitCount">Emit Count</label>
+    </div>
+    <div class="col s9 valign-wrapper generic-slider"> <input type="range" [min]="modeEmitterLimits.minEmitCount"
+        [max]="modeEmitterLimits.maxEmitCount" step="1" (change)="setModeEmitterParameter()"
+        [(ngModel)]="modeEmitterParameter.emitCount" /> </div>
+  </div>
 
-<div *ngIf="modeEmitterParameter && modeEmitterLimits" class="row">
-<input type="range" [min]="modeEmitterLimits.minEmitCount" [max]="modeEmitterLimits.maxEmitCount" step="1" (change)="setModeEmitterParameter()" [(ngModel)]="modeEmitterParameter.emitCount" />
+  <br>
+  <div class="row">
+    <div class="col s3">
+      Brightness
+    </div>
+    <div class="col s9">
+      <nouislider [connect]="true" [tooltips]="[ true, true ]" [step]="0.01" [min]="modeEmitterLimits.minBrightness"
+        [max]="modeEmitterLimits.maxBrightness" [(ngModel)]="brightnessRange"
+        (change)="setBrightness(); setModeEmitterParameter()"></nouislider>
+    </div>
+  </div>
+  <br>
+  <div class="row">
+    <div class="col s3">
+      Lifetime(ms)
+    </div>
+    <div class="col s9">
+      <nouislider [connect]="true" [tooltips]="[ true, true ]" [step]="1" [min]="modeEmitterLimits.minEmitLifetimeMs"
+        [max]="modeEmitterLimits.maxEmitLifetimeMs" [(ngModel)]="emitLifetimeMsRange"
+        (change)="setEmitLifetimeMs(); setModeEmitterParameter()"></nouislider>
+    </div>
+  </div>
+
 </div>

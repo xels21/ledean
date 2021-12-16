@@ -21,7 +21,7 @@ interface ModeSolidRainbowLimits {
 @Component({
   selector: 'app-mode-solid-rainbow',
   templateUrl: './mode-solid-rainbow.component.html',
-  styleUrls: ['./mode-solid-rainbow.component.scss']
+  styleUrls: ['./mode-solid-rainbow.component.scss','../../app.component.scss']
 })
 export class ModeSolidRainbowComponent implements OnInit {
   public backModeSolidRainbowParameter: ModeSolidRainbowParameter

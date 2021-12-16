@@ -19,7 +19,7 @@ interface ModeSolidLimits {
 @Component({
   selector: 'app-mode-solid',
   templateUrl: './mode-solid.component.html',
-  styleUrls: ['./mode-solid.component.scss']
+  styleUrls: ['./mode-solid.component.scss','../../app.component.scss']
 })
 export class ModeSolidComponent implements OnInit {
   public backModeSolidParameter: ModeSolidParameter

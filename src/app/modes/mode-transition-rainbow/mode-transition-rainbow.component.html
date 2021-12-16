@@ -6,9 +6,11 @@
     <label for="round_time_Ms">Round Time(ms)</label>
   </div>
 
-  <input class="col s9" type="range" [min]="modeTransitionRainbowLimits.minRoundTimeMs"
-    [max]="modeTransitionRainbowLimits.maxRoundTimeMs" step="1" (change)="setModeTransitionRainbowParameter()"
-    [(ngModel)]="modeTransitionRainbowParameter.roundTimeMs" />
+  <div class="col s9 valign-wrapper generic-slider">
+    <input type="range" [min]="modeTransitionRainbowLimits.minRoundTimeMs"
+      [max]="modeTransitionRainbowLimits.maxRoundTimeMs" step="1" (change)="setModeTransitionRainbowParameter()"
+      [(ngModel)]="modeTransitionRainbowParameter.roundTimeMs" />
+  </div>
 </div>
 
 <div *ngIf="modeTransitionRainbowParameter && modeTransitionRainbowLimits" class="row"
@@ -18,7 +20,7 @@
       (change)="setModeTransitionRainbowParameter()">
     <label for="brightness">Brightness</label>
   </div>
-  <div class="col s9 valign-wrapper" style="min-height: 110px;">
+  <div class="col s9 valign-wrapper generic-slider">
     <input type="range" [min]="modeTransitionRainbowLimits.minBrightness "
       [max]="modeTransitionRainbowLimits.maxBrightness" step="0.01" (change)="setModeTransitionRainbowParameter()"
       [(ngModel)]="modeTransitionRainbowParameter.brightness" />
@@ -32,7 +34,7 @@
       (change)="setModeTransitionRainbowParameter()">
     <label for="spectrum">Spectrum</label>
   </div>
-  <div class="col s9 valign-wrapper" style="min-height: 110px;">
+  <div class="col s9 valign-wrapper generic-slider">
     <input type="range" [min]="modeTransitionRainbowLimits.minSpectrum" [max]="modeTransitionRainbowLimits.maxSpectrum"
       step="0.01" (change)="setModeTransitionRainbowParameter()"
       [(ngModel)]="modeTransitionRainbowParameter.spectrum" />
@@ -48,7 +50,8 @@
 
   <div class="switch" style="display: inline">
     <label>
-      <input type="checkbox" [(ngModel)]="modeTransitionRainbowParameter.reverse" (change)="setModeTransitionRainbowParameter()">
+      <input type="checkbox" [(ngModel)]="modeTransitionRainbowParameter.reverse"
+        (change)="setModeTransitionRainbowParameter()">
       <span class="lever"></span>
     </label>
   </div>

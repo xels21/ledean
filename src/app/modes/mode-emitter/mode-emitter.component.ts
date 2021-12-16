@@ -7,11 +7,19 @@ import { deepCopy } from '../../lib/deep-copy';
 import { deepEqual } from 'fast-equals';
 
 interface ModeEmitterParameter {
-  emitCount:number
+  emitCount: number
+  minBrightness: number
+  maxBrightness: number
+  minEmitLifetimeMs: number
+  maxEmitLifetimeMs: number
 }
 interface ModeEmitterLimits {
   minEmitCount: number
   maxEmitCount: number
+  minEmitLifetimeMs: number
+  maxEmitLifetimeMs: number
+  minBrightness: number
+  maxBrightness: number
 }
 
 
@@ -21,14 +29,16 @@ interface ModeEmitterLimits {
 @Component({
   selector: 'app-mode-emitter',
   templateUrl: './mode-emitter.component.html',
-  styleUrls: ['./mode-emitter.component.scss']
+  styleUrls: ['./mode-emitter.component.scss','../../app.component.scss']
 })
 export class ModeEmitterComponent implements OnInit {
   public backModeEmitterParameter: ModeEmitterParameter
   public modeEmitterParameter: ModeEmitterParameter
   public modeEmitterLimits: ModeEmitterLimits
+  public brightnessRange: number[] = [0,0]
+  public emitLifetimeMsRange: number[] = [0,0]
 
-  constructor(private updateService:UpdateService, private httpClient:HttpClient) { }
+  constructor(private updateService: UpdateService, private httpClient: HttpClient) { }
 
   ngOnInit(): void {
     this.updateModeEmitterParameter();
@@ -41,13 +51,22 @@ export class ModeEmitterComponent implements OnInit {
       if (!deepEqual(this.backModeEmitterParameter, data)) {
         this.backModeEmitterParameter = data
         this.modeEmitterParameter = deepCopy(this.backModeEmitterParameter)
+        this.brightnessRange =  [this.modeEmitterParameter.minBrightness, this.modeEmitterParameter.maxBrightness]
+        this.emitLifetimeMsRange =  [this.modeEmitterParameter.minEmitLifetimeMs, this.modeEmitterParameter.maxEmitLifetimeMs]
       }
-    }
-    )
+    })
+  }
+
+  setBrightness(){
+    this.modeEmitterParameter.minBrightness = this.brightnessRange[0]
+    this.modeEmitterParameter.maxBrightness = this.brightnessRange[1]
+  }
+  setEmitLifetimeMs(){
+    this.modeEmitterParameter.minEmitLifetimeMs = this.emitLifetimeMsRange[0]
+    this.modeEmitterParameter.maxEmitLifetimeMs = this.emitLifetimeMsRange[1]
   }
 
   setModeEmitterParameter() {
-    console.log("set")
     this.httpClient.post<ModeEmitterParameter>(REST_MODE_EMITTER_URL, this.modeEmitterParameter, {}).subscribe()
   }
 
