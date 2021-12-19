@@ -74,7 +74,7 @@
       <label for="style">style</label>
     </div>
 
-    <div class="col s9 valign-wrapper generic-slider">
+    <div class="col s9 valign-wrapper">
       <select class="browser-default" [(ngModel)]="modeRunningLedParameter.style"
         (change)="setModeRunningLedParameter()">
         <option *ngFor="let style of getAllStyles()" [text]="style"></option>

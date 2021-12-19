@@ -1,6 +1,6 @@
 <div *ngIf="modeEmitterParameter && modeEmitterLimits">
   <div class="row">
-    <div class="col s3">
+    <div class="col s3 input-field">
       <input id="emitCount" type="number" [min]="modeEmitterLimits.minEmitCount" [max]="modeEmitterLimits.maxEmitCount"
         (change)="setModeEmitterParameter()" [(ngModel)]="modeEmitterParameter.emitCount" />
       <label for="emitCount">Emit Count</label>
@@ -31,6 +31,21 @@
         [max]="modeEmitterLimits.maxEmitLifetimeMs" [(ngModel)]="emitLifetimeMsRange"
         (change)="setEmitLifetimeMs(); setModeEmitterParameter()"></nouislider>
     </div>
+  </div>
+
+  <div class="row">
+    <div class="col s3 input-field ">
+      <input id="emitStyle" type="text" (change)="setModeEmitterParameter()" [(ngModel)]="modeEmitterParameter.emitStyle" />
+      <label for="emitStyle">Emit Style</label>
+    </div>
+
+    <div class="col s9 valign-wrapper">
+      <select class="browser-default" [(ngModel)]="modeEmitterParameter.emitStyle"
+        (change)="setModeEmitterParameter()">
+        <option *ngFor="let style of getAllStyles()" [text]="style"></option>
+      </select>
+    </div>
+
   </div>
 
 </div>

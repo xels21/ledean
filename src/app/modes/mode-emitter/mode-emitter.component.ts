@@ -6,8 +6,15 @@ import { HttpClient } from '@angular/common/http';
 import { deepCopy } from '../../lib/deep-copy';
 import { deepEqual } from 'fast-equals';
 
+// type RunningLedStyle = "linear" | "trigonometric"
+export enum EmitStyle {
+  PULSE = "pulse",
+  DROP = "drop",
+}
+
 interface ModeEmitterParameter {
   emitCount: number
+  emitStyle: EmitStyle
   minBrightness: number
   maxBrightness: number
   minEmitLifetimeMs: number
@@ -21,9 +28,6 @@ interface ModeEmitterLimits {
   minBrightness: number
   maxBrightness: number
 }
-
-
-
 
 
 @Component({
@@ -73,4 +77,10 @@ export class ModeEmitterComponent implements OnInit {
   updateModeEmitterLimits() {
     this.httpClient.get<ModeEmitterLimits>(REST_MODE_EMITTER_URL + "/limits").subscribe((data: ModeEmitterLimits) => { this.modeEmitterLimits = data })
   }
+  getAllStyles() {
+    return new Array<EmitStyle>(
+      EmitStyle.PULSE,
+      EmitStyle.DROP,
+    )
+  }  
 }
