@@ -11,16 +11,15 @@ import (
 	"github.com/sdomino/scribble"
 )
 
-type EmitStyle uint8
+type EmitStyle string
 
 const (
 	MaxCooldown float64 = 0.2 //20%
 )
 
 const (
-	EmitStyleDrop  EmitStyle = iota
-	EmitStylePulse EmitStyle = iota
-	EmitStyleCount EmitStyle = iota
+	EmitStylePulse EmitStyle = "pulse"
+	EmitStyleDrop  EmitStyle = "drop"
 )
 
 type ModeEmit struct {
@@ -66,14 +65,19 @@ func (self *ModeEmit) addPulseToLeds(leds []color.HSV) {
 }
 
 func (self *ModeEmit) addDropToLeds(leds []color.HSV) {
-	self.addPulseToLeds(leds)
-	return
 	startI := int(self.PositionPer * float64(len(leds)))
+	h := self.HueFrom + (self.HueTo-self.HueFrom)*self.ProgressPer
+	if h < 0.0 {
+		h += 360.0
+	}
+	if h > 360.0 {
+		h -= 360.0
+	}
 
-	affectedLedsCountf := self.ProgressPer * float64(len(leds)) * self.ImpactPer / 2
+	affectedLedsCountf := self.ProgressPer * float64(len(leds))
 	for i := 0; i <= int(affectedLedsCountf); i++ {
 		rest := math.Min(affectedLedsCountf-float64(i), 1.0)
-		hsv := color.HSV{H: self.HueFrom, S: 1.0, V: rest * self.Brightness}
+		hsv := color.HSV{H: h, S: 1.0, V: rest * self.Brightness * (1.0 - self.ProgressPer)}
 		if i == 0 {
 			leds[startI+i].Add(hsv)
 			continue
@@ -85,8 +89,23 @@ func (self *ModeEmit) addDropToLeds(leds []color.HSV) {
 			leds[startI-i].Add(hsv)
 		}
 	}
-	// impactLedCount := self.ImpactPer * float64(len(leds)) / 2
 
+	// affectedLedsCountf := self.ProgressPer * float64(len(leds)) * self.ImpactPer / 2
+	// for i := 0; i <= int(affectedLedsCountf); i++ {
+	// rest := math.Min(affectedLedsCountf-float64(i), 1.0)
+	// hsv := color.HSV{H: self.HueFrom, S: 1.0, V: rest * self.Brightness}
+	// if i == 0 {
+	// leds[startI+i].Add(hsv)
+	// continue
+	// }
+	// if startI+i < len(leds) {
+	// leds[startI+i].Add(hsv)
+	// }
+	// if startI-i >= 0 {
+	// leds[startI-i].Add(hsv)
+	// }
+	// }
+	//
 }
 
 func (self *ModeEmit) stepForward() {
@@ -106,8 +125,15 @@ func (self *ModeEmit) randomize() {
 		self.LifetimeMs = rand.Uint32()%(self.pParameter.MaxEmitLifetimeMs-self.pParameter.MinEmitLifetimeMs) + self.pParameter.MinEmitLifetimeMs
 	}
 	self.PositionPer = rand.Float64()
-	self.ProgressPerStep = 1.0 / (float64(self.LifetimeMs) / 1000) * (float64(RefreshIntervalNs) / 1000 / 1000 / 1000)
 	self.ProgressPer = -rand.Float64() * MaxCooldown
+	switch self.pParameter.EmitStyle {
+	case EmitStylePulse:
+		self.ProgressPerStep = 1.0 / (float64(self.LifetimeMs) / 1000) * (float64(RefreshIntervalNs) / 1000 / 1000 / 1000)
+	case EmitStyleDrop:
+		self.ProgressPerStep = 1.0 / self.pParameter.WaveSpeedFac * self.Brightness * self.pParameter.WaveWidthFac * (float64(RefreshIntervalNs) / 1000 / 1000 / 1000)
+	default:
+		self.ProgressPerStep = 1.0
+	}
 }
 
 type ModeEmitter struct {
@@ -125,6 +151,8 @@ type ModeEmitterParameter struct {
 	MaxBrightness     float64   `json:"maxBrightness"`
 	MinEmitLifetimeMs uint32    `json:"minEmitLifetimeMs"`
 	MaxEmitLifetimeMs uint32    `json:"maxEmitLifetimeMs"`
+	WaveSpeedFac      float64   `json: "waveSpeedFac"`
+	WaveWidthFac      float64   `json: "waveWidthFac"`
 }
 
 type ModeEmitterLimits struct {
@@ -216,11 +244,24 @@ func (self *ModeEmitter) Randomize() {
 	minEmitLifetimeMs := self.limits.MinEmitLifetimeMs + (rand.Uint32() % (self.limits.MaxEmitLifetimeMs - self.limits.MinEmitLifetimeMs))
 	parameter := ModeEmitterParameter{
 		EmitCount:         uint8(rand.Uint32())%(self.limits.MaxEmitCount-self.limits.MinEmitCount+1) + self.limits.MinEmitCount,
-		EmitStyle:         EmitStyle(rand.Uint32() % uint32(EmitStyleCount)),
+		EmitStyle:         self.getRandomStyle(),
 		MinBrightness:     minBrightness,
 		MaxBrightness:     minBrightness + (rand.Float64() * (self.limits.MaxBrightness - minBrightness)),
 		MinEmitLifetimeMs: minEmitLifetimeMs,
 		MaxEmitLifetimeMs: minEmitLifetimeMs + (rand.Uint32() % (self.limits.MaxEmitLifetimeMs - minEmitLifetimeMs)),
+		WaveSpeedFac:      1.0, //TODO
+		WaveWidthFac:      1.0, //TODO
 	}
 	self.setParameter(parameter)
+}
+
+func (self *ModeEmitter) getRandomStyle() EmitStyle {
+	styleSwitch := rand.Uint32() % 2
+	switch styleSwitch {
+	case 0:
+		return EmitStylePulse
+	case 1:
+		return EmitStyleDrop
+	}
+	return EmitStylePulse
 }
