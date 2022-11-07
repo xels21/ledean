@@ -1,8 +1,8 @@
 package color
 
 import (
-	"encoding/json"
 	"ledean/helper"
+	"ledean/json"
 	"math"
 )
 

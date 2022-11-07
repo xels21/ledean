@@ -1,20 +1,37 @@
-// +build linux
+//go:build pi
+// +build pi
 
 package ws28x
 
 import (
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	"ledean/log"
 
 	"periph.io/x/periph/conn/physic"
 	"periph.io/x/periph/conn/spi/spireg"
 	"periph.io/x/periph/experimental/devices/nrzled"
 )
 
+type PiWs28xConnector struct {
+	gpioLedData  string
+	cWriteBuffer chan []byte
+}
+
+func NewPiWs28xConnector(gpioLedData string) *PiWs28xConnector {
+	return &PiWs28xConnector{
+		gpioLedData:  gpioLedData,
+		cWriteBuffer: make(chan []byte, 32),
+	}
+}
+
+func (self *PiWs28xConnector) Write(data []byte) {
+	self.cWriteBuffer <- data
+}
+
 func (self *PiWs28xConnector) Connect(ledCount int) error {
 
-	portCloser, err := spireg.Open(self.spiInfo)
+	portCloser, err := spireg.Open(self.gpioLedData)
 	// defer portCloser.Close()
 	if err != nil {
 		log.Panic(err)

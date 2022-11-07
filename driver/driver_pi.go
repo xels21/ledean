@@ -1,6 +1,7 @@
-// +build linux
+//go:build has_pins
+// +build has_pins
 
-package general
+package driver
 
 import "periph.io/x/periph/host"
 

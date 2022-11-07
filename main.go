@@ -1,11 +1,14 @@
+//go:build !tinygo
+// +build !tinygo
+
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	"ledean/json"
 	"ledean/ledean"
 
-	log "github.com/sirupsen/logrus"
+	"ledean/log"
 )
 
 func main() {

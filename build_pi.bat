@@ -10,7 +10,7 @@ set GOARM=6
 
 echo building for: %GOOS%(%GOARCH%)...
 
-go build -o build/%GOOS%/ledean
+go build -o build/%GOOS%/ledean -tags "has_pins pi"
 
 echo Exit Code is %errorlevel%
 echo.

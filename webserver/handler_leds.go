@@ -1,8 +1,11 @@
+//go:build !tinygo
+// +build !tinygo
+
 package webserver
 
 import (
-	"encoding/json"
 	"ledean/display"
+	"ledean/json"
 	"net/http"
 
 	"github.com/gorilla/mux"

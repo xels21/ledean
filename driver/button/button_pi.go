@@ -1,4 +1,5 @@
-// +build linux
+//go:build pi
+// +build pi
 
 package button
 
@@ -8,12 +9,12 @@ import (
 	"periph.io/x/periph/conn/gpio"
 	"periph.io/x/periph/conn/gpio/gpioreg"
 
-	log "github.com/sirupsen/logrus"
+	"ledean/log"
 )
 
 const DEBOUNCE_NS = 50 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/
 
-func (self *PiButton) Register() {
+func (self *Button) Register() {
 	p := gpioreg.ByName(self.gpio)
 	if p == nil {
 		log.Fatal("Failed to find: ", self.gpio)
@@ -26,7 +27,7 @@ func (self *PiButton) Register() {
 	go self.listen(p)
 }
 
-func (self *PiButton) listen(p gpio.PinIO) {
+func (self *Button) listen(p gpio.PinIO) {
 	var passedTimeNs, risingNs, fallingNs int64
 	var inTime bool
 	lastActionNs := int64(0)

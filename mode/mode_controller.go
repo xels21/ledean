@@ -1,14 +1,14 @@
 package mode
 
 import (
-	"encoding/json"
 	"fmt"
+	"ledean/dbdriver"
 	"ledean/display"
-	"ledean/pi/button"
+	"ledean/driver/button"
+	"ledean/json"
 	"time"
 
-	"github.com/sdomino/scribble"
-	log "github.com/sirupsen/logrus"
+	"ledean/log"
 )
 
 const (
@@ -26,9 +26,9 @@ const (
 )
 
 type ModeController struct {
-	dbDriver              *scribble.Driver
+	dbdriver              *dbdriver.DbDriver
 	display               *display.Display
-	piButton              *button.PiButton
+	button                *button.Button
 	active                bool
 	modes                 []Mode
 	modesIndex            uint8
@@ -40,22 +40,22 @@ type ModeController struct {
 	modeEmitter           *ModeEmitter
 }
 
-func NewModeController(dbDriver *scribble.Driver, display *display.Display, piButton *button.PiButton) *ModeController {
+func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, button *button.Button) *ModeController {
 	self := ModeController{
-		dbDriver:              dbDriver,
+		dbdriver:              dbdriver,
 		display:               display,
-		piButton:              piButton,
+		button:                button,
 		active:                false,
-		modeSolid:             NewModeSolid(dbDriver, display),
-		modeSolidRainbow:      NewModeSolidRainbow(dbDriver, display),
-		modeTransitionRainbow: NewModeTransitionRainbow(dbDriver, display),
-		modeRunningLed:        NewModeRunningLed(dbDriver, display),
-		modeEmitter:           NewModeEmitter(dbDriver, display),
+		modeSolid:             NewModeSolid(dbdriver, display),
+		modeSolidRainbow:      NewModeSolidRainbow(dbdriver, display),
+		modeTransitionRainbow: NewModeTransitionRainbow(dbdriver, display),
+		modeRunningLed:        NewModeRunningLed(dbdriver, display),
+		modeEmitter:           NewModeEmitter(dbdriver, display),
 	}
 	self.modes = []Mode{self.modeSolid, self.modeSolidRainbow, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter}
 	self.modesLength = uint8(len(self.modes))
 
-	err := dbDriver.Read("modeController", "modesIndex", &self.modesIndex)
+	err := dbdriver.Read("modeController", "modesIndex", &self.modesIndex)
 	if err != nil {
 		self.SetIndex(0)
 	}
@@ -129,7 +129,7 @@ func (self *ModeController) GetIndex() uint8 {
 }
 func (self *ModeController) SetIndex(modesIndex uint8) {
 	self.modesIndex = modesIndex
-	self.dbDriver.Write("modeController", "modesIndex", self.modesIndex)
+	self.dbdriver.Write("modeController", "modesIndex", self.modesIndex)
 	log.Info("Current mode: ", self.modesIndex)
 }
 
@@ -186,7 +186,7 @@ func (self *ModeController) Randomize() {
 }
 
 func (self *ModeController) registerEvents() {
-	self.piButton.AddCbPressSingle(self.NextMode)
-	self.piButton.AddCbPressDouble(self.Randomize)
-	self.piButton.AddCbPressLong(self.StartStop)
+	self.button.AddCbPressSingle(self.NextMode)
+	self.button.AddCbPressDouble(self.Randomize)
+	self.button.AddCbPressLong(self.StartStop)
 }

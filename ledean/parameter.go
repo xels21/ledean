@@ -5,12 +5,12 @@ import (
 	"regexp"
 	"strconv"
 
-	log "github.com/sirupsen/logrus"
+	"ledean/log"
 )
 
 type Parameter struct {
 	GpioButton         string `json:"gpioButton"`
-	SpiInfo            string `json:"spiInfo"`
+	GpioLedData        string `json:"gpioLedData"`
 	PressLongMs        int    `json:"pressLongMs"`
 	PressDoubleTimeout int    `json:"pressDoubleTimeout"`
 	LedCount           int    `json:"ledCount"`
@@ -31,8 +31,11 @@ type Parameter struct {
 func GetParameter() *Parameter {
 	var parm Parameter
 	flag.StringVar(&parm.GpioButton, "gpio_button", "GPIO17", "gpio_pin for the button")
-	flag.StringVar(&parm.SpiInfo, "spi_info", "",
-		`Info for spi communication.
+	flag.StringVar(&parm.GpioLedData, "gpio_led_data", "",
+		`For uC:
+	Define a Gpio pin
+For RPi (using SPI):
+		Info for spi communication.
 	Leave it empty for following defaults [RPi 4 - SPI0.0]:
 		- CLK : SPI0_CLK (GPIO11)
 		- MOSI: SPI0_MOSI(GPIO10)
@@ -58,7 +61,7 @@ func GetParameter() *Parameter {
 	flag.StringVar(&parm.Address, "address", "127.0.0.1", "Local adress. Set it to '' to make the interface globally adressable")
 	flag.IntVar(&parm.Port, "port", 2211, "Port for webserver")
 	flag.StringVar(&parm.Path2DB, "path2db", "db", "Path to DB folder (folder with json files)")
-	flag.StringVar(&parm.ReverseRows, "reverse_rows", "", "defines, which rows should be reversed (e.g. if second row is reversed: 0,1,0,0")
+	flag.StringVar(&parm.ReverseRows, "reverse_rows", "0", "defines, which rows should be reversed (e.g. if second row is reversed: 0,1,0,0")
 	// pathToDB := flag.String("db", "../db", "Path to database folder")
 	// pw := flag.String("pw", "", "Generate pw for user management")
 	// pathToFrontEnd := flag.String("frontend", "../FrontRbc", "Path to frontend folder.\n"+

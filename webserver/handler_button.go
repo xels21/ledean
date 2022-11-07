@@ -1,29 +1,32 @@
+//go:build !tinygo
+// +build !tinygo
+
 package webserver
 
 import (
-	"ledean/pi/button"
+	"ledean/driver/button"
 	"net/http"
 )
 
-func MakePressSingleHandler(piButton *button.PiButton) http.HandlerFunc {
+func MakePressSingleHandler(button *button.Button) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		piButton.PressSingle()
+		button.PressSingle()
 		w.Write([]byte{})
 	}
 }
-func MakePressDoubleHandler(piButton *button.PiButton) http.HandlerFunc {
+func MakePressDoubleHandler(button *button.Button) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		piButton.PressDouble()
+		button.PressDouble()
 		w.Write([]byte{})
 	}
 }
 
-func MakePressLongHandler(piButton *button.PiButton) http.HandlerFunc {
+func MakePressLongHandler(button *button.Button) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		piButton.PressLong()
+		button.PressLong()
 		w.Write([]byte{})
 	}
 }

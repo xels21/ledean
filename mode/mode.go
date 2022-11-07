@@ -2,11 +2,11 @@
 package mode
 
 import (
+	"ledean/dbdriver"
 	"ledean/display"
 	"time"
 
-	"github.com/sdomino/scribble"
-	log "github.com/sirupsen/logrus"
+	"ledean/log"
 )
 
 type Mode interface {
@@ -27,7 +27,7 @@ const (
 )
 
 type ModeSuper struct {
-	dbDriver    *scribble.Driver
+	dbdriver    *dbdriver.DbDriver
 	display     *display.Display
 	renderType  RenderType
 	name        string
@@ -35,9 +35,9 @@ type ModeSuper struct {
 	cExit       chan bool
 }
 
-func NewModeSuper(dbDriver *scribble.Driver, display *display.Display, name string, renderType RenderType, calcDisplay func()) *ModeSuper {
+func NewModeSuper(dbdriver *dbdriver.DbDriver, display *display.Display, name string, renderType RenderType, calcDisplay func()) *ModeSuper {
 	self := ModeSuper{
-		dbDriver:    dbDriver,
+		dbdriver:    dbdriver,
 		display:     display,
 		name:        name,
 		renderType:  renderType,

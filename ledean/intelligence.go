@@ -1,49 +1,55 @@
 package ledean
 
 import (
+	"ledean/dbdriver"
 	"ledean/display"
+	"ledean/driver"
+	"ledean/driver/button"
 	"ledean/mode"
-	"ledean/pi/button"
-	pi "ledean/pi/general"
 	"ledean/webserver"
+	"time"
 
-	scribble "github.com/sdomino/scribble"
-	log "github.com/sirupsen/logrus"
+	"ledean/log"
 )
 
 type LEDeanInstance struct {
-	dbDriver       *scribble.Driver
+	dbdriver       *dbdriver.DbDriver
 	display        *display.Display
 	modeController *mode.ModeController
-	piButton       *button.PiButton
+	button         *button.Button
 }
 
 func Run(parm *Parameter) *LEDeanInstance {
 	var self LEDeanInstance
 	var err error
 	parm.Check()
-	SetLogger(parm.LogLevel)
+	log.SetLogger(parm.LogLevel)
 
-	self.dbDriver, err = scribble.New(parm.Path2DB, nil)
+	self.dbdriver, err = dbdriver.NewDbDriver(parm.Path2DB)
 	if err != nil {
 		log.Panic("Error while trying to make a new DB: ", err)
 	}
 
-	pi.Init()
-	self.piButton = button.NewPiButton(parm.GpioButton, parm.PressLongMs, parm.PressDoubleTimeout)
-	self.piButton.Register()
+	driver.Init()
+	self.button = button.NewButton(parm.GpioButton, parm.PressLongMs, parm.PressDoubleTimeout)
+	self.button.Register()
 
-	self.display = display.NewDisplay(parm.LedCount, parm.LedRows, parm.SpiInfo, parm.ReverseRows)
-	self.modeController = mode.NewModeController(self.dbDriver, self.display, self.piButton)
+	self.display = display.NewDisplay(parm.LedCount, parm.LedRows, parm.GpioLedData, parm.ReverseRows)
+	self.modeController = mode.NewModeController(self.dbdriver, self.display, self.button)
 
-	self.piButton.AddCbPressSingle(func() { log.Info("PRESS_SINGLE") })
-	self.piButton.AddCbPressDouble(func() { log.Info("PRESS_DOUBLE") })
-	self.piButton.AddCbPressLong(func() { log.Info("PRESS_LONG") })
+	self.button.AddCbPressSingle(func() { log.Info("PRESS_SINGLE") })
+	self.button.AddCbPressDouble(func() { log.Info("PRESS_DOUBLE") })
+	self.button.AddCbPressLong(func() { log.Info("PRESS_LONG") })
 
-	go webserver.Start(parm.Address, parm.Port, parm.Path2Frontend, self.display, self.modeController, self.piButton)
+	go webserver.Start(parm.Address, parm.Port, parm.Path2Frontend, self.display, self.modeController, self.button)
 
 	if parm.DirectStart {
 		self.modeController.Start()
+	}
+
+	for {
+		time.Sleep(3 * time.Second)
+		self.modeController.NextMode()
 	}
 
 	return &self

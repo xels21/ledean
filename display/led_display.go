@@ -1,28 +1,34 @@
 package display
 
 import (
-	"encoding/json"
 	"ledean/color"
-	"ledean/pi/ws28x"
+	"ledean/json"
 	"strings"
 )
 
-type Display struct {
+type DisplayBase struct {
 	led_count            int
 	led_rows             int
 	leds_per_row         int
 	singleRowRGB         []color.RGB
 	reversedSingleRowRGB []color.RGB
 	reverse_rows         []bool
-	piWs28xConnector     *ws28x.PiWs28xConnector
 	leds                 []color.RGB
 	buffer               []byte
 	// active           bool
 	// modeController *mode.ModeController //[]mode.Mode
 }
 
-func NewDisplay(led_count int, led_rows int, spiInfo string, reverse_rows_raw string) *Display {
-	self := Display{
+func (self *DisplayBase) GetLedsJson() []byte {
+	msg, err := json.Marshal(self.leds)
+	if err != nil {
+		msg = []byte(err.Error())
+	}
+	return msg
+}
+
+func NewDisplayBase(led_count int, led_rows int, reverse_rows_raw string) *DisplayBase {
+	self := DisplayBase{
 		led_count:            led_count,
 		led_rows:             led_rows,
 		leds_per_row:         led_count / led_rows,
@@ -41,9 +47,6 @@ func NewDisplay(led_count int, led_rows int, spiInfo string, reverse_rows_raw st
 		}
 	}
 
-	self.piWs28xConnector = ws28x.NewPiWs28xConnector(spiInfo)
-	self.piWs28xConnector.Connect(led_count)
-
 	// self.registerEvents()
 	self.Clear()
 	// go self.listen()
@@ -51,46 +54,38 @@ func NewDisplay(led_count int, led_rows int, spiInfo string, reverse_rows_raw st
 	return &self
 }
 
-func (self *Display) GetRowLedCount() int {
+func (self *DisplayBase) GetRowLedCount() int {
 	return self.leds_per_row
 }
 
-// func (self *Display) GetLength() uint8 {
+// func (self *DisplayBase) GetLength() uint8 {
 // 	return self.modeController.GetLength()
 // }
 
-// func (self *Display) GetIndex() uint8 {
+// func (self *DisplayBase) GetIndex() uint8 {
 // 	return self.modeController.GetIndex()
 // }
 
-// func (self *Display) GetModeRef(friendlyName string) (*mode.Mode, error) {
+// func (self *DisplayBase) GetModeRef(friendlyName string) (*mode.Mode, error) {
 // 	return self.modeController.GetModeRef(friendlyName)
 // }
 
-// func (self *Display) GetModeResolver() []string {
+// func (self *DisplayBase) GetModeResolver() []string {
 // 	return self.modeController.GetModeResolver()
 // }
 
-// func (self *Display) IsActive() bool {
+// func (self *DisplayBase) IsActive() bool {
 // 	return self.active
 // }
 
-func (self *Display) GetLeds() []color.RGB {
+func (self *DisplayBase) GetLeds() []color.RGB {
 	return self.leds
 }
-func (self *Display) GetLedCount() int {
+func (self *DisplayBase) GetLedCount() int {
 	return len(self.leds)
 }
-func (self *Display) GetLedRows() int {
+func (self *DisplayBase) GetLedRows() int {
 	return self.led_rows
-}
-
-func (self *Display) GetLedsJson() []byte {
-	msg, err := json.Marshal(self.leds)
-	if err != nil {
-		msg = []byte(err.Error())
-	}
-	return msg
 }
 
 func reverseRgb(fromRGBs []color.RGB, toRGBs []color.RGB) {
@@ -99,7 +94,7 @@ func reverseRgb(fromRGBs []color.RGB, toRGBs []color.RGB) {
 	}
 }
 
-func (self *Display) applySingleRow() {
+func (self *DisplayBase) applySingleRow() {
 	var usedRow *[]color.RGB
 	reverseRgb(self.singleRowRGB, self.reversedSingleRowRGB)
 	for r := 0; r < self.led_rows; r++ {
@@ -114,34 +109,29 @@ func (self *Display) applySingleRow() {
 		}
 	}
 }
-func (self *Display) ApplySingleRowRGB(singleRow []color.RGB) {
+func (self *DisplayBase) ApplySingleRowRGB(singleRow []color.RGB) {
 	self.singleRowRGB = singleRow
 	self.applySingleRow()
 }
-func (self *Display) ApplySingleRowHSV(singleRow []color.HSV) {
+func (self *DisplayBase) ApplySingleRowHSV(singleRow []color.HSV) {
 	for i := 0; i < len(singleRow); i++ {
 		self.singleRowRGB[i] = singleRow[i].ToRGB()
 	}
 	self.applySingleRow()
 }
 
-func (self *Display) Render() {
-	self.leds2Buffer()
-	self.piWs28xConnector.Write(self.buffer)
-}
-
-func (self *Display) leds2Buffer() {
+func (self *DisplayBase) leds2Buffer() {
 	self.buffer = make([]byte, 0, 9*len(self.leds))
 	for _, led := range self.leds {
 		self.buffer = append(self.buffer, led.ToSpi()...)
 	}
 }
 
-func (self *Display) Clear() {
+func (self *DisplayBase) Clear() {
 	self.AllSolid(color.RGB{R: 0, G: 0, B: 0})
 }
 
-func (self *Display) AllSolid(rgb color.RGB) {
+func (self *DisplayBase) AllSolid(rgb color.RGB) {
 	for i, _ := range self.leds {
 		self.leds[i] = rgb
 	}

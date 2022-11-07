@@ -3,11 +3,10 @@ package mode
 import (
 	"encoding/json"
 	"ledean/color"
+	"ledean/dbdriver"
 	"ledean/display"
 	"math/rand"
 	"time"
-
-	"github.com/sdomino/scribble"
 )
 
 type ModeSolidRainbow struct {
@@ -29,7 +28,7 @@ type ModeSolidRainbowLimits struct {
 	MaxBrightness  float64 `json:"maxBrightness"`
 }
 
-func NewModeSolidRainbow(dbDriver *scribble.Driver, display *display.Display) *ModeSolidRainbow {
+func NewModeSolidRainbow(dbdriver *dbdriver.DbDriver, display *display.Display) *ModeSolidRainbow {
 	self := ModeSolidRainbow{
 		limits: ModeSolidRainbowLimits{
 			MinRoundTimeMs: 2000,   //2s
@@ -39,9 +38,9 @@ func NewModeSolidRainbow(dbDriver *scribble.Driver, display *display.Display) *M
 		},
 	}
 
-	self.ModeSuper = *NewModeSuper(dbDriver, display, "ModeSolidRainbow", RenderTypeDynamic, self.calcDisplay)
+	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeSolidRainbow", RenderTypeDynamic, self.calcDisplay)
 
-	err := dbDriver.Read(self.GetName(), "parameter", &self.parameter)
+	err := dbdriver.Read(self.GetName(), "parameter", &self.parameter)
 	if err != nil {
 		self.Randomize()
 	} else {
@@ -68,7 +67,7 @@ func (self *ModeSolidRainbow) TrySetParameter(b []byte) error {
 
 func (self *ModeSolidRainbow) setParameter(parm ModeSolidRainbowParameter) {
 	self.parameter = parm
-	self.dbDriver.Write(self.GetName(), "parameter", self.parameter)
+	self.dbdriver.Write(self.GetName(), "parameter", self.parameter)
 	self.postSetParameter()
 }
 

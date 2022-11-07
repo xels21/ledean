@@ -1,6 +1,6 @@
 package button
 
-type PiButton struct {
+type Button struct {
 	gpio               string
 	longPressMs        int
 	pressDoubleTimeout int
@@ -9,9 +9,9 @@ type PiButton struct {
 	cbPressDouble      []func()
 }
 
-func NewPiButton(gpio string, longPressMs int, pressDoubleTimeout int) *PiButton {
+func NewButton(gpio string, longPressMs int, pressDoubleTimeout int) *Button {
 
-	self := PiButton{
+	self := Button{
 		gpio:               gpio,
 		longPressMs:        longPressMs,
 		pressDoubleTimeout: pressDoubleTimeout,
@@ -23,13 +23,13 @@ func NewPiButton(gpio string, longPressMs int, pressDoubleTimeout int) *PiButton
 	return &self
 }
 
-func (self *PiButton) AddCbPressSingle(cb func()) {
+func (self *Button) AddCbPressSingle(cb func()) {
 	self.cbPressSingle = append(self.cbPressSingle, cb)
 }
-func (self *PiButton) AddCbPressDouble(cb func()) {
+func (self *Button) AddCbPressDouble(cb func()) {
 	self.cbPressDouble = append(self.cbPressDouble, cb)
 }
-func (self *PiButton) AddCbPressLong(cb func()) {
+func (self *Button) AddCbPressLong(cb func()) {
 	self.cbPressLong = append(self.cbPressLong, cb)
 }
 
@@ -39,12 +39,12 @@ func trigger(cbs []func()) {
 	}
 }
 
-func (self *PiButton) PressSingle() {
+func (self *Button) PressSingle() {
 	trigger(self.cbPressSingle)
 }
-func (self *PiButton) PressDouble() {
+func (self *Button) PressDouble() {
 	trigger(self.cbPressDouble)
 }
-func (self *PiButton) PressLong() {
+func (self *Button) PressLong() {
 	trigger(self.cbPressLong)
 }

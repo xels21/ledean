@@ -3,11 +3,10 @@ package mode
 import (
 	"encoding/json"
 	"ledean/color"
+	"ledean/dbdriver"
 	"ledean/display"
 	"math/rand"
 	"time"
-
-	"github.com/sdomino/scribble"
 )
 
 type ModeTransitionRainbow struct {
@@ -36,7 +35,7 @@ type ModeTransitionRainbowLimits struct {
 	MaxSpectrum    float64 `json:"maxSpectrum"`
 }
 
-func NewModeTransitionRainbow(dbDriver *scribble.Driver, display *display.Display) *ModeTransitionRainbow {
+func NewModeTransitionRainbow(dbdriver *dbdriver.DbDriver, display *display.Display) *ModeTransitionRainbow {
 	self := ModeTransitionRainbow{
 		limits: ModeTransitionRainbowLimits{
 			MinRoundTimeMs: 500,
@@ -49,14 +48,14 @@ func NewModeTransitionRainbow(dbDriver *scribble.Driver, display *display.Displa
 		progressDeg: 0.0,
 	}
 
-	self.ModeSuper = *NewModeSuper(dbDriver, display, "ModeTransitionRainbow", RenderTypeDynamic, self.calcDisplay)
+	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeTransitionRainbow", RenderTypeDynamic, self.calcDisplay)
 
 	self.ledsHSV = make([]color.HSV, self.display.GetRowLedCount())
 	for i := 0; i < len(self.ledsHSV); i++ {
 		self.ledsHSV[i] = color.HSV{H: 0.0, S: 1.0, V: 0.0}
 	}
 
-	err := dbDriver.Read(self.name, "parameter", &self.parameter)
+	err := dbdriver.Read(self.name, "parameter", &self.parameter)
 	if err != nil {
 		self.Randomize()
 	} else {
@@ -82,7 +81,7 @@ func (self *ModeTransitionRainbow) TrySetParameter(b []byte) error {
 }
 func (self *ModeTransitionRainbow) setParameter(parm *ModeTransitionRainbowParameter) {
 	self.parameter = *parm
-	self.dbDriver.Write(self.GetName(), "parameter", self.parameter)
+	self.dbdriver.Write(self.GetName(), "parameter", self.parameter)
 	self.postSetParameter()
 }
 

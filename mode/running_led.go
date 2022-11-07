@@ -3,12 +3,11 @@ package mode
 import (
 	"encoding/json"
 	"ledean/color"
+	"ledean/dbdriver"
 	"ledean/display"
 	"math"
 	"math/rand"
 	"time"
-
-	"github.com/sdomino/scribble"
 )
 
 const (
@@ -49,7 +48,7 @@ type ModeRunningLedLimits struct {
 	MaxFadePct     float64 `json:"maxFadePct"`
 }
 
-func NewModeRunningLed(dbDriver *scribble.Driver, display *display.Display) *ModeRunningLed {
+func NewModeRunningLed(dbdriver *dbdriver.DbDriver, display *display.Display) *ModeRunningLed {
 	self := ModeRunningLed{
 		limits: ModeRunningLedLimits{
 			MinRoundTimeMs: 1000,  //1s
@@ -64,9 +63,9 @@ func NewModeRunningLed(dbDriver *scribble.Driver, display *display.Display) *Mod
 		activatedLeds: make([]float64, display.GetRowLedCount()),
 	}
 
-	self.ModeSuper = *NewModeSuper(dbDriver, display, "ModeRunningLed", RenderTypeDynamic, self.calcDisplay)
+	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeRunningLed", RenderTypeDynamic, self.calcDisplay)
 
-	err := dbDriver.Read(self.GetName(), "parameter", &self.parameter)
+	err := dbdriver.Read(self.GetName(), "parameter", &self.parameter)
 	if err != nil {
 		self.Randomize()
 	} else {
@@ -92,7 +91,7 @@ func (self *ModeRunningLed) TrySetParameter(b []byte) error {
 }
 func (self *ModeRunningLed) setParameter(parm ModeRunningLedParameter) {
 	self.parameter = parm
-	self.dbDriver.Write(self.GetName(), "parameter", self.parameter)
+	self.dbdriver.Write(self.GetName(), "parameter", self.parameter)
 	self.postSetParameter()
 }
 

@@ -1,14 +1,18 @@
+//go:build !tinygo
+// +build !tinygo
+
 package webserver
 
 import (
-	"encoding/json"
 	"io/ioutil"
+	"ledean/json"
 	"ledean/mode"
 	"net/http"
 	"strconv"
 
+	"ledean/log"
+
 	"github.com/gorilla/mux"
-	log "github.com/sirupsen/logrus"
 )
 
 func MakeModeGetHandler(modeController *mode.ModeController) http.HandlerFunc {

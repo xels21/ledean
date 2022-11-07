@@ -3,11 +3,10 @@ package mode
 import (
 	"encoding/json"
 	"ledean/color"
+	"ledean/dbdriver"
 	"ledean/display"
 	"math/rand"
 	"time"
-
-	"github.com/sdomino/scribble"
 )
 
 type ModeSolid struct {
@@ -26,16 +25,16 @@ type ModeSolidLimits struct {
 	MaxBrightness float64 `json:"maxBrightness"`
 }
 
-func NewModeSolid(dbDriver *scribble.Driver, display *display.Display) *ModeSolid {
+func NewModeSolid(dbdriver *dbdriver.DbDriver, display *display.Display) *ModeSolid {
 	self := ModeSolid{
 		limits: ModeSolidLimits{
 			MinBrightness: 0.0,
 			MaxBrightness: 1.0,
 		},
 	}
-	self.ModeSuper = *NewModeSuper(dbDriver, display, "ModeSolid", RenderTypeStatic, self.calcDisplay)
+	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeSolid", RenderTypeStatic, self.calcDisplay)
 
-	err := dbDriver.Read(self.name, "parameter", &self.parameter)
+	err := dbdriver.Read(self.name, "parameter", &self.parameter)
 	if err != nil {
 		self.Randomize()
 	}
@@ -70,7 +69,7 @@ func (self *ModeSolid) TrySetParameter(b []byte) error {
 
 func (self *ModeSolid) setParameter(parm ModeSolidParameter) {
 	self.parameter = parm
-	self.dbDriver.Write(self.name, "parameter", self.parameter)
+	self.dbdriver.Write(self.name, "parameter", self.parameter)
 }
 
 func (self *ModeSolid) Randomize() {

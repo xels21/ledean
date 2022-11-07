@@ -3,12 +3,11 @@ package mode
 import (
 	"encoding/json"
 	"ledean/color"
+	"ledean/dbdriver"
 	"ledean/display"
 	"math"
 	"math/rand"
 	"time"
-
-	"github.com/sdomino/scribble"
 )
 
 type EmitStyle string
@@ -164,7 +163,7 @@ type ModeEmitterLimits struct {
 	MaxBrightness     float64 `json:"maxBrightness"`
 }
 
-func NewModeEmitter(dbDriver *scribble.Driver, display *display.Display) *ModeEmitter {
+func NewModeEmitter(dbdriver *dbdriver.DbDriver, display *display.Display) *ModeEmitter {
 	self := ModeEmitter{
 		limits: ModeEmitterLimits{
 			MinEmitCount:      1,
@@ -175,14 +174,14 @@ func NewModeEmitter(dbDriver *scribble.Driver, display *display.Display) *ModeEm
 			MaxBrightness:     1.0,
 		},
 	}
-	self.ModeSuper = *NewModeSuper(dbDriver, display, "ModeEmitter", RenderTypeDynamic, self.calcDisplay)
+	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeEmitter", RenderTypeDynamic, self.calcDisplay)
 	self.ledsHSV = make([]color.HSV, display.GetRowLedCount())
 	self.emits = make([]ModeEmit, self.limits.MaxEmitCount)
 	for i := uint8(0); i < self.limits.MaxEmitCount; i++ {
 		self.emits[i].pParameter = &self.parameter
 	}
 
-	err := dbDriver.Read(self.name, "parameter", &self.parameter)
+	err := dbdriver.Read(self.name, "parameter", &self.parameter)
 	if err != nil {
 		self.Randomize()
 	} else {
@@ -234,7 +233,7 @@ func (self *ModeEmitter) postSetParameter() {
 
 func (self *ModeEmitter) setParameter(parm ModeEmitterParameter) {
 	self.parameter = parm
-	self.dbDriver.Write(self.name, "parameter", self.parameter)
+	self.dbdriver.Write(self.name, "parameter", self.parameter)
 	self.postSetParameter()
 }
 
