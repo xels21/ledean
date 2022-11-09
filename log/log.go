@@ -7,7 +7,15 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// var log *logrus.Logger
+
 func SetLogger(logLevelStr string) error {
+	// log = &logrus.Logger{
+	// 	Formatter: &easy.Formatter{
+	// 		TimestampFormat: "15:04",
+	// 		LogFormat:       "[%lvl%]: %time% - %msg%\n",
+	// 	},
+	// }
 	logLevel, err := logrus.ParseLevel(logLevelStr)
 	if err != nil {
 		return err
@@ -17,21 +25,21 @@ func SetLogger(logLevelStr string) error {
 }
 
 func Panic(args ...interface{}) {
-	logrus.Panic(args)
+	logrus.Panic(args...)
 }
 func Debugf(format string, args ...interface{}) {
-	logrus.Debugf(format, args)
+	logrus.Debugf(format, args...)
 }
 func Info(args ...interface{}) {
-	logrus.Info(args)
+	logrus.Info(args...)
 }
 func Trace(args ...interface{}) {
-	logrus.Trace(args)
+	logrus.Trace(args...)
 }
 
 func Debug(args ...interface{}) {
-	logrus.Debug(args)
+	logrus.Debug(args...)
 }
 func Fatal(args ...interface{}) {
-	logrus.Fatal(args)
+	logrus.Fatal(args...)
 }
