@@ -4,7 +4,7 @@
 package log
 
 import (
-	"fmt"
+	"log"
 )
 
 func SetLogger(logLevelStr string) error {
@@ -12,20 +12,24 @@ func SetLogger(logLevelStr string) error {
 }
 
 func Panic(args ...interface{}) {
-	fmt.Print(args)
+	log.Panic(args...)
 }
 func Debugf(format string, args ...interface{}) {
-	fmt.Print(args)
+	// log.Print("[Debug]")
+	log.Printf(format, args...)
 }
 func Info(args ...interface{}) {
-	fmt.Print(args)
+	// log.Print("[Info]")
+	log.Println(args...)
 }
 func Trace(args ...interface{}) {
-	fmt.Print(args)
+	// log.Print("[Trace]")
+	log.Println(args...)
 }
 func Debug(args ...interface{}) {
-	fmt.Print(args)
+	// log.Print("[Debug]")
+	log.Println(args...)
 }
 func Fatal(args ...interface{}) {
-	fmt.Print(args)
+	log.Fatal(args...)
 }

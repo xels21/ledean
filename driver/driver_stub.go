@@ -1,5 +1,5 @@
-//go:build !has_pins
-// +build !has_pins
+//go:build !pi
+// +build !pi
 
 package driver
 

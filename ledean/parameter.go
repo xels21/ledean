@@ -29,6 +29,7 @@ type Parameter struct {
 }
 
 func GetParameter() *Parameter {
+	log.Debug("meme")
 	var parm Parameter
 	flag.StringVar(&parm.GpioButton, "gpio_button", "GPIO17", "gpio_pin for the button")
 	flag.StringVar(&parm.GpioLedData, "gpio_led_data", "",
@@ -77,7 +78,8 @@ func (self *Parameter) Check() {
 	if self.LedCount%self.LedRows != 0 {
 		log.Panic("Error in parameter 'led_count' and 'led_rows'\n  - Amount of led have to be equal to each row (e.g. led_count:20, led_rows:2, => 10 leds per row")
 	}
-	if !regexp.MustCompile("^(([01]?)|([01](,[01]){0," + strconv.Itoa(self.LedRows-1) + "}))$").Match([]byte(self.ReverseRows)) {
+	log.Debug("22")
+	if !regexp.MustCompile("^[01](,[01]){0," + strconv.Itoa(self.LedRows-1) + "}$").Match([]byte(self.ReverseRows)) {
 		log.Panic("Reverse Rows are set in a wrong way")
 	}
 
