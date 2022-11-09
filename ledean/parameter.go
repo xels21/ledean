@@ -81,8 +81,9 @@ func (self *Parameter) Check() {
 	}
 
 	const TINYGO_SUPPORTS_REGEX = false
+	// const TINYGO_SUPPORTS_REGEX = true
 	if TINYGO_SUPPORTS_REGEX {
-		if !regexp.MustCompile("^[01](,[01]){0," + strconv.Itoa(self.LedRows-1) + "}$").MatchString(self.ReverseRows) {
+		if !regexp.MustCompile("^[01](,[01]){" + strconv.Itoa(self.LedRows-1) + "}$").MatchString(self.ReverseRows) {
 			log.Panic("Reverse Rows are set in a wrong way")
 		}
 	} else {
