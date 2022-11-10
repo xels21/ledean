@@ -94,9 +94,4 @@ func (self *Parameter) Check() {
 			log.Panic("Reverse Rows are set in a wrong way")
 		}
 	}
-
-	// if !regexp.Compile("^[01](,[01]){0,0}$").MatchString("0") {
-	// log.Panic("Reverse Rows are set in a wrong way")
-	// }
-
 }

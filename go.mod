@@ -3,7 +3,6 @@ module ledean
 go 1.19
 
 require (
-	github.com/aykevl/ledsgo v0.0.0-20220227114919-bd2e91bb77f2
 	github.com/gorilla/mux v1.8.0
 	github.com/rs/cors v1.8.0
 	github.com/sdomino/scribble v0.0.0-20200707180004-3cc68461d505

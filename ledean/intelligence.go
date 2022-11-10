@@ -47,9 +47,12 @@ func Run(parm *Parameter) *LEDeanInstance {
 		self.modeController.Start()
 	}
 
-	for {
-		time.Sleep(3 * time.Second)
-		self.modeController.NextMode()
+	const TEST_MODE = true
+	if TEST_MODE {
+		for {
+			time.Sleep(3 * time.Second)
+			self.modeController.NextMode()
+		}
 	}
 
 	return &self

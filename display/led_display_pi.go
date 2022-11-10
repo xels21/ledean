@@ -8,12 +8,12 @@ type Display struct {
 	piWs28xConnector *ws28x.PiWs28xConnector
 }
 
-func NewDisplay(led_count int, led_rows int, gpioLedData string, reverse_rows_raw string) *Display {
+func NewDisplay(ledCount int, ledRows int, gpioLedData string, reverseRowsRaw string) *Display {
 	self := DisplayBase{
-		DisplayBase: *NewDisplayBase(led_count, led_rows, reverse_rows_raw),
+		DisplayBase: *NewDisplayBase(ledCount, ledRows, reverseRowsRaw),
 	}
 	self.piWs28xConnector = ws28x.NewPiWs28xConnector(gpioLedData)
-	self.piWs28xConnector.Connect(led_count)
+	self.piWs28xConnector.Connect(ledCount)
 	return &self
 }
 
