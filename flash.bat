@@ -1,1 +1,1 @@
-tinygo flash -target=esp32 -tags="tinygo"
+tinygo flash -target=esp32

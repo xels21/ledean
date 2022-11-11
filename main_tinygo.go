@@ -12,7 +12,7 @@ import (
 func main() {
 	fmt.Print(ledean.GetStartScreen())
 	// cliParameter := "-gpio_led_data=23 -gpio_button=24 -led_count=50 -direct_start"
-	os.Args = []string{"tinygo_stub", "-gpio_led_data=23", "-gpio_button=24", "-led_count=50", "-direct_start"}
+	os.Args = []string{"tinygo_stub", "-gpio_led_data=23", "-gpio_button=22", "-led_count=50", "-direct_start"}
 	parm := ledean.GetParameter()
 	// parm := Parameter{}
 
