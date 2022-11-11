@@ -3,15 +3,21 @@
 
 package pin
 
-type Pin struct {
+import (
+	"ledean/log"
 	"periph.io/x/periph/conn/gpio"
 	"periph.io/x/periph/conn/gpio/gpioreg"
+	"time"
+)
+
+type Pin struct {
+	pin gpio.PinIO
 }
 
-func NewPin(gpio string) *Pin {
-	pin := gpioreg.ByName(gpio)
+func NewPin(gpioName string) *Pin {
+	pin := gpioreg.ByName(gpioName)
 	if pin == nil {
-		log.Fatal("Failed to find: ", gpio)
+		log.Fatal("Failed to find: ", gpioName)
 	}
 	self := Pin{pin: pin}
 	// var p PinIn
@@ -27,5 +33,5 @@ func (self *Pin) WaitForEdge(timeout time.Duration) bool {
 }
 
 func (self *Pin) Read() bool {
-	return self.pin.Read()
+	return self.pin.Read() == true
 }

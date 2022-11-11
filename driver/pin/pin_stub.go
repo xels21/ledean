@@ -3,10 +3,14 @@
 
 package pin
 
+import (
+	"time"
+)
+
 type Pin struct {
 }
 
-func NewPin(gpio string) *Pin {
+func NewPin(gpioName string) *Pin {
 	self := Pin{}
 	return &self
 }
