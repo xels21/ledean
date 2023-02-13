@@ -12,17 +12,8 @@ import (
 )
 
 const (
-	FPS30             = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 30) * time.Nanosecond)
-	FPS40             = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 40) * time.Nanosecond)
-	FPS50             = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 50) * time.Nanosecond)
-	FPS60             = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 60) * time.Nanosecond)
-	FPS70             = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 70) * time.Nanosecond)
-	FPS80             = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 80) * time.Nanosecond)
-	FPS90             = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 90) * time.Nanosecond)
-	FPS100            = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 100) * time.Nanosecond)
-	FPS110            = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 110) * time.Nanosecond)
-	FPS120            = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / 120) * time.Nanosecond)
-	RefreshIntervalNs = FPS40
+	FPS               = 40
+	RefreshIntervalNs = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / FPS) * time.Nanosecond)
 )
 
 type ModeController struct {
@@ -38,6 +29,7 @@ type ModeController struct {
 	modeTransitionRainbow *ModeTransitionRainbow
 	modeRunningLed        *ModeRunningLed
 	modeEmitter           *ModeEmitter
+	modeGradient          *ModeGradient
 }
 
 func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, button *button.Button) *ModeController {
@@ -51,8 +43,9 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 		modeTransitionRainbow: NewModeTransitionRainbow(dbdriver, display),
 		modeRunningLed:        NewModeRunningLed(dbdriver, display),
 		modeEmitter:           NewModeEmitter(dbdriver, display),
+		modeGradient:          NewModeGradient(dbdriver, display),
 	}
-	self.modes = []Mode{self.modeSolid, self.modeSolidRainbow, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter}
+	self.modes = []Mode{self.modeSolid, self.modeSolidRainbow, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient}
 	self.modesLength = uint8(len(self.modes))
 
 	err := dbdriver.Read("modeController", "modesIndex", &self.modesIndex)

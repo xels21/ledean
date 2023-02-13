@@ -16,7 +16,7 @@ type Pin struct {
 const SAMPLING_RATE_MS = 70
 
 func NewPin(gpioName string) *Pin {
-	gpioInt, _ := strconv.Atoi(gpio)
+	gpioInt, _ := strconv.Atoi(gpioName)
 	self := Pin{
 		machine.Pin(gpioInt),
 	}
