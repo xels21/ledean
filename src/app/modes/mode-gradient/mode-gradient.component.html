@@ -1,1 +1,23 @@
-<p>mode-gradient works!</p>
+<div class="row">
+  <div class="col s3 input-field">
+    <input id="Count" type="number" [min]="modeGradientLimits.minCount" [max]="modeGradientLimits.maxCount"
+      (change)="setModeGradientParameter()" [(ngModel)]="modeGradientParameter.count" />
+    <label for="Count">Count</label>
+  </div>
+  <div class="col s9 valign-wrapper generic-slider"> <input type="range" [min]="modeGradientLimits.minCount"
+      [max]="modeGradientLimits.maxCount" step="1" (change)="setModeGradientParameter()"
+      [(ngModel)]="modeGradientParameter.count" /> </div>
+</div>
+
+<div class="row" [ngStyle]="{'background-color': 'rgba(255,255,255,'+modeGradientParameter.brightness+')'}">
+  <div class="input-field col s3">
+    <input id="brightness" type="number" [(ngModel)]="modeGradientParameter.brightness"
+      (change)="setModeGradientParameter()" />
+    <label for="brightness">Brightness</label>
+  </div>
+
+  <div class="col s9 valign-wrapper generic-slider">
+    <input type="range" [min]="modeGradientLimits.minBrightness" [max]="modeGradientLimits.maxBrightness" step="0.01"
+      (change)="setModeGradientParameter()" [(ngModel)]="modeGradientParameter.brightness" />
+  </div>
+</div>
