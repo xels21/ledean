@@ -10,28 +10,26 @@ import (
 // for a valid return value.
 func TestModeGradient(t *testing.T) {
 	ledCount := 5
+	gradientCount := uint32(3)
 	dbdriver, _ := dbdriver.NewDbDriver("../tst/temp/db")
 	display := display.NewDisplay(ledCount, 1, "0", "0")
 	// roundTimeMs := uint32(1000)
 	// // progressDegStepSize := 360 / (float64(roundTimeMs) / 1000) * (float64(RefreshIntervalNs) / 1000 / 1000 / 1000)
 
 	modeGradient := NewModeGradient(dbdriver, display)
-	modeGradientParameter := ModeGradientParameter{Brightness: 1.0, Count: 3}
+	modeGradientParameter := ModeGradientParameter{Brightness: 1.0, Count: gradientCount}
 	modeGradient.setParameter(modeGradientParameter)
 	for i := range modeGradient.positions {
 		modeGradient.positions[i].percent = 0
-	}
-	if modeGradient.positions[0].percent != 0 {
-		t.Fatalf(`progress set not working`)
 	}
 	modeGradient.calcDisplay()
 	if modeGradient.positions[0].percent == 0 {
 		t.Fatalf(`progress not increasing`)
 	}
-	if modeGradient.positions[0].hue_current != modeGradient.positions[0].hue_from {
+	if modeGradient.positions[0].hueCurrent != modeGradient.positions[0].hueFrom {
 		t.Fatalf(`first position is wrong`)
 	}
-	if modeGradient.ledsHSV[0].H != modeGradient.positions[0].hue_current {
+	if modeGradient.ledsHSV[0].H != modeGradient.positions[0].hueCurrent {
 		t.Fatalf(`first color is wrong`)
 	}
 	// modeGradient.progressDegStep = 360.0 - modeGradient.progressDegStepSize

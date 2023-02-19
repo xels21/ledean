@@ -45,7 +45,7 @@ func Run(parm *Parameter) *LEDeanInstance {
 
 	if parm.DirectStart {
 		self.modeController.Start()
-		self.modeController.NextMode()
+		// self.modeController.NextMode()
 	}
 
 	const TEST_MODE = false
