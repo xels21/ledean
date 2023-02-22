@@ -76,10 +76,10 @@ func (self *ModeTransitionRainbow) TrySetParameter(b []byte) error {
 		return err
 	}
 
-	self.setParameter(&tempPar)
+	self.SetParameter(&tempPar)
 	return nil
 }
-func (self *ModeTransitionRainbow) setParameter(parm *ModeTransitionRainbowParameter) {
+func (self *ModeTransitionRainbow) SetParameter(parm *ModeTransitionRainbowParameter) {
 	self.parameter = *parm
 	self.dbdriver.Write(self.GetName(), "parameter", self.parameter)
 	self.postSetParameter()
@@ -113,7 +113,7 @@ func (self *ModeTransitionRainbow) calcDisplay() {
 
 func (self *ModeTransitionRainbow) Randomize() {
 	rand.Seed(time.Now().UnixNano())
-	self.setParameter(&ModeTransitionRainbowParameter{
+	self.SetParameter(&ModeTransitionRainbowParameter{
 		RoundTimeMs: uint32(rand.Float32()*float32(self.limits.MaxRoundTimeMs-self.limits.MinRoundTimeMs)) + self.limits.MinRoundTimeMs,
 		Brightness:  rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
 		Spectrum:    rand.Float64()*(self.limits.MaxSpectrum-self.limits.MinSpectrum) + self.limits.MinSpectrum,

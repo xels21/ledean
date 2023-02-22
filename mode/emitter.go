@@ -221,7 +221,7 @@ func (self *ModeEmitter) TrySetParameter(b []byte) error {
 		return err
 	}
 
-	self.setParameter(tempPar)
+	self.SetParameter(tempPar)
 	return nil
 }
 
@@ -231,7 +231,7 @@ func (self *ModeEmitter) postSetParameter() {
 	}
 }
 
-func (self *ModeEmitter) setParameter(parm ModeEmitterParameter) {
+func (self *ModeEmitter) SetParameter(parm ModeEmitterParameter) {
 	self.parameter = parm
 	self.dbdriver.Write(self.name, "parameter", self.parameter)
 	self.postSetParameter()
@@ -251,7 +251,7 @@ func (self *ModeEmitter) Randomize() {
 		WaveSpeedFac:      1.0, //TODO
 		WaveWidthFac:      1.0, //TODO
 	}
-	self.setParameter(parameter)
+	self.SetParameter(parameter)
 }
 
 func (self *ModeEmitter) getRandomStyle() EmitStyle {

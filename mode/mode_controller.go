@@ -58,6 +58,38 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 	return &self
 }
 
+func (self *ModeController) SwitchIndexFriendlyName(friendlyName string) {
+	self.SwitchIndex(self.GetIndexOf(friendlyName))
+}
+
+func (self *ModeController) GetIndexOf(friendlyName string) uint8 {
+	for i := range self.modes {
+		if self.modes[i].GetName() == friendlyName {
+			return uint8(i)
+		}
+	}
+	return uint8(255)
+}
+
+func (self *ModeController) GetModeSolid() *ModeSolid {
+	return self.modeSolid
+}
+func (self *ModeController) GetModeSolidRainbow() *ModeSolidRainbow {
+	return self.modeSolidRainbow
+}
+func (self *ModeController) GetModeTransitionRainbow() *ModeTransitionRainbow {
+	return self.modeTransitionRainbow
+}
+func (self *ModeController) GetModeRunningLed() *ModeRunningLed {
+	return self.modeRunningLed
+}
+func (self *ModeController) GetModeEmitter() *ModeEmitter {
+	return self.modeEmitter
+}
+func (self *ModeController) GetModeGradient() *ModeGradient {
+	return self.modeGradient
+}
+
 func (self *ModeController) NextMode() {
 	log.Info("nextMode")
 	if self.active {

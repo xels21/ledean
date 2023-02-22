@@ -86,10 +86,10 @@ func (self *ModeRunningLed) TrySetParameter(b []byte) error {
 		return err
 	}
 
-	self.setParameter(tempPar)
+	self.SetParameter(tempPar)
 	return nil
 }
-func (self *ModeRunningLed) setParameter(parm ModeRunningLedParameter) {
+func (self *ModeRunningLed) SetParameter(parm ModeRunningLedParameter) {
 	self.parameter = parm
 	self.dbdriver.Write(self.GetName(), "parameter", self.parameter)
 	self.postSetParameter()
@@ -173,7 +173,7 @@ func (self *ModeRunningLed) AddRunningLed(position float64, speed float64) {
 func (self *ModeRunningLed) Randomize() {
 	rand.Seed(time.Now().UnixNano())
 
-	self.setParameter(ModeRunningLedParameter{
+	self.SetParameter(ModeRunningLedParameter{
 		Brightness:  rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
 		FadePct:     rand.Float64()*(self.limits.MaxFadePct-self.limits.MinFadePct) + self.limits.MinFadePct,
 		HueFrom:     rand.Float64() * 360.0,

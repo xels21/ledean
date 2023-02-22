@@ -19,6 +19,10 @@ type LEDeanInstance struct {
 	button         *button.Button
 }
 
+func (self *LEDeanInstance) GetModeController() *mode.ModeController {
+	return self.modeController
+}
+
 func Run(parm *Parameter) *LEDeanInstance {
 	var self LEDeanInstance
 	var err error

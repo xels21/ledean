@@ -61,11 +61,11 @@ func (self *ModeSolidRainbow) TrySetParameter(b []byte) error {
 		return err
 	}
 
-	self.setParameter(tempPar)
+	self.SetParameter(tempPar)
 	return nil
 }
 
-func (self *ModeSolidRainbow) setParameter(parm ModeSolidRainbowParameter) {
+func (self *ModeSolidRainbow) SetParameter(parm ModeSolidRainbowParameter) {
 	self.parameter = parm
 	self.dbdriver.Write(self.GetName(), "parameter", self.parameter)
 	self.postSetParameter()
@@ -88,7 +88,7 @@ func (self *ModeSolidRainbow) calcDisplay() {
 
 func (self *ModeSolidRainbow) Randomize() {
 	rand.Seed(time.Now().UnixNano())
-	self.setParameter(ModeSolidRainbowParameter{
+	self.SetParameter(ModeSolidRainbowParameter{
 		RoundTimeMs: uint32(rand.Float32()*float32(self.limits.MaxRoundTimeMs-self.limits.MinRoundTimeMs)) + self.limits.MinRoundTimeMs,
 		Brightness:  rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
 		Hsv: color.HSV{

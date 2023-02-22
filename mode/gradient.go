@@ -86,11 +86,11 @@ func (self *ModeGradient) TrySetParameter(b []byte) error {
 		return err
 	}
 
-	self.setParameter(tempPar)
+	self.SetParameter(tempPar)
 	return nil
 }
 
-func (self *ModeGradient) setParameter(parm ModeGradientParameter) {
+func (self *ModeGradient) SetParameter(parm ModeGradientParameter) {
 	self.parameter = parm
 	self.dbdriver.Write(self.GetName(), "parameter", self.parameter)
 	self.postSetParameter()
@@ -161,7 +161,7 @@ func (self *ModeGradient) calcDisplay() {
 
 func (self *ModeGradient) Randomize() {
 	rand.Seed(time.Now().UnixNano())
-	self.setParameter(ModeGradientParameter{
+	self.SetParameter(ModeGradientParameter{
 		Brightness:  rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
 		Count:       rand.Uint32()%(self.limits.MaxCount-self.limits.MinCount) + self.limits.MinCount,
 		RoundTimeMs: uint32(rand.Float32()*float32(self.limits.MaxRoundTimeMs-self.limits.MinRoundTimeMs)) + self.limits.MinRoundTimeMs,

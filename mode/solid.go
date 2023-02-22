@@ -63,11 +63,11 @@ func (self *ModeSolid) TrySetParameter(b []byte) error {
 		return err
 	}
 
-	self.setParameter(tempPar)
+	self.SetParameter(tempPar)
 	return nil
 }
 
-func (self *ModeSolid) setParameter(parm ModeSolidParameter) {
+func (self *ModeSolid) SetParameter(parm ModeSolidParameter) {
 	self.parameter = parm
 	self.dbdriver.Write(self.name, "parameter", self.parameter)
 }
@@ -82,5 +82,5 @@ func (self *ModeSolid) Randomize() {
 			B: uint8(rand.Intn(255)),
 		},
 	}
-	self.setParameter(parameter)
+	self.SetParameter(parameter)
 }
