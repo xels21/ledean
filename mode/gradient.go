@@ -10,15 +10,14 @@ import (
 )
 
 type ModeGradientPosition struct {
-	hueFrom     float64
-	hueTo       float64
-	hueCurrent  float64
-	hueDistance float64
-	positive    bool
-	roundTimeMs uint32
-	percentStep float64
-	percent     float64
-	limits      *ModeGradientLimits
+	hueFrom      float64
+	hueTo        float64
+	hueCurrent   float64
+	hueDistance  float64
+	positive     bool
+	pRoundTimeMs *uint32
+	percentStep  float64
+	percent      float64
 }
 
 type ModeGradient struct {
@@ -30,8 +29,9 @@ type ModeGradient struct {
 }
 
 type ModeGradientParameter struct {
-	Brightness float64 `json:"brightness"`
-	Count      uint32  `json:"count"`
+	Brightness  float64 `json:"brightness"`
+	Count       uint32  `json:"count"`
+	RoundTimeMs uint32  `json:"roundTimeMs"`
 }
 type ModeGradientLimits struct {
 	MinRoundTimeMs uint32  `json:"minRoundTimeMs"`
@@ -45,8 +45,8 @@ type ModeGradientLimits struct {
 func NewModeGradient(dbdriver *dbdriver.DbDriver, display *display.Display) *ModeGradient {
 	self := ModeGradient{
 		limits: ModeGradientLimits{
-			MinRoundTimeMs: 5000,
-			MaxRoundTimeMs: 5000,
+			MinRoundTimeMs: 1000,
+			MaxRoundTimeMs: 8000,
 			MinBrightness:  0.1,
 			MaxBrightness:  1.0,
 			MinCount:       2,
@@ -110,8 +110,7 @@ func (self *ModeGradientPosition) StepForward() {
 func (self *ModeGradientPosition) randomizeWoFrom() {
 	self.hueTo = rand.Float64() * 360.0
 	self.positive = rand.Uint32()&1 == 1
-	self.roundTimeMs = uint32(rand.Float32()*float32(self.limits.MaxRoundTimeMs-self.limits.MinRoundTimeMs)) + self.limits.MinRoundTimeMs
-	self.percentStep = 100 / (float64(self.roundTimeMs) / 1000) * (float64(RefreshIntervalNs) / 1000 / 1000 / 1000)
+	self.percentStep = 100 / (float64(*self.pRoundTimeMs) / 1000) * (float64(RefreshIntervalNs) / 1000 / 1000 / 1000)
 
 	self.hueDistance = self.hueTo - self.hueFrom
 	if self.hueDistance < 0 && self.positive {
@@ -130,7 +129,7 @@ func (self *ModeGradient) postSetParameter() {
 	self.positions = make([]ModeGradientPosition, self.parameter.Count)
 	for i := range self.positions {
 		self.positions[i].percent = 0
-		self.positions[i].limits = &self.limits
+		self.positions[i].pRoundTimeMs = &self.parameter.RoundTimeMs
 		self.positions[i].Randomize()
 	}
 	for i := 0; i < len(self.ledsHSV); i++ {
@@ -147,8 +146,18 @@ func (self *ModeGradient) calcDisplayWoStep() {
 		if huePos != 0 {
 			relPos = 0
 		}
-		self.ledsHSV[i].H = self.positions[huePos].hueCurrent*(1.0-relPos) + self.positions[huePos+1].hueCurrent*relPos
-
+		distance := self.positions[huePos+1].hueCurrent - self.positions[huePos].hueCurrent
+		if distance > 180 {
+			distance -= 360
+		} else if distance < -180 {
+			distance += 360
+		}
+		self.ledsHSV[i].H = self.positions[huePos].hueCurrent + distance*relPos
+		if self.ledsHSV[i].H > 360 {
+			self.ledsHSV[i].H -= 360
+		} else if self.ledsHSV[i].H < 0 {
+			self.ledsHSV[i].H += 360
+		}
 		// self.ledsHSV[i].H = self.positions[huePos].hueCurrent
 
 		// if !(self.ledsHSV[i].H >= self.positions[huePos].hueCurrent && self.ledsHSV[i].H <= self.positions[huePos+1].hueCurrent) && !(self.ledsHSV[i].H <= self.positions[huePos].hueCurrent && self.ledsHSV[i].H >= self.positions[huePos+1].hueCurrent) {
@@ -191,7 +200,8 @@ func (self *ModeGradient) calcDisplay() {
 func (self *ModeGradient) Randomize() {
 	rand.Seed(time.Now().UnixNano())
 	self.setParameter(ModeGradientParameter{
-		Brightness: rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
-		Count:      rand.Uint32()%(self.limits.MaxCount-self.limits.MinCount) + self.limits.MinCount,
+		Brightness:  rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
+		Count:       rand.Uint32()%(self.limits.MaxCount-self.limits.MinCount) + self.limits.MinCount,
+		RoundTimeMs: uint32(rand.Float32()*float32(self.limits.MaxRoundTimeMs-self.limits.MinRoundTimeMs)) + self.limits.MinRoundTimeMs,
 	})
 }
