@@ -10,22 +10,23 @@ import (
 )
 
 type ModeGradientPosition struct {
-	hueFrom      float64
-	hueTo        float64
-	hueCurrent   float64
-	hueDistance  float64
-	positive     bool
-	pRoundTimeMs *uint32
-	percentStep  float64
-	percent      float64
+	hueFrom720    float64
+	hueTo720      float64
+	hueCurrent720 float64
+	hueDistance   float64
+	positive      bool
+	pRoundTimeMs  *uint32
+	percentStep   float64
+	percent       float64
 }
 
 type ModeGradient struct {
 	ModeSuper
-	parameter ModeGradientParameter
-	limits    ModeGradientLimits
-	ledsHSV   []color.HSV
-	positions []ModeGradientPosition
+	parameter    ModeGradientParameter
+	limits       ModeGradientLimits
+	ledsHSV      []color.HSV
+	positions    []ModeGradientPosition
+	posDistances []float64
 }
 
 type ModeGradientParameter struct {
@@ -55,6 +56,9 @@ func NewModeGradient(dbdriver *dbdriver.DbDriver, display *display.Display) *Mod
 	}
 
 	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeGradient", RenderTypeDynamic, self.calcDisplay)
+
+	self.positions = make([]ModeGradientPosition, self.limits.MaxCount)
+	self.posDistances = make([]float64, self.limits.MaxCount-1)
 
 	self.ledsHSV = make([]color.HSV, self.display.GetRowLedCount())
 	for i := 0; i < len(self.ledsHSV); i++ {
@@ -93,45 +97,35 @@ func (self *ModeGradient) setParameter(parm ModeGradientParameter) {
 }
 
 func (self *ModeGradientPosition) StepForward() {
-	self.hueCurrent = self.hueFrom + self.hueDistance*self.percent/100
-	if self.hueCurrent < 0 {
-		self.hueCurrent += 360
-	} else if self.hueCurrent > 360 {
-		self.hueCurrent -= 360
-	}
+	self.hueCurrent720 = self.hueFrom720 + self.hueDistance*self.percent/100
 
 	self.percent += self.percentStep
 	if self.percent > 100 {
 		self.percent -= 100
-		self.hueFrom = self.hueTo
+		self.hueFrom720 = self.hueTo720
 		self.randomizeWoFrom()
 	}
 }
 func (self *ModeGradientPosition) randomizeWoFrom() {
-	self.hueTo = rand.Float64() * 360.0
+	self.hueTo720 = rand.Float64() * 720.0
 	self.positive = rand.Uint32()&1 == 1
 	self.percentStep = 100 / (float64(*self.pRoundTimeMs) / 1000) * (float64(RefreshIntervalNs) / 1000 / 1000 / 1000)
 
-	self.hueDistance = self.hueTo - self.hueFrom
-	if self.hueDistance < 0 && self.positive {
-		self.hueDistance += 360.0
-	} else if self.hueDistance > 0 && !self.positive {
-		self.hueDistance -= 360.0
-	}
+	self.hueDistance = self.hueTo720 - self.hueFrom720
 }
 func (self *ModeGradientPosition) Randomize() {
 	self.percent = rand.Float64() * 100.0
-	self.hueFrom = rand.Float64() * 360.0
+	self.hueFrom720 = rand.Float64() * 720.0
 	self.randomizeWoFrom()
 }
 
 func (self *ModeGradient) postSetParameter() {
-	self.positions = make([]ModeGradientPosition, self.parameter.Count)
 	for i := range self.positions {
 		self.positions[i].percent = 0
 		self.positions[i].pRoundTimeMs = &self.parameter.RoundTimeMs
 		self.positions[i].Randomize()
 	}
+
 	for i := 0; i < len(self.ledsHSV); i++ {
 		self.ledsHSV[i].V = self.parameter.Brightness
 	}
@@ -143,56 +137,24 @@ func (self *ModeGradient) calcDisplayWoStep() {
 		huePos := int(absPos)
 
 		relPos := absPos - float64(huePos)
-		if huePos != 0 {
-			relPos = 0
-		}
-		distance := self.positions[huePos+1].hueCurrent - self.positions[huePos].hueCurrent
-		if distance > 180 {
-			distance -= 360
-		} else if distance < -180 {
-			distance += 360
-		}
-		self.ledsHSV[i].H = self.positions[huePos].hueCurrent + distance*relPos
-		if self.ledsHSV[i].H > 360 {
-			self.ledsHSV[i].H -= 360
-		} else if self.ledsHSV[i].H < 0 {
-			self.ledsHSV[i].H += 360
-		}
-		// self.ledsHSV[i].H = self.positions[huePos].hueCurrent
 
-		// if !(self.ledsHSV[i].H >= self.positions[huePos].hueCurrent && self.ledsHSV[i].H <= self.positions[huePos+1].hueCurrent) && !(self.ledsHSV[i].H <= self.positions[huePos].hueCurrent && self.ledsHSV[i].H >= self.positions[huePos+1].hueCurrent) {
-		// fmt.Printf("%d_%d,%d\n", self.ledsHSV[i].H, self.positions[huePos].hueCurrent, self.positions[huePos+1].hueCurrent)
+		self.ledsHSV[i].H = self.positions[huePos].hueCurrent720 + self.posDistances[huePos]*relPos
+		// if self.ledsHSV[i].H > 360 {
+		// 	self.ledsHSV[i].H -= 360
+		// } else if self.ledsHSV[i].H < 0 {
+		// 	self.ledsHSV[i].H += 360
 		// }
 	}
-	// self.percent += self.percentStep
-	// if self.percent >= 360.0 {
-	// 	self.shiftGradiant()
-	// 	self.percent -= 360.0
-	// }
-
-	// for i := 0; i < len(self.ledsHSV); i++ {
-	// 	SCALE := 1.0
-	// 	pos := self.percent/360.0 - SCALE*float64(i)/float64(len(self.ledsHSV)-1)
-	// 	hueI := int(pos)
-	// 	if hueI < 0 {
-	// 		hueI *= -1
-	// 	}
-	// 	posRel := pos + float64(hueI)
-	// 	hue := (self.hues[hueI]*(posRel) + self.hues[hueI+1]*(1.0-posRel))
-	// 	if hue > 360.0 {
-	// 		hue -= 360.0
-	// 	} else if hue < 0 {
-	// 		hue += 360.0
-	// 	}
-	// 	self.ledsHSV[i].H = hue
-	// }
 
 	self.display.ApplySingleRowHSV(self.ledsHSV)
 }
 
 func (self *ModeGradient) calcDisplay() {
-	for i := range self.positions {
+	for i := 0; i < int(self.parameter.Count); i++ {
 		self.positions[i].StepForward()
+	}
+	for i := 0; i < int(self.parameter.Count-1); i++ {
+		self.posDistances[i] = self.positions[1+i].hueCurrent720 - self.positions[i].hueCurrent720
 	}
 	self.calcDisplayWoStep()
 }
