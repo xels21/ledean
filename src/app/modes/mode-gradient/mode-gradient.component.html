@@ -9,6 +9,17 @@
       [(ngModel)]="modeGradientParameter.count" /> </div>
 </div>
 
+<div class="row">
+  <div class="col s3 input-field">
+    <input id="roundTimeMs" type="number" [min]="modeGradientLimits.minRoundTimeMs" [max]="modeGradientLimits.maxRoundTimeMs"
+      (change)="setModeGradientParameter()" [(ngModel)]="modeGradientParameter.roundTimeMs" />
+    <label for="roundTimeMs">RoundTimeMs</label>
+  </div>
+  <div class="col s9 valign-wrapper generic-slider"> <input type="range" [min]="modeGradientLimits.minRoundTimeMs"
+      [max]="modeGradientLimits.maxRoundTimeMs" step="1" (change)="setModeGradientParameter()"
+      [(ngModel)]="modeGradientParameter.roundTimeMs" /> </div>
+</div>
+
 <div class="row" [ngStyle]="{'background-color': 'rgba(255,255,255,'+modeGradientParameter.brightness+')'}">
   <div class="input-field col s3">
     <input id="brightness" type="number" [(ngModel)]="modeGradientParameter.brightness"
