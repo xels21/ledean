@@ -31,6 +31,6 @@ func main() {
 func injectFavMode(pLedean *ledean.LEDeanInstance) {
 	modeController := pLedean.GetModeController()
 	modeGradient := modeController.GetModeGradient()
-	modeGradient.SetParameter(mode.ModeGradientParameter{Brightness: 0.2, Count: 3, RoundTimeMs: 6666})
+	modeGradient.SetParameter(mode.ModeGradientParameter{Brightness: 0.1, Count: 3, RoundTimeMs: 6666})
 	modeController.SwitchIndexFriendlyName("ModeGradient")
 }
