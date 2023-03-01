@@ -14,9 +14,7 @@ type ModeGradientPosition struct {
 	hueTo720      float64
 	hueCurrent720 float64
 	hueDistance   float64
-	positive      bool
-	pRoundTimeMs  *uint32
-	percentStep   float64
+	pPercentStep  *float64
 	percent       float64
 }
 
@@ -24,6 +22,7 @@ type ModeGradient struct {
 	ModeSuper
 	parameter    ModeGradientParameter
 	limits       ModeGradientLimits
+	percentStep  float64
 	ledsHSV      []color.HSV
 	positions    []ModeGradientPosition
 	posDistances []float64
@@ -47,8 +46,8 @@ func NewModeGradient(dbdriver *dbdriver.DbDriver, display *display.Display) *Mod
 	self := ModeGradient{
 		limits: ModeGradientLimits{
 			MinRoundTimeMs: 1000,
-			MaxRoundTimeMs: 8000,
-			MinBrightness:  0.1,
+			MaxRoundTimeMs: 10000,
+			MinBrightness:  0.01,
 			MaxBrightness:  1.0,
 			MinCount:       2,
 			MaxCount:       6,
@@ -57,8 +56,11 @@ func NewModeGradient(dbdriver *dbdriver.DbDriver, display *display.Display) *Mod
 
 	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeGradient", RenderTypeDynamic, self.calcDisplay)
 
-	self.positions = make([]ModeGradientPosition, self.limits.MaxCount)
 	self.posDistances = make([]float64, self.limits.MaxCount-1)
+	self.positions = make([]ModeGradientPosition, self.limits.MaxCount)
+	for i := range self.positions {
+		self.positions[i].pPercentStep = &self.percentStep
+	}
 
 	self.ledsHSV = make([]color.HSV, self.display.GetRowLedCount())
 	for i := 0; i < len(self.ledsHSV); i++ {
@@ -99,7 +101,7 @@ func (self *ModeGradient) SetParameter(parm ModeGradientParameter) {
 func (self *ModeGradientPosition) StepForward() {
 	self.hueCurrent720 = self.hueFrom720 + self.hueDistance*self.percent/100
 
-	self.percent += self.percentStep
+	self.percent += *self.pPercentStep
 	if self.percent > 100 {
 		self.percent -= 100
 		self.hueFrom720 = self.hueTo720
@@ -108,11 +110,10 @@ func (self *ModeGradientPosition) StepForward() {
 }
 func (self *ModeGradientPosition) randomizeWoFrom() {
 	self.hueTo720 = rand.Float64() * 720.0
-	self.positive = rand.Uint32()&1 == 1
-	self.percentStep = 100 / (float64(*self.pRoundTimeMs) / 1000) * (float64(RefreshIntervalNs) / 1000 / 1000 / 1000)
 
 	self.hueDistance = self.hueTo720 - self.hueFrom720
 }
+
 func (self *ModeGradientPosition) Randomize() {
 	self.percent = rand.Float64() * 100.0
 	self.hueFrom720 = rand.Float64() * 720.0
@@ -120,9 +121,9 @@ func (self *ModeGradientPosition) Randomize() {
 }
 
 func (self *ModeGradient) postSetParameter() {
+	self.percentStep = 100 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(RefreshIntervalNs) / 1000 / 1000 / 1000)
+
 	for i := range self.positions {
-		self.positions[i].percent = 0
-		self.positions[i].pRoundTimeMs = &self.parameter.RoundTimeMs
 		self.positions[i].Randomize()
 	}
 

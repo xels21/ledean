@@ -53,7 +53,7 @@ func NewModeRunningLed(dbdriver *dbdriver.DbDriver, display *display.Display) *M
 		limits: ModeRunningLedLimits{
 			MinRoundTimeMs: 1000,  //1s
 			MaxRoundTimeMs: 30000, //30s
-			MinBrightness:  0.3,
+			MinBrightness:  0.2,
 			MaxBrightness:  1.0,
 			MinFadePct:     0.0,
 			MaxFadePct:     1.0,

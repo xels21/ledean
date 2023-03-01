@@ -170,7 +170,7 @@ func NewModeEmitter(dbdriver *dbdriver.DbDriver, display *display.Display) *Mode
 			MaxEmitCount:      5,
 			MinEmitLifetimeMs: 500,
 			MaxEmitLifetimeMs: 7000,
-			MinBrightness:     0.05,
+			MinBrightness:     0.01,
 			MaxBrightness:     1.0,
 		},
 	}

@@ -40,7 +40,7 @@ func NewModeTransitionRainbow(dbdriver *dbdriver.DbDriver, display *display.Disp
 		limits: ModeTransitionRainbowLimits{
 			MinRoundTimeMs: 500,
 			MaxRoundTimeMs: 30000,
-			MinBrightness:  0.1,
+			MinBrightness:  0.01,
 			MaxBrightness:  1.0,
 			MinSpectrum:    0.1,
 			MaxSpectrum:    2.0,

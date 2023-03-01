@@ -33,7 +33,7 @@ func NewModeSolidRainbow(dbdriver *dbdriver.DbDriver, display *display.Display) 
 		limits: ModeSolidRainbowLimits{
 			MinRoundTimeMs: 2000,   //2s
 			MaxRoundTimeMs: 300000, //5min
-			MinBrightness:  0.1,
+			MinBrightness:  0.01,
 			MaxBrightness:  1.0,
 		},
 	}
