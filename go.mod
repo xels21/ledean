@@ -10,6 +10,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	periph.io/x/periph v3.6.8+incompatible
 	tinygo.org/x/drivers v0.23.0
+	github.com/gorilla/websocket v1.5.0
 )
 
 require (

@@ -39,7 +39,9 @@ func Run(parm *Parameter) *LEDeanInstance {
 	self.button.Register()
 
 	self.display = display.NewDisplay(parm.LedCount, parm.LedRows, parm.GpioLedData, parm.ReverseRows)
-	self.modeController = mode.NewModeController(self.dbdriver, self.display, self.button)
+	if !parm.IsPictureMode {
+		self.modeController = mode.NewModeController(self.dbdriver, self.display, self.button)
+	}
 
 	self.button.AddCbPressSingle(func() { log.Info("PRESS_SINGLE") })
 	self.button.AddCbPressDouble(func() { log.Info("PRESS_DOUBLE") })
@@ -48,7 +50,9 @@ func Run(parm *Parameter) *LEDeanInstance {
 	go webserver.Start(parm.Address, parm.Port, parm.Path2Frontend, self.display, self.modeController, self.button)
 
 	if parm.DirectStart {
-		self.modeController.Start()
+		if !parm.IsPictureMode {
+			self.modeController.Start()
+		}
 		// self.modeController.NextMode()
 	}
 

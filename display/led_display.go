@@ -3,6 +3,7 @@ package display
 import (
 	"ledean/color"
 	"ledean/json"
+	"ledean/log"
 	"strings"
 )
 
@@ -15,6 +16,7 @@ type DisplayBase struct {
 	reverse_rows         []bool
 	leds                 []color.RGB
 	buffer               []byte
+	LedsChanged          chan (bool)
 	// active           bool
 	// modeController *mode.ModeController //[]mode.Mode
 }
@@ -37,6 +39,7 @@ func NewDisplayBase(led_count int, led_rows int, reverse_rows_raw string) *Displ
 		reverse_rows:         make([]bool, led_rows),
 		leds:                 make([]color.RGB, led_count),
 		buffer:               make([]byte, 9*led_count),
+		LedsChanged:          make(chan bool),
 		// active:    false,
 	}
 
@@ -108,7 +111,17 @@ func (self *DisplayBase) applySingleRow() {
 			self.leds[i] = (*usedRow)[ri]
 		}
 	}
+	self.fireLedsChanged()
 }
+
+func (self *DisplayBase) fireLedsChanged() {
+	select { //non blocking channels
+	case self.LedsChanged <- true:
+	default:
+		log.Trace("Leds got updated, but nobody cares")
+	}
+}
+
 func (self *DisplayBase) ApplySingleRowRGB(singleRow []color.RGB) {
 	self.singleRowRGB = singleRow
 	self.applySingleRow()
@@ -132,7 +145,8 @@ func (self *DisplayBase) Clear() {
 }
 
 func (self *DisplayBase) AllSolid(rgb color.RGB) {
-	for i, _ := range self.leds {
-		self.leds[i] = rgb
+	for i, _ := range self.singleRowRGB {
+		self.singleRowRGB[i] = rgb
 	}
+	self.applySingleRow()
 }

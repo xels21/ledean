@@ -7,6 +7,7 @@ import (
 	"ledean/display"
 	"ledean/driver/button"
 	"ledean/mode"
+	"ledean/websocket"
 	"net/http"
 	"os"
 	"strconv"
@@ -35,22 +36,40 @@ func Start(addr string, port int, path2Frontend string, display *display.Display
 
 	router.HandleFunc("/exit", MakeExitHandler())
 
-	router.HandleFunc("/mode/", MakeModeGetHandler(modeController))
-	router.HandleFunc("/mode/{mode}", MakeModeHandler(modeController))
+	if modeController == nil {
+		router.HandleFunc("/mode/", MakeModePictureHandler())
+	} else {
+		router.HandleFunc("/mode/", MakeModeGetHandler(modeController))
+		router.HandleFunc("/mode/{mode}", MakeModeHandler(modeController))
 
-	for _, mode := range modeController.GetModes() {
-		log.Debug("URL registering mode: " + mode.GetName())
-		router.HandleFunc("/"+mode.GetName(), MakeGetModeParameterHandler(mode)).Methods("GET")
-		router.HandleFunc("/"+mode.GetName()+"/limits", MakeGetModeLimitsHandler(mode)).Methods("GET")
-		router.HandleFunc("/"+mode.GetName(), MakePostModeParameterHandler(modeController, mode)).Methods("POST")
+		for _, mode := range modeController.GetModes() {
+			log.Debug("URL registering mode: " + mode.GetName())
+			router.HandleFunc("/"+mode.GetName(), MakeGetModeParameterHandler(mode)).Methods("GET")
+			router.HandleFunc("/"+mode.GetName()+"/limits", MakeGetModeLimitsHandler(mode)).Methods("GET")
+			router.HandleFunc("/"+mode.GetName(), MakePostModeParameterHandler(modeController, mode)).Methods("POST")
+		}
 	}
 
+	hub := websocket.NewHub(display, modeController, button)
+	go hub.Run()
+	router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		hub.ServeWs(w, r)
+	})
+
+	//Needs to be last registration
 	if path2Frontend != "" {
 		router.PathPrefix("/").Handler(http.FileServer(http.Dir(path2Frontend)))
 	}
 
 	log.Fatal(http.ListenAndServe(addr+":"+strconv.Itoa(int(port)), c.Handler(router)))
 	// log.Fatal(http.ListenAndServe(addr+":"+strconv.Itoa(int(port)), router))
+}
+
+func MakeModePictureHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte("-1"))
+	}
 }
 
 func MakeExitHandler() http.HandlerFunc {
