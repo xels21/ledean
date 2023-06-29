@@ -1,5 +1,6 @@
-import { Component,  } from '@angular/core';
+import { Component } from '@angular/core';
 import { LedsService } from '../leds/leds.service';
+import { ModesService } from '../modes/modes.service';
 
 
 @Component({
@@ -9,7 +10,7 @@ import { LedsService } from '../leds/leds.service';
 })
 export class LedDisplayComponent {
 
-  constructor(public ledsService:LedsService) { }
+  constructor(public ledsService: LedsService, public modesService: ModesService) { }
 
   // onPollingChanged(e){
   //   this.ledsService.pollingActive = e.target.checked

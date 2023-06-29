@@ -45,7 +45,7 @@ export class ModeTransitionRainbowComponent implements OnInit {
       if (!deepEqual(this.backModeTransitionRainbowParameter, data)) {
         this.backModeTransitionRainbowParameter = data
         this.modeTransitionRainbowParameter = deepCopy(this.backModeTransitionRainbowParameter)
-        console.log(data)
+        // console.log(data)
       }
     }
     )

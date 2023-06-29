@@ -10,6 +10,7 @@ import { UpdateService, UpdateIntervall } from '../update/update.service';
 export class ModesService {
 
   activeMode: number
+  isPictureMode: boolean
   public modeResolver: Array<string>
   onModeChange: () => any
 
@@ -24,10 +25,15 @@ export class ModesService {
   }
 
   public updateActiveMode() {
-    this.httpClient.get<number>(REST_GET_MODE_URL).subscribe((data: number) => { 
+    this.httpClient.get<number>(REST_GET_MODE_URL).subscribe((data: number) => {
       if(this.activeMode != data ){
         this.activeMode = data
-        this.onModeChange()
+        if(this.activeMode >= 0){
+          this.isPictureMode = false
+          this.onModeChange()
+        }else{
+          this.isPictureMode = true
+        }
       }
     });
   }

@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { WebsocketService } from '../websocket/websocket.service'; //will replace the update service
 
 
 export interface UpdateIntervall {
@@ -14,7 +15,7 @@ export class UpdateService {
   activeIntervallArr: Array<any>;
   isActive: boolean
 
-  constructor() {
+  constructor(websocketService:WebsocketService) {
     this.updateArr = new Array<UpdateIntervall>()
     this.activeIntervallArr = new Array<any>()
     this.isActive = true

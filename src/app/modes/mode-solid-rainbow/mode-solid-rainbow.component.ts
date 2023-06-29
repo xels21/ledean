@@ -43,7 +43,7 @@ export class ModeSolidRainbowComponent implements OnInit {
       if (!deepEqual(this.backModeSolidRainbowParameter, data)) {
         this.backModeSolidRainbowParameter = data
         this.modeSolidRainbowParameter = deepCopy(this.backModeSolidRainbowParameter)
-        console.log(data)
+        // console.log(data)
       }
     }
     )

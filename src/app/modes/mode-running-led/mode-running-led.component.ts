@@ -53,7 +53,7 @@ export class ModeRunningLedComponent implements OnInit {
       if (!deepEqual(this.backModeRunningLedParameter, data)) {
         this.backModeRunningLedParameter = data
         this.modeRunningLedParameter = deepCopy(this.backModeRunningLedParameter)
-        console.log(data)
+        // console.log(data)
       }
     }
     )
