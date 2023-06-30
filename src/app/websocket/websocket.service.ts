@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, EventEmitter } from '@angular/core';
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 import { Cmd, Cmd2cLeds } from "./commands"
+import { RGB } from '../color/color';
 // import { LedsService} from "../leds/leds.service" //Circular dependency
 
 // import { CookieService } from 'ngx-cookie-service';
@@ -23,6 +24,10 @@ const WEBSOCKET_RECONNECT_TIMEOUT = 1000;
 //   cb?: () => void
 // }
 
+export enum MyWebsocketEvent {
+  leds = "leds", //cmd2cLeds.leds
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -30,12 +35,14 @@ export class WebsocketService {
 
   subject: WebSocketSubject<any>
   connected: boolean
+  ledsChanged: EventEmitter<Array<RGB>>
   // connectedChangeCnt: number
 
   // subscriptions: Map<string, SubscribeElement>
 
   constructor() {
     this.connected = false;
+    this.ledsChanged = new EventEmitter();
 
     // this.subscriptions = new Map<string, SubscribeElement>()
     console.log(WEBSOCKET_COMPLETE_URL)
@@ -57,22 +64,20 @@ export class WebsocketService {
           switch (cmd.cmd) {
             case "leds":
               var cmd2cLeds = cmd.parm as Cmd2cLeds
-              // this.ledsService.updateLeds(cmd2cLeds.leds)
-              console.log(cmd2cLeds)
-              // this.dbService.handleUpdate(cmd2cUpdate.col, cmd2cUpdate.res, cmd2cUpdate.data)
+              this.ledsChanged.emit(cmd2cLeds.leds)
               break;
             default:
               console.log("something went wrong with message: ", msg)
           }
         }
-        else{
+        else {
           console.log("unknown websocket message: ", msg)
         }
       },
       (err) => this.reRun(), // Called if at any point WebSocket API signals some kind of error.
       () => this.reRun() // Called when connection is closed (for whatever reason).
     );
-    this.subject.next({message:"hello"})
+    this.subject.next({ message: "hello" })
   }
 
 

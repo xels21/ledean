@@ -4,6 +4,7 @@ import { RGB } from '../color/color';
 import { REST_GET_LEDS_URL, REST_GET_LEDS_COUNT_URL, REST_GET_LEDS_ROWS_URL } from '../config/const';
 import { UpdateService, UpdateIntervall } from '../update/update.service';
 import { ModesService } from '../modes/modes.service';
+import { WebsocketService } from '../websocket/websocket.service';
 
 
 @Injectable({
@@ -18,12 +19,13 @@ export class LedsService {
   ledRows: number
   public pollingTimeout: number
 
-  constructor(private httpClient: HttpClient, private updateService: UpdateService, public modesService: ModesService) {
+  constructor(private httpClient: HttpClient, private updateService: UpdateService, public modesService: ModesService, private websocketService: WebsocketService) {
     this.bufferedLedsCount = 16
     this.pollingTimeout = 200
     // this.pollingTimeout=300
     this.updateLedCount()
     this.updateLedRows()
+    websocketService.ledsChanged.subscribe(leds => this.updateLeds(leds))
     // updateService.registerPolling({ cb: () => { this.updateLeds() }, timeout: this.pollingTimeout })
   }
 
@@ -35,7 +37,7 @@ export class LedsService {
       for (let i = 0; i < this.ledCount; i++) {
         this.leds[i] = { r: 0, g: 0, b: 0 }
       }
-  
+
       this.bufferedLeds = new Array<Array<RGB>>(this.ledCount)
       for (let i = 0; i < this.ledCount; i++) {
         this.bufferedLeds[i] = new Array<RGB>(this.bufferedLedsCount)
@@ -51,8 +53,8 @@ export class LedsService {
     })
   }
 
-  public updateLeds() {
-    this.httpClient.get<Array<RGB>>(REST_GET_LEDS_URL).subscribe((data: Array<RGB>) => {
+  public updateLeds(data:Array<RGB>) {
+    // this.httpClient.get<Array<RGB>>(REST_GET_LEDS_URL).subscribe((data: Array<RGB>) => {
       if (this.ledCount == undefined) {
         console.log("led count was not set before")
         return
@@ -66,7 +68,7 @@ export class LedsService {
         }
       } else {
         for (var i = 0; i < this.ledCount; i++) {
-            for (let b = this.bufferedLedsCount - 1; b > 0; b--) {
+          for (let b = this.bufferedLedsCount - 1; b > 0; b--) {
             this.bufferedLeds[i][b].r = this.bufferedLeds[i][b - 1].r
             this.bufferedLeds[i][b].g = this.bufferedLeds[i][b - 1].g
             this.bufferedLeds[i][b].b = this.bufferedLeds[i][b - 1].b
@@ -78,7 +80,7 @@ export class LedsService {
           this.bufferedLeds[i][0].b = data[i].b
         }
       }
-    });
+    // });
   }
 
 }
