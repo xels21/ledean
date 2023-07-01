@@ -17,6 +17,7 @@ export class ModesService {
   constructor(private httpClient: HttpClient, private updateService: UpdateService) {
     updateService.registerPolling({ cb: () => { this.updateActiveMode() }, timeout: 1000 })
     this.httpClient.get<Array<string>>(REST_GET_MODE_RESOLVER_URL).subscribe((data: Array<string>) => this.modeResolver = data);
+    this.setOnModeChange(()=>{})
   }
 
 

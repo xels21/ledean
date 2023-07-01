@@ -23,15 +23,17 @@ export class LedsService {
     this.bufferedLedsCount = 16
     this.pollingTimeout = 200
     // this.pollingTimeout=300
-    this.updateLedCount()
-    this.updateLedRows()
+    // this.updateLedCount()
+    // this.updateLedRows()
+    websocketService.ledsCountChanged.subscribe(count => this.updateLedCount(count))
+    websocketService.ledsRowsChanged.subscribe(rows => this.updateLedRows(rows))
     websocketService.ledsChanged.subscribe(leds => this.updateLeds(leds))
     // updateService.registerPolling({ cb: () => { this.updateLeds() }, timeout: this.pollingTimeout })
   }
 
-  public updateLedCount() {
-    this.httpClient.get<number>(REST_GET_LEDS_COUNT_URL).subscribe((data: number) => {
-      this.ledCount = data
+  public updateLedCount(count:number) {
+    // this.httpClient.get<number>(REST_GET_LEDS_COUNT_URL).subscribe((data: number) => {
+      this.ledCount = count
 
       this.leds = new Array<RGB>(this.ledCount)
       for (let i = 0; i < this.ledCount; i++) {
@@ -45,26 +47,26 @@ export class LedsService {
           this.bufferedLeds[i][b] = { r: 0, g: 0, b: 0 }
         }
       }
-    })
+    // })
   }
-  public updateLedRows() {
-    this.httpClient.get<number>(REST_GET_LEDS_ROWS_URL).subscribe((data: number) => {
-      this.ledRows = data
-    })
+  public updateLedRows(rows:number) {
+    // this.httpClient.get<number>(REST_GET_LEDS_ROWS_URL).subscribe((data: number) => {
+      this.ledRows = rows
+    // })
   }
 
-  public updateLeds(data:Array<RGB>) {
-    // this.httpClient.get<Array<RGB>>(REST_GET_LEDS_URL).subscribe((data: Array<RGB>) => {
+  public updateLeds(leds:Array<RGB>) {
+    // this.httpClient.get<Array<RGB>>(REST_GET_LEDS_URL).subscribe((leds: Array<RGB>) => {
       if (this.ledCount == undefined) {
         console.log("led count was not set before")
         return
-        // this.leds = data
+        // this.leds = leds
       }
       if (!this.modesService.isPictureMode) {
         for (var i = 0; i < this.leds.length; i++) {
-          this.leds[i].r = data[i].r
-          this.leds[i].g = data[i].g
-          this.leds[i].b = data[i].b
+          this.leds[i].r = leds[i].r
+          this.leds[i].g = leds[i].g
+          this.leds[i].b = leds[i].b
         }
       } else {
         for (var i = 0; i < this.ledCount; i++) {
@@ -75,9 +77,9 @@ export class LedsService {
           }
         }
         for (var i = 0; i < this.ledCount; i++) {
-          this.bufferedLeds[i][0].r = data[i].r
-          this.bufferedLeds[i][0].g = data[i].g
-          this.bufferedLeds[i][0].b = data[i].b
+          this.bufferedLeds[i][0].r = leds[i].r
+          this.bufferedLeds[i][0].g = leds[i].g
+          this.bufferedLeds[i][0].b = leds[i].b
         }
       }
     // });

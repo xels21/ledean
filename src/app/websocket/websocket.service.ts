@@ -1,6 +1,6 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
-import { Cmd, Cmd2cLeds } from "./commands"
+import { Cmd, Cmd2cLeds, Cmd2cLedsRows, Cmd2cLedsCount } from "./commands"
 import { RGB } from '../color/color';
 // import { LedsService} from "../leds/leds.service" //Circular dependency
 
@@ -17,17 +17,6 @@ const WEBSOCKET_COMPLETE_URL = WEBSOCKET_PROTOCOL + "://"
   + WEBSOCKET_PATH;
 const WEBSOCKET_RECONNECT_TIMEOUT = 1000;
 
-
-// interface SubscribeElement {
-//   col: string,
-//   res: string,
-//   cb?: () => void
-// }
-
-export enum MyWebsocketEvent {
-  leds = "leds", //cmd2cLeds.leds
-}
-
 @Injectable({
   providedIn: 'root'
 })
@@ -36,6 +25,8 @@ export class WebsocketService {
   subject: WebSocketSubject<any>
   connected: boolean
   ledsChanged: EventEmitter<Array<RGB>>
+  ledsRowsChanged: EventEmitter<number>
+  ledsCountChanged: EventEmitter<number>
   // connectedChangeCnt: number
 
   // subscriptions: Map<string, SubscribeElement>
@@ -43,9 +34,10 @@ export class WebsocketService {
   constructor() {
     this.connected = false;
     this.ledsChanged = new EventEmitter();
+    this.ledsRowsChanged = new EventEmitter();
+    this.ledsCountChanged = new EventEmitter();
 
     // this.subscriptions = new Map<string, SubscribeElement>()
-    console.log(WEBSOCKET_COMPLETE_URL)
     this.subject = webSocket(
       WEBSOCKET_COMPLETE_URL
     );
@@ -65,6 +57,14 @@ export class WebsocketService {
             case "leds":
               var cmd2cLeds = cmd.parm as Cmd2cLeds
               this.ledsChanged.emit(cmd2cLeds.leds)
+              break;
+            case "ledsRows":
+              var cmd2cLedsRows = cmd.parm as Cmd2cLedsRows
+              this.ledsRowsChanged.emit(cmd2cLedsRows.rows)
+              break;
+            case "ledsCount":
+              var cmd2cLedsCount = cmd.parm as Cmd2cLedsCount
+              this.ledsCountChanged.emit(cmd2cLedsCount.count)
               break;
             default:
               console.log("something went wrong with message: ", msg)

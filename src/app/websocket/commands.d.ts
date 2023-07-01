@@ -8,3 +8,10 @@ export interface Cmd {
 export interface Cmd2cLeds {
 	leds: Array<RGB>
 }
+
+export interface Cmd2cLedsRows {
+	rows: number
+}
+export interface Cmd2cLedsCount {
+	count: number
+}
