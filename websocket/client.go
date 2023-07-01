@@ -41,6 +41,10 @@ type Client struct {
 	send chan Cmd
 }
 
+func (self *Client) SendCmd(cmd Cmd) {
+	self.send <- cmd
+}
+
 // func (self *Client) SendCmd(cmd Cmd) {
 // 	self.send <- cmd
 // }

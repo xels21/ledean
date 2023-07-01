@@ -7,6 +7,7 @@ import (
 	"ledean/driver/button"
 	"ledean/mode"
 	"ledean/webserver"
+	"ledean/websocket"
 	"time"
 
 	"ledean/log"
@@ -17,6 +18,7 @@ type LEDeanInstance struct {
 	display        *display.Display
 	modeController *mode.ModeController
 	button         *button.Button
+	hub            *websocket.Hub
 }
 
 func (self *LEDeanInstance) GetModeController() *mode.ModeController {
@@ -35,10 +37,13 @@ func Run(parm *Parameter) *LEDeanInstance {
 	}
 
 	driver.Init()
+
+	self.hub = websocket.NewHub()
+
 	self.button = button.NewButton(parm.GpioButton, parm.PressLongMs, parm.PressDoubleTimeout)
 	self.button.Register()
 
-	self.display = display.NewDisplay(parm.LedCount, parm.LedRows, parm.GpioLedData, parm.ReverseRows)
+	self.display = display.NewDisplay(parm.LedCount, parm.LedRows, parm.GpioLedData, parm.ReverseRows, self.hub)
 	if !parm.IsPictureMode {
 		self.modeController = mode.NewModeController(self.dbdriver, self.display, self.button)
 	}
@@ -47,7 +52,8 @@ func Run(parm *Parameter) *LEDeanInstance {
 	self.button.AddCbPressDouble(func() { log.Info("PRESS_DOUBLE") })
 	self.button.AddCbPressLong(func() { log.Info("PRESS_LONG") })
 
-	go webserver.Start(parm.Address, parm.Port, parm.Path2Frontend, self.display, self.modeController, self.button)
+	go self.hub.Run()
+	go webserver.Start(parm.Address, parm.Port, parm.Path2Frontend, self.modeController, self.button, self.hub)
 
 	if parm.DirectStart {
 		if !parm.IsPictureMode {

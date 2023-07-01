@@ -3,13 +3,15 @@
 
 package display
 
+import "ledean/websocket"
+
 type Display struct {
 	DisplayBase
 }
 
-func NewDisplay(ledCount int, ledRows int, gpioLedData string, reverseRowsRaw string) *Display {
+func NewDisplay(ledCount int, ledRows int, gpioLedData string, reverseRowsRaw string, hub *websocket.Hub) *Display {
 	self := Display{
-		DisplayBase: *NewDisplayBase(ledCount, ledRows, reverseRowsRaw),
+		DisplayBase: *NewDisplayBase(ledCount, ledRows, reverseRowsRaw, hub),
 	}
 	return &self
 }

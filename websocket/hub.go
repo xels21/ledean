@@ -5,13 +5,8 @@
 package websocket
 
 import (
-	"encoding/json"
-	"ledean/display"
-	"ledean/driver/button"
 	"ledean/log"
-	"ledean/mode"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -22,7 +17,7 @@ type Hub struct {
 
 	// Incomming commaand from the clients.
 	// just a forwarder to the command_handler
-	cmd chan []byte
+	cmd chan Cmd
 
 	// Register requests from the clients.
 	register chan *Client
@@ -30,22 +25,26 @@ type Hub struct {
 	// Unregister requests from clients.
 	unregister chan *Client
 
-	commandController *CommandController
-	display           *display.Display
-	displayTimer      *time.Timer
+	initClientCbs []func(*Client)
 }
 
-const DISPLAY_TIMER_DELAY = 200
-
-func NewHub(display *display.Display, modeController *mode.ModeController, button *button.Button) *Hub {
+func NewHub() *Hub {
 	return &Hub{
-		cmd:               make(chan []byte),
-		register:          make(chan *Client),
-		unregister:        make(chan *Client),
-		clients:           make(map[*Client]bool),
-		commandController: NewCommandController(display, modeController, button),
-		display:           display,
-		displayTimer:      time.NewTimer(DISPLAY_TIMER_DELAY * time.Millisecond),
+		cmd:        make(chan Cmd),
+		register:   make(chan *Client),
+		unregister: make(chan *Client),
+		clients:    make(map[*Client]bool),
+		// initClientCbs: make([]func(*Client), 16),
+	}
+}
+
+func (self *Hub) AppendInitClientCb(cb func(*Client)) {
+	self.initClientCbs = append(self.initClientCbs, cb)
+}
+
+func (self *Hub) clientInit(client *Client) {
+	for _, cb := range self.initClientCbs {
+		cb(client)
 	}
 }
 
@@ -53,17 +52,19 @@ func (self *Hub) Run() {
 	for {
 		select {
 		case client := <-self.register:
-			log.Info("____________client registered")
 			self.clients[client] = true
+			self.clientInit(client)
 		case client := <-self.unregister:
 			if _, ok := self.clients[client]; ok {
 				delete(self.clients, client)
 				close(client.send)
 			}
-		case <-self.display.LedsChanged:
-			go self.slowedDownCmd2cLeds()
+
 		case cmd := <-self.cmd:
-			self.commandController.HandleCommand(cmd)
+			self.handleCommand(cmd)
+
+			// case <-self.display.LedsChanged:
+			// 	go self.delayedCmd2cLeds()
 			// for client := range h.clients {
 			// 	select {
 			// 	case client.send <- cmd:
@@ -76,23 +77,32 @@ func (self *Hub) Run() {
 	}
 }
 
-func (self *Hub) slowedDownCmd2cLeds() {
-	<-self.displayTimer.C
-	self.Cmd2cLeds()
-	self.displayTimer.Reset(DISPLAY_TIMER_DELAY * time.Millisecond)
+func (self *Hub) handleCommand(cmd Cmd) {
+	switch cmd.Command {
+	// case "leds":
+	// go self.delayedCmd2cLeds(cmd)
+	default:
+		log.Info("unknown command: ", cmd.Command)
+	}
 }
 
-func (self *Hub) Cmd2cLeds() {
-	cmd2cLedsJSON, err := json.Marshal(Cmd2cLeds{Leds: self.display.GetLeds()})
-	if err != nil {
-		log.Debug("Couldn't convert err to log JSON. ", err)
-		return
-	}
-
+func (self *Hub) Boradcast(cmd Cmd) {
 	for client := range self.clients {
-		client.send <- Cmd{Command: "leds", Parameters: cmd2cLedsJSON}
+		client.send <- cmd
 	}
 }
+
+// func (self *Hub) Cmd2cLeds() {
+// 	cmd2cLedsJSON, err := json.Marshal(Cmd2cLeds{Leds: self.display.GetLeds()})
+// 	if err != nil {
+// 		log.Debug("Couldn't convert err to log JSON. ", err)
+// 		return
+// 	}
+
+// 	for client := range self.clients {
+// 		client.send <- Cmd{Command: "leds", Parameters: cmd2cLedsJSON}
+// 	}
+// }
 
 // serveWs handles websocket requests from the peer.
 func (self *Hub) ServeWs(w http.ResponseWriter, r *http.Request) {

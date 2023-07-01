@@ -4,8 +4,12 @@ import (
 	"ledean/color"
 	"ledean/json"
 	"ledean/log"
+	"ledean/websocket"
 	"strings"
+	"time"
 )
+
+const DISPLAY_TIMER_DELAY = 100
 
 type DisplayBase struct {
 	led_count            int
@@ -16,20 +20,14 @@ type DisplayBase struct {
 	reverse_rows         []bool
 	leds                 []color.RGB
 	buffer               []byte
-	LedsChanged          chan (bool)
+	displayTimer         *time.Timer
+	hub                  *websocket.Hub
+
 	// active           bool
 	// modeController *mode.ModeController //[]mode.Mode
 }
 
-func (self *DisplayBase) GetLedsJson() []byte {
-	msg, err := json.Marshal(self.leds)
-	if err != nil {
-		msg = []byte(err.Error())
-	}
-	return msg
-}
-
-func NewDisplayBase(led_count int, led_rows int, reverse_rows_raw string) *DisplayBase {
+func NewDisplayBase(led_count int, led_rows int, reverse_rows_raw string, hub *websocket.Hub) *DisplayBase {
 	self := DisplayBase{
 		led_count:            led_count,
 		led_rows:             led_rows,
@@ -39,7 +37,8 @@ func NewDisplayBase(led_count int, led_rows int, reverse_rows_raw string) *Displ
 		reverse_rows:         make([]bool, led_rows),
 		leds:                 make([]color.RGB, led_count),
 		buffer:               make([]byte, 9*led_count),
-		LedsChanged:          make(chan bool),
+		displayTimer:         time.NewTimer(DISPLAY_TIMER_DELAY * time.Millisecond),
+		hub:                  hub,
 		// active:    false,
 	}
 
@@ -54,42 +53,32 @@ func NewDisplayBase(led_count int, led_rows int, reverse_rows_raw string) *Displ
 	self.Clear()
 	// go self.listen()
 
+	self.hub.AppendInitClientCb(self.initClientCb)
+
 	return &self
+}
+
+func (self *DisplayBase) GetLedsJson() []byte {
+	msg, err := json.Marshal(self.leds)
+	if err != nil {
+		msg = []byte(err.Error())
+	}
+	return msg
 }
 
 func (self *DisplayBase) GetRowLedCount() int {
 	return self.leds_per_row
 }
 
-// func (self *DisplayBase) GetLength() uint8 {
-// 	return self.modeController.GetLength()
+// func (self *DisplayBase) GetLeds() []color.RGB {
+// 	return self.leds
 // }
-
-// func (self *DisplayBase) GetIndex() uint8 {
-// 	return self.modeController.GetIndex()
+// func (self *DisplayBase) GetLedCount() int {
+// 	return len(self.leds)
 // }
-
-// func (self *DisplayBase) GetModeRef(friendlyName string) (*mode.Mode, error) {
-// 	return self.modeController.GetModeRef(friendlyName)
+// func (self *DisplayBase) GetLedRows() int {
+// 	return self.led_rows
 // }
-
-// func (self *DisplayBase) GetModeResolver() []string {
-// 	return self.modeController.GetModeResolver()
-// }
-
-// func (self *DisplayBase) IsActive() bool {
-// 	return self.active
-// }
-
-func (self *DisplayBase) GetLeds() []color.RGB {
-	return self.leds
-}
-func (self *DisplayBase) GetLedCount() int {
-	return len(self.leds)
-}
-func (self *DisplayBase) GetLedRows() int {
-	return self.led_rows
-}
 
 func reverseRgb(fromRGBs []color.RGB, toRGBs []color.RGB) {
 	for i, j := 0, len(fromRGBs)-1; i < j; i, j = i+1, j-1 {
@@ -111,14 +100,39 @@ func (self *DisplayBase) applySingleRow() {
 			self.leds[i] = (*usedRow)[ri]
 		}
 	}
-	self.fireLedsChanged()
+	self.ledsChanged()
 }
 
-func (self *DisplayBase) fireLedsChanged() {
+func (self *DisplayBase) initClientCb(client *websocket.Client) {
+	var cmd2cLedsJSON, cmd2cLedsRowsJSON, cmd2cLedsCountJSON []byte
+	var err error
+
+	cmd2cLedsRowsJSON, err = json.Marshal(websocket.Cmd2cLedsRows{Rows: self.led_rows})
+	if err == nil {
+		client.SendCmd(websocket.Cmd{Command: websocket.Cmd2cLedsRowsId, Parameters: cmd2cLedsRowsJSON})
+	}
+
+	cmd2cLedsCountJSON, err = json.Marshal(websocket.Cmd2cLedsCount{Count: self.led_count})
+	if err == nil {
+		client.SendCmd(websocket.Cmd{Command: websocket.Cmd2cLedsCountId, Parameters: cmd2cLedsCountJSON})
+	}
+
+	cmd2cLedsJSON, err = json.Marshal(websocket.Cmd2cLeds{Leds: self.leds})
+	if err == nil {
+		client.SendCmd(websocket.Cmd{Command: websocket.Cmd2cLedsId, Parameters: cmd2cLedsJSON})
+	}
+}
+
+func (self *DisplayBase) ledsChanged() {
 	select { //non blocking channels
-	case self.LedsChanged <- true:
+	case <-self.displayTimer.C:
+		self.displayTimer.Reset(DISPLAY_TIMER_DELAY * time.Millisecond)
+		cmd2cLedsJSON, err := json.Marshal(websocket.Cmd2cLeds{Leds: self.leds})
+		if err == nil {
+			self.hub.Boradcast(websocket.Cmd{Command: websocket.Cmd2cLedsId, Parameters: cmd2cLedsJSON})
+		}
 	default:
-		log.Trace("Leds got updated, but nobody cares")
+		log.Trace("Leds got updated, but timer is still running")
 	}
 }
 

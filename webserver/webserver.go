@@ -4,7 +4,6 @@
 package webserver
 
 import (
-	"ledean/display"
 	"ledean/driver/button"
 	"ledean/mode"
 	"ledean/websocket"
@@ -18,7 +17,7 @@ import (
 	"github.com/rs/cors"
 )
 
-func Start(addr string, port int, path2Frontend string, display *display.Display, modeController *mode.ModeController, button *button.Button) {
+func Start(addr string, port int, path2Frontend string, modeController *mode.ModeController, button *button.Button, hub *websocket.Hub) {
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
 		// AllowedOrigins: []string{"http://127.0.0.1*", "http://localhost*"},
@@ -27,8 +26,8 @@ func Start(addr string, port int, path2Frontend string, display *display.Display
 	})
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/leds", MakeGetLedHandler(display)).Methods("GET")
-	router.HandleFunc("/leds/{parameter}", MakeLedHandler(display)).Methods("GET")
+	// router.HandleFunc("/leds", MakeGetLedHandler(display)).Methods("GET")
+	// router.HandleFunc("/leds/{parameter}", MakeLedHandler(display)).Methods("GET")
 
 	router.HandleFunc("/press_single", MakePressSingleHandler(button))
 	router.HandleFunc("/press_double", MakePressDoubleHandler(button))
@@ -50,8 +49,6 @@ func Start(addr string, port int, path2Frontend string, display *display.Display
 		}
 	}
 
-	hub := websocket.NewHub(display, modeController, button)
-	go hub.Run()
 	router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		hub.ServeWs(w, r)
 	})

@@ -15,13 +15,13 @@ type Display struct {
 	ws ws2812.Device
 }
 
-func NewDisplay(led_count int, led_rows int, gpioLedData string, reverse_rows_raw string) *Display {
+func NewDisplay(ledCount int, ledRows int, gpioLedData string, reverseRowsRaw string, hub *webserver.Hub) *Display {
 	gpioLedDataInt, _ := strconv.Atoi(gpioLedData)
 	pin := machine.Pin(gpioLedDataInt)
 	pin.Configure(machine.PinConfig{Mode: machine.PinOutput})
 
 	self := Display{
-		DisplayBase: *NewDisplayBase(led_count, led_rows, reverse_rows_raw),
+		DisplayBase: *NewDisplayBase(led_count, led_rows, reverse_rows_raw, hub),
 		ws:          ws2812.New(pin),
 	}
 
