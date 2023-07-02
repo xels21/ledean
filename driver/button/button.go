@@ -3,6 +3,7 @@ package button
 import (
 	"ledean/driver/pin"
 	"ledean/log"
+	"ledean/websocket"
 	"time"
 )
 
@@ -16,9 +17,10 @@ type Button struct {
 	cbPressLong        []func()
 	cbPressSingle      []func()
 	cbPressDouble      []func()
+	hub                *websocket.Hub
 }
 
-func NewButton(gpio string, longPressMs int, pressDoubleTimeout int) *Button {
+func NewButton(gpio string, longPressMs int, pressDoubleTimeout int, hub *websocket.Hub) *Button {
 
 	self := Button{
 		longPressMs:        longPressMs,
@@ -27,7 +29,10 @@ func NewButton(gpio string, longPressMs int, pressDoubleTimeout int) *Button {
 		cbPressLong:        make([]func(), 0, 4),
 		cbPressSingle:      make([]func(), 0, 4),
 		cbPressDouble:      make([]func(), 0, 4),
+		hub:                hub,
 	}
+
+	go self.socketHandler()
 
 	return &self
 }

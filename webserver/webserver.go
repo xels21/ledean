@@ -29,9 +29,9 @@ func Start(addr string, port int, path2Frontend string, modeController *mode.Mod
 	// router.HandleFunc("/leds", MakeGetLedHandler(display)).Methods("GET")
 	// router.HandleFunc("/leds/{parameter}", MakeLedHandler(display)).Methods("GET")
 
-	router.HandleFunc("/press_single", MakePressSingleHandler(button))
-	router.HandleFunc("/press_double", MakePressDoubleHandler(button))
-	router.HandleFunc("/press_long", MakePressLongHandler(button))
+	// router.HandleFunc("/press_single", MakePressSingleHandler(button))
+	// router.HandleFunc("/press_double", MakePressDoubleHandler(button))
+	// router.HandleFunc("/press_long", MakePressLongHandler(button))
 
 	router.HandleFunc("/exit", MakeExitHandler())
 

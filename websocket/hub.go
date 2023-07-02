@@ -5,6 +5,7 @@
 package websocket
 
 import (
+	"encoding/json"
 	"ledean/log"
 	"net/http"
 
@@ -26,14 +27,18 @@ type Hub struct {
 	unregister chan *Client
 
 	initClientCbs []func(*Client)
+
+	CmdButtonChannel chan CmdButton
+	// Cmd2sMode        chan Cmd2sMode
 }
 
 func NewHub() *Hub {
 	return &Hub{
-		cmd:        make(chan Cmd),
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
-		clients:    make(map[*Client]bool),
+		cmd:              make(chan Cmd),
+		register:         make(chan *Client),
+		unregister:       make(chan *Client),
+		clients:          make(map[*Client]bool),
+		CmdButtonChannel: make(chan CmdButton),
 		// initClientCbs: make([]func(*Client), 16),
 	}
 }
@@ -64,7 +69,7 @@ func (self *Hub) Run() {
 			self.handleCommand(cmd)
 
 			// case <-self.display.LedsChanged:
-			// 	go self.delayedCmd2cLeds()
+			// 	go self.delayedCmdLeds()
 			// for client := range h.clients {
 			// 	select {
 			// 	case client.send <- cmd:
@@ -79,8 +84,13 @@ func (self *Hub) Run() {
 
 func (self *Hub) handleCommand(cmd Cmd) {
 	switch cmd.Command {
-	// case "leds":
-	// go self.delayedCmd2cLeds(cmd)
+	case CmdButtonId:
+		var cmdButton CmdButton
+		err := json.Unmarshal(cmd.Parameters, &cmdButton)
+		if err != nil {
+			return
+		}
+		self.CmdButtonChannel <- cmdButton
 	default:
 		log.Info("unknown command: ", cmd.Command)
 	}
@@ -92,8 +102,8 @@ func (self *Hub) Boradcast(cmd Cmd) {
 	}
 }
 
-// func (self *Hub) Cmd2cLeds() {
-// 	cmd2cLedsJSON, err := json.Marshal(Cmd2cLeds{Leds: self.display.GetLeds()})
+// func (self *Hub) CmdLeds() {
+// 	cmd2cLedsJSON, err := json.Marshal(CmdLeds{Leds: self.display.GetLeds()})
 // 	if err != nil {
 // 		log.Debug("Couldn't convert err to log JSON. ", err)
 // 		return

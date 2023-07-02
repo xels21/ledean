@@ -4,9 +4,9 @@
 package display
 
 import (
+	"ledean/websocket"
 	"machine"
 	"strconv"
-
 	"tinygo.org/x/drivers/ws2812"
 )
 
@@ -15,13 +15,13 @@ type Display struct {
 	ws ws2812.Device
 }
 
-func NewDisplay(ledCount int, ledRows int, gpioLedData string, reverseRowsRaw string, hub *webserver.Hub) *Display {
+func NewDisplay(ledCount int, ledRows int, gpioLedData string, reverseRowsRaw string, hub *websocket.Hub) *Display {
 	gpioLedDataInt, _ := strconv.Atoi(gpioLedData)
 	pin := machine.Pin(gpioLedDataInt)
 	pin.Configure(machine.PinConfig{Mode: machine.PinOutput})
 
 	self := Display{
-		DisplayBase: *NewDisplayBase(led_count, led_rows, reverse_rows_raw, hub),
+		DisplayBase: *NewDisplayBase(ledCount, ledRows, reverseRowsRaw, hub),
 		ws:          ws2812.New(pin),
 	}
 

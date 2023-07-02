@@ -1,0 +1,1 @@
+tinygo build -target=esp32 -o="build/esp32/ledean"

@@ -40,7 +40,7 @@ func Run(parm *Parameter) *LEDeanInstance {
 
 	self.hub = websocket.NewHub()
 
-	self.button = button.NewButton(parm.GpioButton, parm.PressLongMs, parm.PressDoubleTimeout)
+	self.button = button.NewButton(parm.GpioButton, parm.PressLongMs, parm.PressDoubleTimeout, self.hub)
 	self.button.Register()
 
 	self.display = display.NewDisplay(parm.LedCount, parm.LedRows, parm.GpioLedData, parm.ReverseRows, self.hub)

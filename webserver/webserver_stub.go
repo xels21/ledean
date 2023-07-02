@@ -4,10 +4,10 @@
 package webserver
 
 import (
-	"ledean/display"
 	"ledean/driver/button"
 	"ledean/mode"
+	"ledean/websocket"
 )
 
-func Start(addr string, port int, path2Frontend string, display *display.Display, modeController *mode.ModeController, button *button.Button) {
+func Start(addr string, port int, path2Frontend string, modeController *mode.ModeController, button *button.Button, hub *websocket.Hub) {
 }

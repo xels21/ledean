@@ -4,6 +4,7 @@
 package websocket
 
 import (
+	"encoding/json"
 	"ledean/log"
 	"strings"
 	"time"
@@ -63,6 +64,10 @@ func (c *Client) readPump() {
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 	for {
 		cmd := Cmd{}
+		// messageType, p, err := c.conn.ReadMessage()
+		// log.Info(messageType)
+		// log.Info(string(p))
+		// log.Info(err)
 		err := c.conn.ReadJSON(&cmd)
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err,
@@ -90,10 +95,23 @@ func (c *Client) readPump() {
 			continue
 		}
 
-		switch cmd.Command {
-		default:
-			log.Debug("got ", cmd.Command, " from client")
+		c.handleCommand(&cmd)
+
+	}
+}
+
+func (self *Client) handleCommand(cmd *Cmd) {
+	switch cmd.Command {
+	case "button":
+		var cmdButton CmdButton
+		err := json.Unmarshal(cmd.Parameters, &cmdButton)
+		if err != nil {
+			log.Debug("Could not parse button parm mgs: ", string(cmd.Parameters))
+			return
 		}
+		self.hub.CmdButtonChannel <- cmdButton
+	default:
+		log.Debug("Unknown command: ", cmd.Command, " from client")
 	}
 }
 

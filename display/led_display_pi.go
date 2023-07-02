@@ -5,6 +5,7 @@ package display
 
 import (
 	"ledean/driver/ws28x"
+	"ledean/websocket"
 )
 
 type Display struct {
@@ -12,7 +13,7 @@ type Display struct {
 	piWs28xConnector *ws28x.PiWs28xConnector
 }
 
-func NewDisplay(ledCount int, ledRows int, gpioLedData string, reverseRowsRaw string, hub *webserver.Hub) *Display {
+func NewDisplay(ledCount int, ledRows int, gpioLedData string, reverseRowsRaw string, hub *websocket.Hub) *Display {
 	self := Display{
 		DisplayBase: *NewDisplayBase(ledCount, ledRows, reverseRowsRaw, hub),
 	}

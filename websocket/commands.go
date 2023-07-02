@@ -6,9 +6,10 @@ import (
 )
 
 const (
-	Cmd2cLedsId      string = "leds"
-	Cmd2cLedsRowsId  string = "ledsRows"
-	Cmd2cLedsCountId string = "ledsCount"
+	CmdLedsId          string = "leds"
+	CmdLedsParameterId string = "ledsParameter"
+	CmdButtonId        string = "button"
+	Cmd2sModeId        string = "mode"
 )
 
 type Cmd struct {
@@ -16,13 +17,15 @@ type Cmd struct {
 	Parameters json.RawMessage `json:"parm"`
 }
 
-type Cmd2cLeds struct {
+type CmdLeds struct {
 	Leds []color.RGB `json:"leds"`
 }
 
-type Cmd2cLedsRows struct {
-	Rows int `json:"rows"`
-}
-type Cmd2cLedsCount struct {
+type CmdLedsParameter struct {
+	Rows  int `json:"rows"`
 	Count int `json:"count"`
+}
+
+type CmdButton struct {
+	Action string `json:"action"`
 }

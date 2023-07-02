@@ -104,22 +104,17 @@ func (self *DisplayBase) applySingleRow() {
 }
 
 func (self *DisplayBase) initClientCb(client *websocket.Client) {
-	var cmd2cLedsJSON, cmd2cLedsRowsJSON, cmd2cLedsCountJSON []byte
+	var cmd2cLedsJSON, cmdLedsParameterJSON []byte
 	var err error
 
-	cmd2cLedsRowsJSON, err = json.Marshal(websocket.Cmd2cLedsRows{Rows: self.led_rows})
+	cmdLedsParameterJSON, err = json.Marshal(websocket.CmdLedsParameter{Rows: self.led_rows, Count: self.led_count})
 	if err == nil {
-		client.SendCmd(websocket.Cmd{Command: websocket.Cmd2cLedsRowsId, Parameters: cmd2cLedsRowsJSON})
+		client.SendCmd(websocket.Cmd{Command: websocket.CmdLedsParameterId, Parameters: cmdLedsParameterJSON})
 	}
 
-	cmd2cLedsCountJSON, err = json.Marshal(websocket.Cmd2cLedsCount{Count: self.led_count})
+	cmd2cLedsJSON, err = json.Marshal(websocket.CmdLeds{Leds: self.leds})
 	if err == nil {
-		client.SendCmd(websocket.Cmd{Command: websocket.Cmd2cLedsCountId, Parameters: cmd2cLedsCountJSON})
-	}
-
-	cmd2cLedsJSON, err = json.Marshal(websocket.Cmd2cLeds{Leds: self.leds})
-	if err == nil {
-		client.SendCmd(websocket.Cmd{Command: websocket.Cmd2cLedsId, Parameters: cmd2cLedsJSON})
+		client.SendCmd(websocket.Cmd{Command: websocket.CmdLedsId, Parameters: cmd2cLedsJSON})
 	}
 }
 
@@ -127,12 +122,16 @@ func (self *DisplayBase) ledsChanged() {
 	select { //non blocking channels
 	case <-self.displayTimer.C:
 		self.displayTimer.Reset(DISPLAY_TIMER_DELAY * time.Millisecond)
-		cmd2cLedsJSON, err := json.Marshal(websocket.Cmd2cLeds{Leds: self.leds})
-		if err == nil {
-			self.hub.Boradcast(websocket.Cmd{Command: websocket.Cmd2cLedsId, Parameters: cmd2cLedsJSON})
-		}
+		self.ForceLedsChanged()
 	default:
 		log.Trace("Leds got updated, but timer is still running")
+	}
+}
+
+func (self *DisplayBase) ForceLedsChanged() {
+	cmd2cLedsJSON, err := json.Marshal(websocket.CmdLeds{Leds: self.leds})
+	if err == nil {
+		self.hub.Boradcast(websocket.Cmd{Command: websocket.CmdLedsId, Parameters: cmd2cLedsJSON})
 	}
 }
 
