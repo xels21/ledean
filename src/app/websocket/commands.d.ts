@@ -5,13 +5,15 @@ export interface Cmd {
 	parm: any
 }
 
-export interface Cmd2cLeds {
+export interface CmdLeds {
 	leds: Array<RGB>
 }
 
-export interface Cmd2cLedsRows {
+export interface CmdLedsParameter {
 	rows: number
-}
-export interface Cmd2cLedsCount {
 	count: number
+}
+
+export interface CmdButton {
+	action: string
 }

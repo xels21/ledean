@@ -5,6 +5,7 @@ import { REST_GET_LEDS_URL, REST_GET_LEDS_COUNT_URL, REST_GET_LEDS_ROWS_URL } fr
 import { UpdateService, UpdateIntervall } from '../update/update.service';
 import { ModesService } from '../modes/modes.service';
 import { WebsocketService } from '../websocket/websocket.service';
+import { CmdLedsParameter } from '../websocket/commands';
 
 
 @Injectable({
@@ -25,15 +26,15 @@ export class LedsService {
     // this.pollingTimeout=300
     // this.updateLedCount()
     // this.updateLedRows()
-    websocketService.ledsCountChanged.subscribe(count => this.updateLedCount(count))
-    websocketService.ledsRowsChanged.subscribe(rows => this.updateLedRows(rows))
+    websocketService.ledsParameterChanged.subscribe(ledsParameter => this.updateLedParameter(ledsParameter))
     websocketService.ledsChanged.subscribe(leds => this.updateLeds(leds))
     // updateService.registerPolling({ cb: () => { this.updateLeds() }, timeout: this.pollingTimeout })
   }
 
-  public updateLedCount(count:number) {
+  public updateLedParameter(ledsParameter:CmdLedsParameter) {
     // this.httpClient.get<number>(REST_GET_LEDS_COUNT_URL).subscribe((data: number) => {
-      this.ledCount = count
+      this.ledRows = ledsParameter.rows
+      this.ledCount = ledsParameter.count
 
       this.leds = new Array<RGB>(this.ledCount)
       for (let i = 0; i < this.ledCount; i++) {
@@ -47,11 +48,6 @@ export class LedsService {
           this.bufferedLeds[i][b] = { r: 0, g: 0, b: 0 }
         }
       }
-    // })
-  }
-  public updateLedRows(rows:number) {
-    // this.httpClient.get<number>(REST_GET_LEDS_ROWS_URL).subscribe((data: number) => {
-      this.ledRows = rows
     // })
   }
 

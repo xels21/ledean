@@ -1,7 +1,8 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
-import { Cmd, Cmd2cLeds, Cmd2cLedsRows, Cmd2cLedsCount } from "./commands"
+import { Cmd, CmdLeds, CmdLedsParameter } from "./commands"
 import { RGB } from '../color/color';
+// import { RGB } from '../led-display/led-display.component';
 // import { LedsService} from "../leds/leds.service" //Circular dependency
 
 // import { CookieService } from 'ngx-cookie-service';
@@ -25,8 +26,7 @@ export class WebsocketService {
   subject: WebSocketSubject<any>
   connected: boolean
   ledsChanged: EventEmitter<Array<RGB>>
-  ledsRowsChanged: EventEmitter<number>
-  ledsCountChanged: EventEmitter<number>
+  ledsParameterChanged: EventEmitter<CmdLedsParameter>
   // connectedChangeCnt: number
 
   // subscriptions: Map<string, SubscribeElement>
@@ -34,8 +34,7 @@ export class WebsocketService {
   constructor() {
     this.connected = false;
     this.ledsChanged = new EventEmitter();
-    this.ledsRowsChanged = new EventEmitter();
-    this.ledsCountChanged = new EventEmitter();
+    this.ledsParameterChanged = new EventEmitter();
 
     // this.subscriptions = new Map<string, SubscribeElement>()
     this.subject = webSocket(
@@ -55,16 +54,12 @@ export class WebsocketService {
           let cmd = msg as Cmd
           switch (cmd.cmd) {
             case "leds":
-              var cmd2cLeds = cmd.parm as Cmd2cLeds
+              var cmd2cLeds = cmd.parm as CmdLeds
               this.ledsChanged.emit(cmd2cLeds.leds)
               break;
-            case "ledsRows":
-              var cmd2cLedsRows = cmd.parm as Cmd2cLedsRows
-              this.ledsRowsChanged.emit(cmd2cLedsRows.rows)
-              break;
-            case "ledsCount":
-              var cmd2cLedsCount = cmd.parm as Cmd2cLedsCount
-              this.ledsCountChanged.emit(cmd2cLedsCount.count)
+            case "ledsParameter":
+              var cmdLedsParameter = cmd.parm as CmdLedsParameter
+              this.ledsParameterChanged.emit(cmdLedsParameter)
               break;
             default:
               console.log("something went wrong with message: ", msg)
@@ -85,6 +80,11 @@ export class WebsocketService {
   private reRun() {
     this.connected = false
     setTimeout(() => this.run(), WEBSOCKET_RECONNECT_TIMEOUT)
+  }
+
+  public send(cmd :Cmd){
+    this.subject.next(cmd)
+    // this.subject.next(JSON.stringify(cmd))
   }
 
 }
