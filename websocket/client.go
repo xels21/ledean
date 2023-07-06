@@ -104,9 +104,9 @@ func (self *Client) handleCommand(cmd *Cmd) {
 	switch cmd.Command {
 	case "button":
 		var cmdButton CmdButton
-		err := json.Unmarshal(cmd.Parameters, &cmdButton)
+		err := json.Unmarshal(cmd.Parameter, &cmdButton)
 		if err != nil {
-			log.Debug("Could not parse button parm mgs: ", string(cmd.Parameters))
+			log.Debug("Could not parse button parm mgs: ", string(cmd.Parameter))
 			return
 		}
 		self.hub.CmdButtonChannel <- cmdButton

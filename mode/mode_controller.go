@@ -6,6 +6,7 @@ import (
 	"ledean/display"
 	"ledean/driver/button"
 	"ledean/json"
+	"ledean/websocket"
 	"time"
 
 	"ledean/log"
@@ -19,6 +20,7 @@ const (
 type ModeController struct {
 	dbdriver              *dbdriver.DbDriver
 	display               *display.Display
+	hub                   *websocket.Hub
 	button                *button.Button
 	active                bool
 	modes                 []Mode
@@ -32,11 +34,12 @@ type ModeController struct {
 	modeGradient          *ModeGradient
 }
 
-func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, button *button.Button) *ModeController {
+func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, button *button.Button, hub *websocket.Hub) *ModeController {
 	self := ModeController{
 		dbdriver:              dbdriver,
 		display:               display,
 		button:                button,
+		hub:                   hub,
 		active:                false,
 		modeSolid:             NewModeSolid(dbdriver, display),
 		modeSolidRainbow:      NewModeSolidRainbow(dbdriver, display),
@@ -147,6 +150,38 @@ func (self *ModeController) SwitchIndex(index uint8) {
 	if resume {
 		self.ActivateCurrentMode()
 	}
+	self.ModeChanged()
+}
+
+func (self *ModeController) ModeChanged() {
+	modeParameter := self.modes[self.modesIndex].GetParameter()
+	modeParameterJSON, err := json.Marshal(modeParameter)
+	if err != nil {
+		log.Info("Mode Changed: ", err)
+		return
+	}
+	cmdModeJSON, err := json.Marshal(websocket.CmdMode{Id: self.modes[self.modesIndex].GetName(), Parameter: modeParameterJSON})
+	if err != nil {
+		log.Info("Mode Changed: ", err)
+		return
+	}
+	self.hub.Boradcast(websocket.Cmd{Command: websocket.CmdModeId, Parameter: cmdModeJSON})
+}
+
+func (self *ModeController) initClientCb(client *websocket.Client) {
+
+	modeParameter := self.modes[self.modesIndex].GetParameter()
+	modeParameterJSON, err := json.Marshal(modeParameter)
+	if err != nil {
+		log.Info("Mode Changed: ", err)
+		return
+	}
+	cmdModeJSON, err := json.Marshal(websocket.CmdMode{Id: self.modes[self.modesIndex].GetName(), Parameter: modeParameterJSON})
+	if err != nil {
+		log.Info("Mode Changed: ", err)
+		return
+	}
+	client.SendCmd(websocket.Cmd{Command: websocket.CmdModeId, Parameter: cmdModeJSON})
 }
 
 func (self *ModeController) GetIndex() uint8 {

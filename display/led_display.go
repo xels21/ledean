@@ -109,12 +109,12 @@ func (self *DisplayBase) initClientCb(client *websocket.Client) {
 
 	cmdLedsParameterJSON, err = json.Marshal(websocket.CmdLedsParameter{Rows: self.led_rows, Count: self.led_count})
 	if err == nil {
-		client.SendCmd(websocket.Cmd{Command: websocket.CmdLedsParameterId, Parameters: cmdLedsParameterJSON})
+		client.SendCmd(websocket.Cmd{Command: websocket.CmdLedsParameterId, Parameter: cmdLedsParameterJSON})
 	}
 
 	cmd2cLedsJSON, err = json.Marshal(websocket.CmdLeds{Leds: self.leds})
 	if err == nil {
-		client.SendCmd(websocket.Cmd{Command: websocket.CmdLedsId, Parameters: cmd2cLedsJSON})
+		client.SendCmd(websocket.Cmd{Command: websocket.CmdLedsId, Parameter: cmd2cLedsJSON})
 	}
 }
 
@@ -131,7 +131,7 @@ func (self *DisplayBase) ledsChanged() {
 func (self *DisplayBase) ForceLedsChanged() {
 	cmd2cLedsJSON, err := json.Marshal(websocket.CmdLeds{Leds: self.leds})
 	if err == nil {
-		self.hub.Boradcast(websocket.Cmd{Command: websocket.CmdLedsId, Parameters: cmd2cLedsJSON})
+		self.hub.Boradcast(websocket.Cmd{Command: websocket.CmdLedsId, Parameter: cmd2cLedsJSON})
 	}
 }
 

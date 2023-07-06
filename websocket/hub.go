@@ -86,7 +86,7 @@ func (self *Hub) handleCommand(cmd Cmd) {
 	switch cmd.Command {
 	case CmdButtonId:
 		var cmdButton CmdButton
-		err := json.Unmarshal(cmd.Parameters, &cmdButton)
+		err := json.Unmarshal(cmd.Parameter, &cmdButton)
 		if err != nil {
 			return
 		}
@@ -110,7 +110,7 @@ func (self *Hub) Boradcast(cmd Cmd) {
 // 	}
 
 // 	for client := range self.clients {
-// 		client.send <- Cmd{Command: "leds", Parameters: cmd2cLedsJSON}
+// 		client.send <- Cmd{Command: "leds", Parameter: cmd2cLedsJSON}
 // 	}
 // }
 

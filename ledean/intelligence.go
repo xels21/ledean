@@ -45,7 +45,7 @@ func Run(parm *Parameter) *LEDeanInstance {
 
 	self.display = display.NewDisplay(parm.LedCount, parm.LedRows, parm.GpioLedData, parm.ReverseRows, self.hub)
 	if !parm.IsPictureMode {
-		self.modeController = mode.NewModeController(self.dbdriver, self.display, self.button)
+		self.modeController = mode.NewModeController(self.dbdriver, self.display, self.button, self.hub)
 	}
 
 	self.button.AddCbPressSingle(func() { log.Info("PRESS_SINGLE") })
