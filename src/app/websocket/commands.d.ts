@@ -17,3 +17,13 @@ export interface CmdLedsParameter {
 export interface CmdButton {
 	action: string
 }
+
+export interface CmdMode {
+	id: string
+	parm: any
+}
+
+export interface CmdModeLimit {
+	id: string
+	parm: any
+}

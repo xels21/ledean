@@ -1,6 +1,6 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
-import { Cmd, CmdLeds, CmdLedsParameter } from "./commands"
+import { Cmd, CmdLeds, CmdLedsParameter, CmdMode, CmdModeLimit } from "./commands"
 import { RGB } from '../color/color';
 // import { RGB } from '../led-display/led-display.component';
 // import { LedsService} from "../leds/leds.service" //Circular dependency
@@ -27,6 +27,8 @@ export class WebsocketService {
   connected: boolean
   ledsChanged: EventEmitter<Array<RGB>>
   ledsParameterChanged: EventEmitter<CmdLedsParameter>
+  modeChanged: EventEmitter<CmdMode>
+  modeLimitChanged: EventEmitter<CmdMode>
   // connectedChangeCnt: number
 
   // subscriptions: Map<string, SubscribeElement>
@@ -35,6 +37,8 @@ export class WebsocketService {
     this.connected = false;
     this.ledsChanged = new EventEmitter();
     this.ledsParameterChanged = new EventEmitter();
+    this.modeChanged = new EventEmitter();
+    this.modeLimitChanged = new EventEmitter();
 
     // this.subscriptions = new Map<string, SubscribeElement>()
     this.subject = webSocket(
@@ -61,6 +65,18 @@ export class WebsocketService {
               var cmdLedsParameter = cmd.parm as CmdLedsParameter
               this.ledsParameterChanged.emit(cmdLedsParameter)
               break;
+            case "mode":
+              var cmdMode = cmd.parm as CmdMode
+              this.modeChanged.emit(cmdMode)
+              console.log("not implemented yet:")
+              console.log(cmd.parm)
+              break;
+            case "limit":
+                var cmdModeLimit = cmd.parm as CmdModeLimit
+                this.modeLimitChanged.emit(cmdModeLimit)
+                console.log("not implemented yet:")
+                console.log(cmd.parm)
+                break;
             default:
               console.log("something went wrong with message: ", msg)
           }
@@ -82,7 +98,7 @@ export class WebsocketService {
     setTimeout(() => this.run(), WEBSOCKET_RECONNECT_TIMEOUT)
   }
 
-  public send(cmd :Cmd){
+  public send(cmd: Cmd) {
     this.subject.next(cmd)
     // this.subject.next(JSON.stringify(cmd))
   }

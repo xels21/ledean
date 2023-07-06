@@ -15,7 +15,7 @@ export class ModesService {
   onModeChange: () => any
 
   constructor(private httpClient: HttpClient, private updateService: UpdateService) {
-    updateService.registerPolling({ cb: () => { this.updateActiveMode() }, timeout: 1000 })
+    // updateService.registerPolling({ cb: () => { this.updateActiveMode() }, timeout: 1000 })
     this.httpClient.get<Array<string>>(REST_GET_MODE_RESOLVER_URL).subscribe((data: Array<string>) => this.modeResolver = data);
     this.setOnModeChange(()=>{})
   }
@@ -25,10 +25,10 @@ export class ModesService {
     this.onModeChange = onModeChange
   }
 
-  public updateActiveMode() {
-    this.httpClient.get<number>(REST_GET_MODE_URL).subscribe((data: number) => {
-      if(this.activeMode != data ){
-        this.activeMode = data
+  public updateActiveMode(id: number) {
+    // this.httpClient.get<number>(REST_GET_MODE_URL).subscribe((data: number) => {
+      if(this.activeMode != id ){
+        this.activeMode = id
         if(this.activeMode >= 0){
           this.isPictureMode = false
           this.onModeChange()
@@ -36,7 +36,7 @@ export class ModesService {
           this.isPictureMode = true
         }
       }
-    });
+    // });
   }
 
   public isActive(mode: string) {
