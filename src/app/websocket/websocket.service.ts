@@ -1,6 +1,6 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
-import { Cmd, CmdLeds, CmdLedsParameter, CmdMode, CmdModeLimit } from "./commands"
+import { Cmd, CmdLeds, CmdLedsParameter, CmdMode, CmdModeLimits } from "./commands"
 import { RGB } from '../color/color';
 // import { RGB } from '../led-display/led-display.component';
 // import { LedsService} from "../leds/leds.service" //Circular dependency
@@ -28,7 +28,7 @@ export class WebsocketService {
   ledsChanged: EventEmitter<Array<RGB>>
   ledsParameterChanged: EventEmitter<CmdLedsParameter>
   modeChanged: EventEmitter<CmdMode>
-  modeLimitChanged: EventEmitter<CmdMode>
+  modeLimitChanged: EventEmitter<CmdModeLimits>
   // connectedChangeCnt: number
 
   // subscriptions: Map<string, SubscribeElement>
@@ -68,13 +68,13 @@ export class WebsocketService {
             case "mode":
               var cmdMode = cmd.parm as CmdMode
               this.modeChanged.emit(cmdMode)
-              console.log("not implemented yet:")
+              console.log("mode not implemented yet:")
               console.log(cmd.parm)
               break;
-            case "limit":
-                var cmdModeLimit = cmd.parm as CmdModeLimit
-                this.modeLimitChanged.emit(cmdModeLimit)
-                console.log("not implemented yet:")
+            case "modeLimits":
+              console.log("modeLimits not implemented yet:")
+                var cmdModeLimits = cmd.parm as CmdModeLimits
+                this.modeLimitChanged.emit(cmdModeLimits)
                 console.log(cmd.parm)
                 break;
             default:

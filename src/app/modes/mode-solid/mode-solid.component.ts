@@ -6,53 +6,18 @@ import { HttpClient } from '@angular/common/http';
 import { deepCopy } from '../../lib/deep-copy';
 import { deepEqual } from 'fast-equals';
 
+import { ModeSolidParameter, ModeSolidLimits, ModeSolidService } from './mode-solid.service'
 
-interface ModeSolidParameter {
-  rgb: RGB,
-  brightness: number,
-}
-interface ModeSolidLimits {
-  minBrightness: number,
-  maxBrightness: number,
-}
 
 @Component({
   selector: 'app-mode-solid',
   templateUrl: './mode-solid.component.html',
-  styleUrls: ['./mode-solid.component.scss','../../app.component.scss']
+  styleUrls: ['./mode-solid.component.scss', '../../app.component.scss']
 })
 export class ModeSolidComponent implements OnInit {
-  public backModeSolidParameter: ModeSolidParameter
-  public modeSolidParameter: ModeSolidParameter
-  public modeSolidLimits: ModeSolidLimits
-
-
-  constructor(private httpClient: HttpClient, private updateService: UpdateService) {
+  constructor(public service: ModeSolidService) {
   }
 
-  ngOnInit(): void {
-    this.updateModeSolidParameter();
-    this.updateModeSolidLimits();
-    this.updateService.registerPolling({ cb: () => { this.updateModeSolidParameter() }, timeout: 500 })
-  }
-
-  updateModeSolidParameter() {
-    this.httpClient.get<ModeSolidParameter>(REST_MODE_SOLID_URL).subscribe((data: ModeSolidParameter) => {
-      if (!deepEqual(this.backModeSolidParameter, data)) {
-        this.backModeSolidParameter = data
-        this.modeSolidParameter = deepCopy(this.backModeSolidParameter)
-      }
-    }
-    )
-  }
-
-  setModeSolidParameter() {
-    console.log("set")
-    this.httpClient.post<ModeSolidParameter>(REST_MODE_SOLID_URL, this.modeSolidParameter, {}).subscribe()
-  }
-
-  updateModeSolidLimits() {
-    this.httpClient.get<ModeSolidLimits>(REST_MODE_SOLID_URL + "/limits").subscribe((data: ModeSolidLimits) => { this.modeSolidLimits = data })
-  }
+  ngOnInit(): void {}
 
 }

@@ -11,6 +11,7 @@ import { ButtonService } from './button/button.service';
 import { UpdateService } from './update/update.service';
 import { SystemService } from './system/system.service';
 import { WebsocketService } from './websocket/websocket.service';
+import { ModeSolidService } from './modes/mode-solid/mode-solid.service';
 
 import { LedDisplayComponent } from './led-display/led-display.component';
 import { ButtonComponent } from './button/button.component';
@@ -49,7 +50,8 @@ import { ModeGradientComponent } from './modes/mode-gradient/mode-gradient.compo
     ButtonService,
     UpdateService,
     SystemService,
-    WebsocketService
+    WebsocketService,
+    ModeSolidService
   ],
   bootstrap: [AppComponent]
 })

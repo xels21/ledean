@@ -23,7 +23,7 @@ export interface CmdMode {
 	parm: any
 }
 
-export interface CmdModeLimit {
+export interface CmdModeLimits {
 	id: string
-	parm: any
+	limits: any
 }
