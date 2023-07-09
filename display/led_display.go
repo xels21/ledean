@@ -155,6 +155,7 @@ func (self *DisplayBase) leds2Buffer() {
 
 func (self *DisplayBase) Clear() {
 	self.AllSolid(color.RGB{R: 0, G: 0, B: 0})
+	self.ForceLedsChanged() //due to start stop
 }
 
 func (self *DisplayBase) AllSolid(rgb color.RGB) {

@@ -57,6 +57,7 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 	}
 
 	self.registerEvents()
+	self.hub.AppendInitClientCb(self.initClientCb)
 
 	return &self
 }
@@ -150,38 +151,59 @@ func (self *ModeController) SwitchIndex(index uint8) {
 	if resume {
 		self.ActivateCurrentMode()
 	}
-	self.ModeChanged()
+	self.BroadcastCurrentMode()
 }
 
-func (self *ModeController) ModeChanged() {
+func (self *ModeController) getModeCmd() (websocket.Cmd, error) {
 	modeParameter := self.modes[self.modesIndex].GetParameter()
 	modeParameterJSON, err := json.Marshal(modeParameter)
 	if err != nil {
-		log.Info("Mode Changed: ", err)
-		return
+		return websocket.Cmd{}, err
 	}
 	cmdModeJSON, err := json.Marshal(websocket.CmdMode{Id: self.modes[self.modesIndex].GetName(), Parameter: modeParameterJSON})
 	if err != nil {
-		log.Info("Mode Changed: ", err)
-		return
+		return websocket.Cmd{}, err
 	}
-	self.hub.Boradcast(websocket.Cmd{Command: websocket.CmdModeId, Parameter: cmdModeJSON})
+	return websocket.Cmd{Command: websocket.CmdModeId, Parameter: cmdModeJSON}, nil
+}
+
+func (self *ModeController) BroadcastCurrentMode() {
+	cmdMode, err := self.getModeCmd()
+	if err != nil {
+		log.Info("Mode Changed: ", err)
+	}
+
+	self.hub.Boradcast(cmdMode)
 }
 
 func (self *ModeController) initClientCb(client *websocket.Client) {
+	cmdMode, err := self.getModeCmd()
+	if err != nil {
+		log.Info(err)
+	} else {
+		client.SendCmd(cmdMode)
+	}
 
-	modeParameter := self.modes[self.modesIndex].GetParameter()
-	modeParameterJSON, err := json.Marshal(modeParameter)
-	if err != nil {
-		log.Info("Mode Changed: ", err)
-		return
+	for _, mode := range self.modes {
+		limitsJson, err := json.Marshal(mode.GetLimits())
+		if err != nil {
+			log.Info(err)
+			continue
+		}
+		cmdModeLimitJSON, err := json.Marshal(websocket.CmdModeLimits{
+			Id:     mode.GetName(),
+			Limits: limitsJson,
+			// Limits: mode.GetLimits(),
+		})
+		if err != nil {
+			log.Info(err)
+			continue
+		}
+
+		client.SendCmd(websocket.Cmd{
+			Command:   websocket.CmdModeLimitsId,
+			Parameter: cmdModeLimitJSON})
 	}
-	cmdModeJSON, err := json.Marshal(websocket.CmdMode{Id: self.modes[self.modesIndex].GetName(), Parameter: modeParameterJSON})
-	if err != nil {
-		log.Info("Mode Changed: ", err)
-		return
-	}
-	client.SendCmd(websocket.Cmd{Command: websocket.CmdModeId, Parameter: cmdModeJSON})
 }
 
 func (self *ModeController) GetIndex() uint8 {

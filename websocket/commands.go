@@ -10,11 +10,14 @@ const (
 	CmdLedsParameterId string = "ledsParameter"
 	CmdButtonId        string = "button"
 	CmdModeId          string = "mode"
+	CmdModeLimitsId    string = "modeLimits"
+	CmdModeResolverId  string = "modeResolver"
 )
 
 type Cmd struct {
-	Command   string          `json:"cmd"`
-	Parameter json.RawMessage `json:"parm"`
+	Command string `json:"cmd"`
+	// Parameter any    `json:"parm"`
+	Parameter json.RawMessage `json:"parm"` //must be json
 }
 
 type CmdLeds struct {
@@ -33,4 +36,14 @@ type CmdButton struct {
 type CmdMode struct {
 	Id        string          `json:"id"`
 	Parameter json.RawMessage `json:"parm"`
+}
+
+type CmdModeLimits struct {
+	Id string `json:"id"`
+	// Limits any    `json:"limits"`
+	Limits json.RawMessage `json:"limits"`
+}
+
+type CmdModeResolver struct {
+	Modes []string `json:"modes"`
 }
