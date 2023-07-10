@@ -68,15 +68,11 @@ export class WebsocketService {
             case "mode":
               var cmdMode = cmd.parm as CmdMode
               this.modeChanged.emit(cmdMode)
-              console.log("mode not implemented yet:")
-              console.log(cmd.parm)
               break;
             case "modeLimits":
-              console.log("modeLimits not implemented yet:")
-                var cmdModeLimits = cmd.parm as CmdModeLimits
-                this.modeLimitChanged.emit(cmdModeLimits)
-                console.log(cmd.parm)
-                break;
+              var cmdModeLimits = cmd.parm as CmdModeLimits
+              this.modeLimitChanged.emit(cmdModeLimits)
+              break;
             default:
               console.log("something went wrong with message: ", msg)
           }

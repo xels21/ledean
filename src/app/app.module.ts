@@ -11,7 +11,14 @@ import { ButtonService } from './button/button.service';
 import { UpdateService } from './update/update.service';
 import { SystemService } from './system/system.service';
 import { WebsocketService } from './websocket/websocket.service';
+
+import { ModeEmitterService } from './modes/mode-emitter/mode-emitter.service';
+import { ModeGradientService } from './modes/mode-gradient/mode-gradient.service';
+import { ModeRunningLedService } from './modes/mode-running-led/mode-running-led.service';
 import { ModeSolidService } from './modes/mode-solid/mode-solid.service';
+import { ModeSolidRainbowService } from './modes/mode-solid-rainbow/mode-solid-rainbow.service';
+import { ModeTransitionRainbowService } from './modes/mode-transition-rainbow/mode-transition-rainbow.service';
+
 
 import { LedDisplayComponent } from './led-display/led-display.component';
 import { ButtonComponent } from './button/button.component';
@@ -51,7 +58,12 @@ import { ModeGradientComponent } from './modes/mode-gradient/mode-gradient.compo
     UpdateService,
     SystemService,
     WebsocketService,
-    ModeSolidService
+    ModeEmitterService,
+    ModeGradientService,
+    ModeRunningLedService,
+    ModeSolidService,
+    ModeSolidRainbowService,
+    ModeTransitionRainbowService,
   ],
   bootstrap: [AppComponent]
 })

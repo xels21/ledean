@@ -41,13 +41,10 @@ export class ModeSolidService {
   }
 
   setModeSolidParameter() {
-    console.log("set")
     this.httpClient.post<ModeSolidParameter>(REST_MODE_SOLID_URL, this.modeSolidParameter, {}).subscribe()
   }
 
   updateModeSolidLimits(limits: ModeSolidLimits) {
-    console.log("WORKED")
-    console.log(limits)
     this.modeSolidLimits = limits
   }
 

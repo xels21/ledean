@@ -1,83 +1,83 @@
-<div *ngIf="modeRunningLedParameter && modeRunningLedLimits">
+<div *ngIf="service.modeRunningLedParameter && service.modeRunningLedLimits">
 
-  <div class="row" [ngStyle]="{'background-color': 'rgba(255,255,255,'+modeRunningLedParameter.brightness+')'}">
+  <div class="row" [ngStyle]="{'background-color': 'rgba(255,255,255,'+service.modeRunningLedParameter.brightness+')'}">
     <div class="input-field col s3">
-      <input id="brightness" type="number" [(ngModel)]="modeRunningLedParameter.brightness"
-        (change)="setModeRunningLedParameter()" />
+      <input id="brightness" type="number" [(ngModel)]="service.modeRunningLedParameter.brightness"
+        (change)="service.setModeRunningLedParameter()" />
       <label for="brightness">brightness</label>
     </div>
 
     <div class="col s9 valign-wrapper generic-slider">
-      <input type="range" [min]="modeRunningLedLimits.minBrightness" [max]="modeRunningLedLimits.maxBrightness"
-        step="0.01" (change)="setModeRunningLedParameter()" [(ngModel)]="modeRunningLedParameter.brightness" />
+      <input type="range" [min]="service.modeRunningLedLimits.minBrightness" [max]="service.modeRunningLedLimits.maxBrightness"
+        step="0.01" (change)="service.setModeRunningLedParameter()" [(ngModel)]="service.modeRunningLedParameter.brightness" />
     </div>
   </div>
 
   <div class="row">
     <div class="input-field col s3">
-      <input id="fadePct" type="number" [(ngModel)]="modeRunningLedParameter.fadePct"
-        (change)="setModeRunningLedParameter()" />
+      <input id="fadePct" type="number" [(ngModel)]="service.modeRunningLedParameter.fadePct"
+        (change)="service.setModeRunningLedParameter()" />
       <label for="fadePct">fadePct</label>
     </div>
 
     <div class="col s9 valign-wrapper generic-slider">
-      <input type="range" [min]="modeRunningLedLimits.minFadePct" [max]="modeRunningLedLimits.maxFadePct" step="0.01"
-        (change)="setModeRunningLedParameter()" [(ngModel)]="modeRunningLedParameter.fadePct" />
+      <input type="range" [min]="service.modeRunningLedLimits.minFadePct" [max]="service.modeRunningLedLimits.maxFadePct" step="0.01"
+        (change)="service.setModeRunningLedParameter()" [(ngModel)]="service.modeRunningLedParameter.fadePct" />
     </div>
   </div>
 
   <div class="row">
     <div class="input-field col s3">
-      <input id="round_time_Ms" type="number" [(ngModel)]="modeRunningLedParameter.roundTimeMs"
-        (change)="setModeRunningLedParameter()">
+      <input id="round_time_Ms" type="number" [(ngModel)]="service.modeRunningLedParameter.roundTimeMs"
+        (change)="service.setModeRunningLedParameter()">
       <label for="round_time_Ms">Round Time(ms)</label>
     </div>
 
     <div class="col s9 valign-wrapper generic-slider">
-      <input type="range" [min]="modeRunningLedLimits.minRoundTimeMs" [max]="modeRunningLedLimits.maxRoundTimeMs"
-        step="1" (change)="setModeRunningLedParameter()" [(ngModel)]="modeRunningLedParameter.roundTimeMs" />
+      <input type="range" [min]="service.modeRunningLedLimits.minRoundTimeMs" [max]="service.modeRunningLedLimits.maxRoundTimeMs"
+        step="1" (change)="service.setModeRunningLedParameter()" [(ngModel)]="service.modeRunningLedParameter.roundTimeMs" />
     </div>
   </div>
 
 
 
-  <div class="row" [ngStyle]="{'background-color': 'hsl('+modeRunningLedParameter.hueFrom+',100%,50%)'}">
+  <div class="row" [ngStyle]="{'background-color': 'hsl('+service.modeRunningLedParameter.hueFrom+',100%,50%)'}">
     <div class="input-field col s3">
-      <input id="hueFrom" type="number" [(ngModel)]="modeRunningLedParameter.hueFrom"
-        (change)="setModeRunningLedParameter()" />
+      <input id="hueFrom" type="number" [(ngModel)]="service.modeRunningLedParameter.hueFrom"
+        (change)="service.setModeRunningLedParameter()" />
       <label for="hueFrom">hueFrom</label>
     </div>
 
     <div class="col s9 valign-wrapper generic-slider">
-      <input type="range" min=0 max=360 step="0.01" (change)="setModeRunningLedParameter()"
-        [(ngModel)]="modeRunningLedParameter.hueFrom" />
+      <input type="range" min=0 max=360 step="0.01" (change)="service.setModeRunningLedParameter()"
+        [(ngModel)]="service.modeRunningLedParameter.hueFrom" />
     </div>
   </div>
 
-  <div class="row" [ngStyle]="{'background-color': 'hsl('+modeRunningLedParameter.hueTo+',100%,50%)'}">
+  <div class="row" [ngStyle]="{'background-color': 'hsl('+service.modeRunningLedParameter.hueTo+',100%,50%)'}">
     <div class="input-field col s3">
-      <input id="hueTo" type="number" [(ngModel)]="modeRunningLedParameter.hueTo"
-        (change)="setModeRunningLedParameter()" />
+      <input id="hueTo" type="number" [(ngModel)]="service.modeRunningLedParameter.hueTo"
+        (change)="service.setModeRunningLedParameter()" />
       <label for="hueFrom">hueTo</label>
     </div>
 
     <div class="col s9 valign-wrapper generic-slider">
-      <input type="range" min=0 max=360 step="0.01" (change)="setModeRunningLedParameter()"
-        [(ngModel)]="modeRunningLedParameter.hueTo" />
+      <input type="range" min=0 max=360 step="0.01" (change)="service.setModeRunningLedParameter()"
+        [(ngModel)]="service.modeRunningLedParameter.hueTo" />
     </div>
   </div>
 
   <div class="row">
     <div class="input-field col s3">
-      <input id="style" type="text" [(ngModel)]="modeRunningLedParameter.style"
-        (change)="setModeRunningLedParameter()" />
+      <input id="style" type="text" [(ngModel)]="service.modeRunningLedParameter.style"
+        (change)="service.setModeRunningLedParameter()" />
       <label for="style">style</label>
     </div>
 
     <div class="col s9 valign-wrapper">
-      <select class="browser-default" [(ngModel)]="modeRunningLedParameter.style"
-        (change)="setModeRunningLedParameter()">
-        <option *ngFor="let style of getAllStyles()" [text]="style"></option>
+      <select class="browser-default" [(ngModel)]="service.modeRunningLedParameter.style"
+        (change)="service.setModeRunningLedParameter()">
+        <option *ngFor="let style of service.getAllStyles()" [text]="style"></option>
       </select>
     </div>
   </div>
