@@ -1,47 +1,56 @@
-<div *ngIf="service.modeSolidParameter" class="row" style="padding:0 10px" [ngStyle]="{'background-color': 'rgb('+service.modeSolidParameter.rgb.r+','+service.modeSolidParameter.rgb.g+','+service.modeSolidParameter.rgb.b+')'}">
+<div *ngIf="service.modeSolidParameter && service.modeSolidLimits">
+  <div class="row" style="padding:0 10px"
+    [ngStyle]="{'background-color': 'rgb('+service.modeSolidParameter.rgb.r+','+service.modeSolidParameter.rgb.g+','+service.modeSolidParameter.rgb.b+')'}">
 
     <div class="row">
       <div class="col s3 input-field ">
-        <input id="red" type="number" min="0" max="255" (change)="service.setModeSolidParameter()" [(ngModel)]="service.modeSolidParameter.rgb.r" />
+        <input id="red" type="number" min="0" max="255" (change)="service.setModeSolidParameter()"
+          [(ngModel)]="service.modeSolidParameter.rgb.r" />
         <label for="red">Red</label>
       </div>
-      <div class="col s9 valign-wrapper generic-slider"><input type="range" min="0" max="255" (change)="service.setModeSolidParameter()" [(ngModel)]="service.modeSolidParameter.rgb.r" /></div>
+      <div class="col s9 valign-wrapper generic-slider"><input type="range" min="0" max="255"
+          (change)="service.setModeSolidParameter()" [(ngModel)]="service.modeSolidParameter.rgb.r" /></div>
     </div>
     <hr>
     <div class="row">
       <div class="col s3 input-field ">
-        <input id="green" type="number" min="0" max="255" (change)="service.setModeSolidParameter()" [(ngModel)]="service.modeSolidParameter.rgb.g" />
+        <input id="green" type="number" min="0" max="255" (change)="service.setModeSolidParameter()"
+          [(ngModel)]="service.modeSolidParameter.rgb.g" />
         <label for="green">Green</label>
       </div>
-      <div class="col s9 valign-wrapper generic-slider"><input type="range" min="0" max="255" (change)="service.setModeSolidParameter()" [(ngModel)]="service.modeSolidParameter.rgb.g" /></div>
+      <div class="col s9 valign-wrapper generic-slider"><input type="range" min="0" max="255"
+          (change)="service.setModeSolidParameter()" [(ngModel)]="service.modeSolidParameter.rgb.g" /></div>
     </div>
     <hr>
     <div class="row">
       <div class="col s3 input-field ">
-        <input id="blue" type="number" min="0" max="255" (change)="service.setModeSolidParameter()" [(ngModel)]="service.modeSolidParameter.rgb.b" />
+        <input id="blue" type="number" min="0" max="255" (change)="service.setModeSolidParameter()"
+          [(ngModel)]="service.modeSolidParameter.rgb.b" />
         <label for="blue">Blue</label>
       </div>
-      <div class="col s9 valign-wrapper generic-slider"><input type="range" min="0" max="255" (change)="service.setModeSolidParameter()" [(ngModel)]="service.modeSolidParameter.rgb.b" /></div>
+      <div class="col s9 valign-wrapper generic-slider"><input type="range" min="0" max="255"
+          (change)="service.setModeSolidParameter()" [(ngModel)]="service.modeSolidParameter.rgb.b" /></div>
     </div>
 
-</div>
-
-<div *ngIf="service.modeSolidParameter && service.modeSolidLimits" class="row" [ngStyle]="{'background-color': 'rgba(255,255,255,'+service.modeSolidParameter.brightness+')'}">
-  <div class="input-field col s3">
-    <input id="brightness" type="number" [(ngModel)]="service.modeSolidParameter.brightness"
-      (change)="service.setModeSolidParameter()" />
-    <label for="brightness">Brightness</label>
   </div>
 
-  <div class="col s9 valign-wrapper generic-slider">
-    <input type="range" [min]="service.modeSolidLimits.minBrightness" [max]="service.modeSolidLimits.maxBrightness"
-      step="0.01" (change)="service.setModeSolidParameter()" [(ngModel)]="service.modeSolidParameter.brightness" />
+  <div class="row" [ngStyle]="{'background-color': 'rgba(255,255,255,'+service.modeSolidParameter.brightness+')'}">
+    <div class="input-field col s3">
+      <input id="brightness" type="number" [(ngModel)]="service.modeSolidParameter.brightness"
+        (change)="service.setModeSolidParameter()" />
+      <label for="brightness">Brightness</label>
+    </div>
+
+    <div class="col s9 valign-wrapper generic-slider">
+      <input type="range" [min]="service.modeSolidLimits.minBrightness" [max]="service.modeSolidLimits.maxBrightness"
+        step="0.01" (change)="service.setModeSolidParameter()" [(ngModel)]="service.modeSolidParameter.brightness" />
+    </div>
   </div>
-</div>
 
 
 
-<!-- <div class="row" style="margin-top: 10px;">
+  <!-- <div class="row" style="margin-top: 10px;">
   <div class="col s6" style="text-align: center;"><button class="btn waves-effect button-control grey" (click)="updateModeSolidParameter()">reload</button></div>
   <div class="col s6" style="text-align: center;"><button class="btn waves-effect button-control green" (click)="service.setModeSolidParameter()">SET</button></div>
 </div> -->
+</div>

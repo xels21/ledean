@@ -9,7 +9,7 @@ import { ModeRunningLedService } from '../modes/mode-running-led/mode-running-le
 import { ModeSolidService } from '../modes/mode-solid/mode-solid.service';
 import { ModeSolidRainbowService } from '../modes/mode-solid-rainbow/mode-solid-rainbow.service';
 import { ModeTransitionRainbowService } from '../modes/mode-transition-rainbow/mode-transition-rainbow.service';
-import { CmdMode, CmdModeLimits } from '../websocket/commands';
+import { CmdMode, CmdModeLimits, CmdModeResolver } from '../websocket/commands';
 
 
 @Injectable({
@@ -35,6 +35,7 @@ export class ModesService {
     this.setOnModeChange(() => { })
     this.websocketService.modeChanged.subscribe((cmdMode: CmdMode) => this.modeChanged(cmdMode))
     this.websocketService.modeLimitChanged.subscribe((cmdModeLimits: CmdModeLimits) => this.modeLimitChanged(cmdModeLimits))
+    this.websocketService.modeResolverChanged.subscribe((cmdModeResolver: CmdModeResolver) => {this.modeResolver = cmdModeResolver.modes;})
   }
 
   private modeChanged(cmdMode: CmdMode) {
@@ -62,6 +63,7 @@ export class ModesService {
         console.log("Unknown limit change for mode: ", cmdMode.id)
         break;
     }
+    this.updateActiveModeString(cmdMode.id)
   }
 
   private modeLimitChanged(cmdModeLimits: CmdModeLimits) {
@@ -89,12 +91,18 @@ export class ModesService {
         console.log("Unknown limit change for mode: ", cmdModeLimits.id)
         break;
     }
-    console.log("needs too be handled: ", cmdModeLimits)
   }
 
 
   public setOnModeChange(onModeChange: () => any) {
     this.onModeChange = onModeChange
+  }
+
+  public updateActiveModeString(name: string) {
+    var id = this.modeStrToIdx(name)
+    if(id != undefined){
+      this.updateActiveMode(id)
+    }
   }
 
   public updateActiveMode(id: number) {

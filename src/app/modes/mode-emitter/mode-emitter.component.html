@@ -28,7 +28,7 @@
     </div>
     <div class="col s9">
       <nouislider [connect]="true" [tooltips]="[ true, true ]" [step]="1" [min]="service.modeEmitterLimits.minEmitLifetimeMs"
-        [max]="service.modeEmitterLimits.maxEmitLifetimeMs" [(ngModel)]="emitLifetimeMsRange"
+        [max]="service.modeEmitterLimits.maxEmitLifetimeMs" [(ngModel)]="service.emitLifetimeMsRange"
         (change)="service.setEmitLifetimeMs(); service.setModeEmitterParameter()"></nouislider>
     </div>
   </div>

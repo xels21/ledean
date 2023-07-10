@@ -29,7 +29,6 @@ export class ModeSolidService {
 
 
   updateModeSolidParameter(parm: ModeSolidParameter) {
-    console.log(parm)
     if (!deepEqual(this.backModeSolidParameter, parm)) {
       this.backModeSolidParameter = parm
       this.modeSolidParameter = deepCopy(this.backModeSolidParameter)

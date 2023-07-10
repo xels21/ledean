@@ -1,58 +1,63 @@
-<div *ngIf="service.modeTransitionRainbowParameter && service.modeTransitionRainbowLimits" class="row">
+<div *ngIf="service.modeTransitionRainbowParameter && service.modeTransitionRainbowLimits">
+  <div class="row">
 
-  <div class="input-field col s3">
-    <input id="round_time_Ms" type="number" [(ngModel)]="service.modeTransitionRainbowParameter.roundTimeMs"
-      (change)="service.setModeTransitionRainbowParameter()">
-    <label for="round_time_Ms">Round Time(ms)</label>
-  </div>
-
-  <div class="col s9 valign-wrapper generic-slider">
-    <input type="range" [min]="service.modeTransitionRainbowLimits.minRoundTimeMs"
-      [max]="service.modeTransitionRainbowLimits.maxRoundTimeMs" step="1" (change)="service.setModeTransitionRainbowParameter()"
-      [(ngModel)]="service.modeTransitionRainbowParameter.roundTimeMs" />
-  </div>
-</div>
-
-<div *ngIf="service.modeTransitionRainbowParameter && service.modeTransitionRainbowLimits" class="row"
-  [ngStyle]="{'background-color': 'rgba(255,255,255,'+service.modeTransitionRainbowParameter.brightness+')'}">
-  <div class="input-field col s3">
-    <input id="brightness" type="number" [(ngModel)]="service.modeTransitionRainbowParameter.brightness"
-      (change)="service.setModeTransitionRainbowParameter()">
-    <label for="brightness">Brightness</label>
-  </div>
-  <div class="col s9 valign-wrapper generic-slider">
-    <input type="range" [min]="service.modeTransitionRainbowLimits.minBrightness "
-      [max]="service.modeTransitionRainbowLimits.maxBrightness" step="0.01" (change)="service.setModeTransitionRainbowParameter()"
-      [(ngModel)]="service.modeTransitionRainbowParameter.brightness" />
-  </div>
-</div>
-
-<!-- <div *ngIf="service.modeTransitionRainbowParameter && service.modeTransitionRainbowLimits" class="row" [ngStyle]="{'background-color': 'rgba(255,255,255,'+service.modeTransitionRainbowParameter.brightness+')'}"> -->
-<div *ngIf="service.modeTransitionRainbowParameter && service.modeTransitionRainbowLimits" class="row">
-  <div class="input-field col s3">
-    <input id="spectrum" type="number" [(ngModel)]="service.modeTransitionRainbowParameter.spectrum"
-      (change)="service.setModeTransitionRainbowParameter()">
-    <label for="spectrum">Spectrum</label>
-  </div>
-  <div class="col s9 valign-wrapper generic-slider">
-    <input type="range" [min]="service.modeTransitionRainbowLimits.minSpectrum" [max]="service.modeTransitionRainbowLimits.maxSpectrum"
-      step="0.01" (change)="service.setModeTransitionRainbowParameter()"
-      [(ngModel)]="service.modeTransitionRainbowParameter.spectrum" />
-  </div>
-</div>
-
-<div *ngIf="service.modeTransitionRainbowParameter && service.modeTransitionRainbowLimits" class="row">
-  <div class="input-field col s3">
-    <input id="reverse" type="text" [(ngModel)]="service.modeTransitionRainbowParameter.reverse"
-      (change)="service.setModeTransitionRainbowParameter()">
-    <label for="spectrum">Reverse</label>
-  </div>
-
-  <div class="switch" style="display: inline">
-    <label>
-      <input type="checkbox" [(ngModel)]="service.modeTransitionRainbowParameter.reverse"
+    <div class="input-field col s3">
+      <input id="round_time_Ms" type="number" [(ngModel)]="service.modeTransitionRainbowParameter.roundTimeMs"
         (change)="service.setModeTransitionRainbowParameter()">
-      <span class="lever"></span>
-    </label>
+      <label for="round_time_Ms">Round Time(ms)</label>
+    </div>
+
+    <div class="col s9 valign-wrapper generic-slider">
+      <input type="range" [min]="service.modeTransitionRainbowLimits.minRoundTimeMs"
+        [max]="service.modeTransitionRainbowLimits.maxRoundTimeMs" step="1"
+        (change)="service.setModeTransitionRainbowParameter()"
+        [(ngModel)]="service.modeTransitionRainbowParameter.roundTimeMs" />
+    </div>
+  </div>
+
+  <div class="row"
+    [ngStyle]="{'background-color': 'rgba(255,255,255,'+service.modeTransitionRainbowParameter.brightness+')'}">
+    <div class="input-field col s3">
+      <input id="brightness" type="number" [(ngModel)]="service.modeTransitionRainbowParameter.brightness"
+        (change)="service.setModeTransitionRainbowParameter()">
+      <label for="brightness">Brightness</label>
+    </div>
+    <div class="col s9 valign-wrapper generic-slider">
+      <input type="range" [min]="service.modeTransitionRainbowLimits.minBrightness "
+        [max]="service.modeTransitionRainbowLimits.maxBrightness" step="0.01"
+        (change)="service.setModeTransitionRainbowParameter()"
+        [(ngModel)]="service.modeTransitionRainbowParameter.brightness" />
+    </div>
+  </div>
+
+  <!-- <div *ngIf="service.modeTransitionRainbowParameter && service.modeTransitionRainbowLimits" class="row" [ngStyle]="{'background-color': 'rgba(255,255,255,'+service.modeTransitionRainbowParameter.brightness+')'}"> -->
+  <div class="row">
+    <div class="input-field col s3">
+      <input id="spectrum" type="number" [(ngModel)]="service.modeTransitionRainbowParameter.spectrum"
+        (change)="service.setModeTransitionRainbowParameter()">
+      <label for="spectrum">Spectrum</label>
+    </div>
+    <div class="col s9 valign-wrapper generic-slider">
+      <input type="range" [min]="service.modeTransitionRainbowLimits.minSpectrum"
+        [max]="service.modeTransitionRainbowLimits.maxSpectrum" step="0.01"
+        (change)="service.setModeTransitionRainbowParameter()"
+        [(ngModel)]="service.modeTransitionRainbowParameter.spectrum" />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="input-field col s3">
+      <input id="reverse" type="text" [(ngModel)]="service.modeTransitionRainbowParameter.reverse"
+        (change)="service.setModeTransitionRainbowParameter()">
+      <label for="spectrum">Reverse</label>
+    </div>
+
+    <div class="switch" style="display: inline">
+      <label>
+        <input type="checkbox" [(ngModel)]="service.modeTransitionRainbowParameter.reverse"
+          (change)="service.setModeTransitionRainbowParameter()">
+        <span class="lever"></span>
+      </label>
+    </div>
   </div>
 </div>

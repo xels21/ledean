@@ -8,8 +8,9 @@
     </div>
 
     <div class="col s9 valign-wrapper generic-slider">
-      <input type="range" [min]="service.modeRunningLedLimits.minBrightness" [max]="service.modeRunningLedLimits.maxBrightness"
-        step="0.01" (change)="service.setModeRunningLedParameter()" [(ngModel)]="service.modeRunningLedParameter.brightness" />
+      <input type="range" [min]="service.modeRunningLedLimits.minBrightness"
+        [max]="service.modeRunningLedLimits.maxBrightness" step="0.01" (change)="service.setModeRunningLedParameter()"
+        [(ngModel)]="service.modeRunningLedParameter.brightness" />
     </div>
   </div>
 
@@ -21,8 +22,9 @@
     </div>
 
     <div class="col s9 valign-wrapper generic-slider">
-      <input type="range" [min]="service.modeRunningLedLimits.minFadePct" [max]="service.modeRunningLedLimits.maxFadePct" step="0.01"
-        (change)="service.setModeRunningLedParameter()" [(ngModel)]="service.modeRunningLedParameter.fadePct" />
+      <input type="range" [min]="service.modeRunningLedLimits.minFadePct"
+        [max]="service.modeRunningLedLimits.maxFadePct" step="0.01" (change)="service.setModeRunningLedParameter()"
+        [(ngModel)]="service.modeRunningLedParameter.fadePct" />
     </div>
   </div>
 
@@ -34,8 +36,9 @@
     </div>
 
     <div class="col s9 valign-wrapper generic-slider">
-      <input type="range" [min]="service.modeRunningLedLimits.minRoundTimeMs" [max]="service.modeRunningLedLimits.maxRoundTimeMs"
-        step="1" (change)="service.setModeRunningLedParameter()" [(ngModel)]="service.modeRunningLedParameter.roundTimeMs" />
+      <input type="range" [min]="service.modeRunningLedLimits.minRoundTimeMs"
+        [max]="service.modeRunningLedLimits.maxRoundTimeMs" step="1" (change)="service.setModeRunningLedParameter()"
+        [(ngModel)]="service.modeRunningLedParameter.roundTimeMs" />
     </div>
   </div>
 

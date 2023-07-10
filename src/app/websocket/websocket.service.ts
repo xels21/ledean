@@ -1,6 +1,6 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
-import { Cmd, CmdLeds, CmdLedsParameter, CmdMode, CmdModeLimits } from "./commands"
+import { Cmd, CmdLeds, CmdLedsParameter, CmdMode, CmdModeLimits, CmdModeResolver } from "./commands"
 import { RGB } from '../color/color';
 // import { RGB } from '../led-display/led-display.component';
 // import { LedsService} from "../leds/leds.service" //Circular dependency
@@ -29,6 +29,7 @@ export class WebsocketService {
   ledsParameterChanged: EventEmitter<CmdLedsParameter>
   modeChanged: EventEmitter<CmdMode>
   modeLimitChanged: EventEmitter<CmdModeLimits>
+  modeResolverChanged: EventEmitter<CmdModeResolver>
   // connectedChangeCnt: number
 
   // subscriptions: Map<string, SubscribeElement>
@@ -39,6 +40,7 @@ export class WebsocketService {
     this.ledsParameterChanged = new EventEmitter();
     this.modeChanged = new EventEmitter();
     this.modeLimitChanged = new EventEmitter();
+    this.modeResolverChanged = new EventEmitter();
 
     // this.subscriptions = new Map<string, SubscribeElement>()
     this.subject = webSocket(
@@ -72,6 +74,10 @@ export class WebsocketService {
             case "modeLimits":
               var cmdModeLimits = cmd.parm as CmdModeLimits
               this.modeLimitChanged.emit(cmdModeLimits)
+              break;
+            case "modeResolver":
+              var cmdModeResolver = cmd.parm as CmdModeResolver
+              this.modeResolverChanged.emit(cmdModeResolver)
               break;
             default:
               console.log("something went wrong with message: ", msg)

@@ -27,3 +27,14 @@ export interface CmdModeLimits {
 	id: string
 	limits: any
 }
+
+export interface CmdModeResolver {
+	modes: string[]
+}
+
+export const CmdModeActionRandomizeId = "randomize"
+export const CmdModeActionId = "action"
+
+export interface CmdModeAction{
+	action: string
+}

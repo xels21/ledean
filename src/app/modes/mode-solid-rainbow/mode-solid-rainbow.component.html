@@ -1,26 +1,30 @@
-<div *ngIf="service.modeSolidRainbowParameter && service.modeSolidRainbowLimits" class="row">
+<div *ngIf="service.modeSolidRainbowParameter && service.modeSolidRainbowLimits">
+  <div class="row">
 
-  <div class="input-field col s3">
-    <input id="round_time_Ms" type="number" [(ngModel)]="service.modeSolidRainbowParameter.roundTimeMs"
-      (change)="service.setModeSolidRainbowParameter()">
-    <label for="round_time_Ms">Round Time(ms)</label>
+    <div class="input-field col s3">
+      <input id="round_time_Ms" type="number" [(ngModel)]="service.modeSolidRainbowParameter.roundTimeMs"
+        (change)="service.setModeSolidRainbowParameter()">
+      <label for="round_time_Ms">Round Time(ms)</label>
+    </div>
+
+    <div class="col s9 valign-wrapper generic-slider">
+      <input type="range" [min]="service.modeSolidRainbowLimits.minRoundTimeMs"
+        [max]="service.modeSolidRainbowLimits.maxRoundTimeMs" step="1" (change)="service.setModeSolidRainbowParameter()"
+        [(ngModel)]="service.modeSolidRainbowParameter.roundTimeMs" />
+    </div>
   </div>
 
-  <div class="col s9 valign-wrapper generic-slider">
-    <input type="range" [min]="service.modeSolidRainbowLimits.minRoundTimeMs" [max]="service.modeSolidRainbowLimits.maxRoundTimeMs"
-      step="1" (change)="service.setModeSolidRainbowParameter()" [(ngModel)]="service.modeSolidRainbowParameter.roundTimeMs" />
-  </div>
-</div>
-
-<div *ngIf="service.modeSolidRainbowParameter && service.modeSolidRainbowLimits" class="row"
-  [ngStyle]="{'background-color': 'rgba(255,255,255,'+service.modeSolidRainbowParameter.brightness+')'}">
-  <div class="input-field col s3">
-    <input id="brightness" type="number" [(ngModel)]="service.modeSolidRainbowParameter.brightness"
-      (change)="service.setModeSolidRainbowParameter()">
-    <label for="brightness">Brightness</label>
-  </div>
-  <div class="col s9 valign-wrapper generic-slider">
-    <input type="range" [min]="service.modeSolidRainbowLimits.minBrightness " [max]="service.modeSolidRainbowLimits.maxBrightness"
-      step="0.01" (change)="service.setModeSolidRainbowParameter()" [(ngModel)]="service.modeSolidRainbowParameter.brightness" />
+  <div class="row"
+    [ngStyle]="{'background-color': 'rgba(255,255,255,'+service.modeSolidRainbowParameter.brightness+')'}">
+    <div class="input-field col s3">
+      <input id="brightness" type="number" [(ngModel)]="service.modeSolidRainbowParameter.brightness"
+        (change)="service.setModeSolidRainbowParameter()">
+      <label for="brightness">Brightness</label>
+    </div>
+    <div class="col s9 valign-wrapper generic-slider">
+      <input type="range" [min]="service.modeSolidRainbowLimits.minBrightness "
+        [max]="service.modeSolidRainbowLimits.maxBrightness" step="0.01"
+        (change)="service.setModeSolidRainbowParameter()" [(ngModel)]="service.modeSolidRainbowParameter.brightness" />
+    </div>
   </div>
 </div>
