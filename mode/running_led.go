@@ -1,10 +1,10 @@
 package mode
 
 import (
-	"encoding/json"
 	"ledean/color"
 	"ledean/dbdriver"
 	"ledean/display"
+	"ledean/json"
 	"math"
 	"math/rand"
 	"time"

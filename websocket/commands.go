@@ -1,8 +1,8 @@
 package websocket
 
 import (
-	"encoding/json"
 	"ledean/color"
+	"ledean/json"
 )
 
 const (
@@ -12,6 +12,7 @@ const (
 	CmdModeId          string = "mode"
 	CmdModeLimitsId    string = "modeLimits"
 	CmdModeResolverId  string = "modeResolver"
+	CmdModeActionId    string = "action"
 )
 
 type Cmd struct {
@@ -46,4 +47,12 @@ type CmdModeLimits struct {
 
 type CmdModeResolver struct {
 	Modes []string `json:"modes"`
+}
+
+const (
+	CmdModeActionRandomize string = "randomize"
+)
+
+type CmdModeAction struct {
+	Action string `json:"action"`
 }

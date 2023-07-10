@@ -1,10 +1,10 @@
 package mode
 
 import (
-	"encoding/json"
 	"ledean/color"
 	"ledean/dbdriver"
 	"ledean/display"
+	"ledean/json"
 	"math/rand"
 	"time"
 )
@@ -77,12 +77,11 @@ func (self *ModeSolidRainbow) postSetParameter() {
 }
 
 func (self *ModeSolidRainbow) calcDisplay() {
-	rgb := color.RGB{}
 	self.parameter.Hsv.H += self.stepSizeHue
 	for self.parameter.Hsv.H > 360.0 {
 		self.parameter.Hsv.H -= 360.0
 	}
-	rgb = self.parameter.Hsv.ToRGB()
+	rgb := self.parameter.Hsv.ToRGB()
 	self.display.AllSolid(rgb)
 }
 

@@ -1,10 +1,10 @@
 package mode
 
 import (
-	"encoding/json"
 	"ledean/color"
 	"ledean/dbdriver"
 	"ledean/display"
+	"ledean/json"
 	"math"
 	"math/rand"
 	"time"
@@ -150,8 +150,8 @@ type ModeEmitterParameter struct {
 	MaxBrightness     float64   `json:"maxBrightness"`
 	MinEmitLifetimeMs uint32    `json:"minEmitLifetimeMs"`
 	MaxEmitLifetimeMs uint32    `json:"maxEmitLifetimeMs"`
-	WaveSpeedFac      float64   `json: "waveSpeedFac"`
-	WaveWidthFac      float64   `json: "waveWidthFac"`
+	WaveSpeedFac      float64   `json:"waveSpeedFac"`
+	WaveWidthFac      float64   `json:"waveWidthFac"`
 }
 
 type ModeEmitterLimits struct {

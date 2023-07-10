@@ -5,7 +5,6 @@
 package websocket
 
 import (
-	"encoding/json"
 	"ledean/log"
 	"net/http"
 
@@ -28,17 +27,19 @@ type Hub struct {
 
 	initClientCbs []func(*Client)
 
-	CmdButtonChannel chan CmdButton
+	CmdButtonChannel     chan CmdButton
+	CmdModeActionChannel chan CmdModeAction
 	// Cmd2sMode        chan Cmd2sMode
 }
 
 func NewHub() *Hub {
 	return &Hub{
-		cmd:              make(chan Cmd),
-		register:         make(chan *Client),
-		unregister:       make(chan *Client),
-		clients:          make(map[*Client]bool),
-		CmdButtonChannel: make(chan CmdButton),
+		cmd:                  make(chan Cmd),
+		register:             make(chan *Client),
+		unregister:           make(chan *Client),
+		clients:              make(map[*Client]bool),
+		CmdButtonChannel:     make(chan CmdButton),
+		CmdModeActionChannel: make(chan CmdModeAction),
 		// initClientCbs: make([]func(*Client), 16),
 	}
 }
@@ -84,13 +85,20 @@ func (self *Hub) Run() {
 
 func (self *Hub) handleCommand(cmd Cmd) {
 	switch cmd.Command {
-	case CmdButtonId:
-		var cmdButton CmdButton
-		err := json.Unmarshal(cmd.Parameter, &cmdButton)
-		if err != nil {
-			return
-		}
-		self.CmdButtonChannel <- cmdButton
+	// case CmdButtonId:
+	// 	var cmdButton CmdButton
+	// 	err := json.Unmarshal(cmd.Parameter, &cmdButton)
+	// 	if err != nil {
+	// 		return
+	// 	}
+	// 	self.CmdButtonChannel <- cmdButton
+	// case CmdActionId:
+	// 	var cmdAction CmdAction
+	// 	err := json.Unmarshal(cmd.Parameter, &cmdAction)
+	// 	if err != nil {
+	// 		return
+	// 	}
+	// 	self.CmdActionChannel <- cmdAction
 	default:
 		log.Info("unknown command: ", cmd.Command)
 	}

@@ -56,10 +56,24 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 		self.SetIndex(0)
 	}
 
+	go self.socketHandler()
 	self.registerEvents()
 	self.hub.AppendInitClientCb(self.initClientCb)
 
 	return &self
+}
+
+func (self *ModeController) socketHandler() {
+	for {
+		cmdModeAction := <-self.hub.CmdModeActionChannel
+		log.Info(cmdModeAction)
+		switch cmdModeAction.Action {
+		case websocket.CmdModeActionRandomize:
+			self.Randomize()
+		default:
+			log.Info("Unknown mode action: ", cmdModeAction)
+		}
+	}
 }
 
 func (self *ModeController) SwitchIndexFriendlyName(friendlyName string) {
@@ -110,6 +124,7 @@ func (self *ModeController) ActivateCurrentMode() {
 	parm, _ := json.Marshal(self.modes[self.modesIndex].GetParameter())
 	log.Debugf("Start: `%s` with parameter: `%s`", self.modes[self.modesIndex].GetName(), parm)
 	self.modes[self.modesIndex].Activate()
+	self.BroadcastCurrentMode()
 }
 func (self *ModeController) DeactivateCurrentMode() {
 	self.modes[self.modesIndex].Deactivate()
@@ -185,14 +200,14 @@ func (self *ModeController) initClientCb(client *websocket.Client) {
 	}
 
 	for _, mode := range self.modes {
-		limitsJson, err := json.Marshal(mode.GetLimits())
+		limitsJSON, err := json.Marshal(mode.GetLimits())
 		if err != nil {
 			log.Info(err)
 			continue
 		}
 		cmdModeLimitJSON, err := json.Marshal(websocket.CmdModeLimits{
 			Id:     mode.GetName(),
-			Limits: limitsJson,
+			Limits: limitsJSON,
 			// Limits: mode.GetLimits(),
 		})
 		if err != nil {
@@ -203,6 +218,15 @@ func (self *ModeController) initClientCb(client *websocket.Client) {
 		client.SendCmd(websocket.Cmd{
 			Command:   websocket.CmdModeLimitsId,
 			Parameter: cmdModeLimitJSON})
+	}
+
+	cmdModeResolverJSON, err := json.Marshal(websocket.CmdModeResolver{Modes: self.GetModeResolver()})
+	if err != nil {
+		log.Info(err)
+	} else {
+		client.SendCmd(websocket.Cmd{
+			Command:   websocket.CmdModeResolverId,
+			Parameter: cmdModeResolverJSON})
 	}
 }
 

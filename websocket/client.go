@@ -4,7 +4,7 @@
 package websocket
 
 import (
-	"encoding/json"
+	"ledean/json"
 	"ledean/log"
 	"strings"
 	"time"
@@ -102,7 +102,7 @@ func (c *Client) readPump() {
 
 func (self *Client) handleCommand(cmd *Cmd) {
 	switch cmd.Command {
-	case "button":
+	case CmdButtonId:
 		var cmdButton CmdButton
 		err := json.Unmarshal(cmd.Parameter, &cmdButton)
 		if err != nil {
@@ -110,6 +110,16 @@ func (self *Client) handleCommand(cmd *Cmd) {
 			return
 		}
 		self.hub.CmdButtonChannel <- cmdButton
+	case CmdModeActionId:
+		log.Debug("got command: ", cmd.Command)
+		var cmdModeAction CmdModeAction
+		err := json.Unmarshal(cmd.Parameter, &cmdModeAction)
+		if err != nil {
+			log.Debug("Could not parse mode action parm mgs: ", string(cmd.Parameter))
+			return
+		}
+		self.hub.CmdModeActionChannel <- cmdModeAction
+
 	default:
 		log.Debug("Unknown command: ", cmd.Command, " from client")
 	}
@@ -144,13 +154,15 @@ func (c *Client) writePump() {
 
 			err := c.conn.WriteJSON(send)
 			if err != nil {
-				if err.Error() == "websocket: close sent" {
-					log.Debug("clean up client connection")
-					c.closeConnection()
-					return
-				}
-				log.Info("Couldn't send: ", send, " ; ", err)
-				continue
+				c.closeConnection()
+				return
+				// if err.Error() == "websocket: close sent" {
+				// log.Debug("clean up client connection")
+				// c.closeConnection()
+				// return
+				// }
+				// log.Info("Couldn't send: ", send, " ; ", err)
+				// continue
 			}
 		case <-ticker.C:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
