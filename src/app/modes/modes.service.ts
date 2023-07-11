@@ -42,22 +42,22 @@ export class ModesService {
     console.log(cmdMode)
     switch (cmdMode.id) {
       case this.modeEmitterService.getName():
-        this.modeEmitterService.updateModeEmitterParameter(cmdMode.parm)
+        this.modeEmitterService.receiveParameter(cmdMode.parm)
         break;
       case this.modeGradientService.getName():
-        this.modeGradientService.updateModeGradientParameter(cmdMode.parm)
+        this.modeGradientService.receiveParameter(cmdMode.parm)
         break;
       case this.modeRunningLedService.getName():
-        this.modeRunningLedService.updateModeRunningLedParameter(cmdMode.parm)
+        this.modeRunningLedService.receiveParameter(cmdMode.parm)
         break;
       case this.modeSolidRainbowService.getName():
-        this.modeSolidRainbowService.updateModeSolidRainbowParameter(cmdMode.parm)
+        this.modeSolidRainbowService.receiveParameter(cmdMode.parm)
         break;
       case this.modeSolidService.getName():
-        this.modeSolidService.updateModeSolidParameter(cmdMode.parm)
+        this.modeSolidService.receiveParameter(cmdMode.parm)
         break;
       case this.modeTransitionRainbowService.getName():
-        this.modeTransitionRainbowService.updateModeTransitionRainbowParameter(cmdMode.parm)
+        this.modeTransitionRainbowService.receiveParameter(cmdMode.parm)
         break;
       default:
         console.log("Unknown limit change for mode: ", cmdMode.id)
@@ -69,22 +69,22 @@ export class ModesService {
   private modeLimitChanged(cmdModeLimits: CmdModeLimits) {
     switch (cmdModeLimits.id) {
       case this.modeEmitterService.getName():
-        this.modeEmitterService.updateModeEmitterLimits(cmdModeLimits.limits)
+        this.modeEmitterService.receiveLimits(cmdModeLimits.limits)
         break;
       case this.modeGradientService.getName():
-        this.modeGradientService.updateModeGradientLimits(cmdModeLimits.limits)
+        this.modeGradientService.receiveLimits(cmdModeLimits.limits)
         break;
       case this.modeRunningLedService.getName():
-        this.modeRunningLedService.updateModeRunningLedLimits(cmdModeLimits.limits)
+        this.modeRunningLedService.receiveLimits(cmdModeLimits.limits)
         break;
       case this.modeSolidService.getName():
-        this.modeSolidService.updateModeSolidLimits(cmdModeLimits.limits)
+        this.modeSolidService.receiveLimits(cmdModeLimits.limits)
         break;
       case this.modeSolidRainbowService.getName():
-        this.modeSolidRainbowService.updateModeSolidRainbowLimits(cmdModeLimits.limits)
+        this.modeSolidRainbowService.receiveLimits(cmdModeLimits.limits)
         break;
       case this.modeTransitionRainbowService.getName():
-        this.modeTransitionRainbowService.updateModeTransitionRainbowLimits(cmdModeLimits.limits)
+        this.modeTransitionRainbowService.receiveLimits(cmdModeLimits.limits)
         break;
 
       default:

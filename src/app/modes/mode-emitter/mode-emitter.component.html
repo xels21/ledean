@@ -1,13 +1,13 @@
-<div *ngIf="service.modeEmitterParameter && service.modeEmitterLimits">
+<div *ngIf="service.parameter && service.limits">
   <div class="row">
     <div class="col s3 input-field">
-      <input id="emitCount" type="number" [min]="service.modeEmitterLimits.minEmitCount" [max]="service.modeEmitterLimits.maxEmitCount"
-        (change)="service.setModeEmitterParameter()" [(ngModel)]="service.modeEmitterParameter.emitCount" />
+      <input id="emitCount" type="number" [min]="service.limits.minEmitCount" [max]="service.limits.maxEmitCount"
+        (change)="service.sendParameter()" [(ngModel)]="service.parameter.emitCount" />
       <label for="emitCount">Emit Count</label>
     </div>
-    <div class="col s9 valign-wrapper generic-slider"> <input type="range" [min]="service.modeEmitterLimits.minEmitCount"
-        [max]="service.modeEmitterLimits.maxEmitCount" step="1" (change)="service.setModeEmitterParameter()"
-        [(ngModel)]="service.modeEmitterParameter.emitCount" /> </div>
+    <div class="col s9 valign-wrapper generic-slider"> <input type="range" [min]="service.limits.minEmitCount"
+        [max]="service.limits.maxEmitCount" step="1" (change)="service.sendParameter()"
+        [(ngModel)]="service.parameter.emitCount" /> </div>
   </div>
 
   <br>
@@ -16,9 +16,9 @@
       Brightness
     </div>
     <div class="col s9">
-      <nouislider [connect]="true" [tooltips]="[ true, true ]" [step]="0.01" [min]="service.modeEmitterLimits.minBrightness"
-        [max]="service.modeEmitterLimits.maxBrightness" [(ngModel)]="service.brightnessRange"
-        (change)="service.setBrightness(); service.setModeEmitterParameter()"></nouislider>
+      <nouislider [connect]="true" [tooltips]="[ true, true ]" [step]="0.01" [min]="service.limits.minBrightness"
+        [max]="service.limits.maxBrightness" [(ngModel)]="service.brightnessRange"
+        (change)="service.setBrightness(); service.sendParameter()"></nouislider>
     </div>
   </div>
   <br>
@@ -27,21 +27,21 @@
       Lifetime(ms)
     </div>
     <div class="col s9">
-      <nouislider [connect]="true" [tooltips]="[ true, true ]" [step]="1" [min]="service.modeEmitterLimits.minEmitLifetimeMs"
-        [max]="service.modeEmitterLimits.maxEmitLifetimeMs" [(ngModel)]="service.emitLifetimeMsRange"
-        (change)="service.setEmitLifetimeMs(); service.setModeEmitterParameter()"></nouislider>
+      <nouislider [connect]="true" [tooltips]="[ true, true ]" [step]="1" [min]="service.limits.minEmitLifetimeMs"
+        [max]="service.limits.maxEmitLifetimeMs" [(ngModel)]="service.emitLifetimeMsRange"
+        (change)="service.setEmitLifetimeMs(); service.sendParameter()"></nouislider>
     </div>
   </div>
 
   <div class="row">
     <div class="col s3 input-field ">
-      <input id="emitStyle" type="text" (change)="service.setModeEmitterParameter()" [(ngModel)]="service.modeEmitterParameter.emitStyle" />
+      <input id="emitStyle" type="text" (change)="service.sendParameter()" [(ngModel)]="service.parameter.emitStyle" />
       <label for="emitStyle">Emit Style</label>
     </div>
 
     <div class="col s9 valign-wrapper">
-      <select class="browser-default" [(ngModel)]="service.modeEmitterParameter.emitStyle"
-        (change)="service.setModeEmitterParameter()">
+      <select class="browser-default" [(ngModel)]="service.parameter.emitStyle"
+        (change)="service.sendParameter()">
         <option *ngFor="let style of service.getAllStyles()" [text]="style"></option>
       </select>
     </div>

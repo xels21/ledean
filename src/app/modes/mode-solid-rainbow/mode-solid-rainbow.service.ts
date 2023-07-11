@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
-import { RGB } from '../../color/color';
-import { REST_MODE_SOLID_RAINBOW_URL } from '../../config/const';
-import { UpdateService } from '../../update/update.service';
-import { HttpClient } from '@angular/common/http';
-import { deepCopy } from '../../lib/deep-copy';
 import { deepEqual } from 'fast-equals';
+import { deepCopy } from 'src/app/lib/deep-copy';
+import { WebsocketService } from 'src/app/websocket/websocket.service';
+import { Cmd, CmdMode } from 'src/app/websocket/commands';
 
 export interface ModeSolidRainbowParameter {
   roundTimeMs: number,
@@ -22,32 +20,37 @@ export interface ModeSolidRainbowLimits {
 })
 export class ModeSolidRainbowService {
 
-  public backModeSolidRainbowParameter: ModeSolidRainbowParameter
-  public modeSolidRainbowParameter: ModeSolidRainbowParameter
-  public modeSolidRainbowLimits: ModeSolidRainbowLimits
+  public backParameter: ModeSolidRainbowParameter
+  public parameter: ModeSolidRainbowParameter
+  public limits: ModeSolidRainbowLimits
 
-  constructor(private httpClient: HttpClient,) { }
+  private name = "ModeSolidRainbow"
+
+  constructor(private websocketService: WebsocketService) { }
 
   getName() {
-    return "ModeSolidRainbow"
+    return this.name
   }
 
-  
-  updateModeSolidRainbowParameter(parm: ModeSolidRainbowParameter) {
-      if (!deepEqual(this.backModeSolidRainbowParameter, parm)) {
-        this.backModeSolidRainbowParameter = parm
-        this.modeSolidRainbowParameter = deepCopy(this.backModeSolidRainbowParameter)
-        // console.log(data)
-      }
+  receiveParameter(parm: ModeSolidRainbowParameter) {
+    if (!deepEqual(this.backParameter, parm)) {
+      this.backParameter = parm
+      this.parameter = deepCopy(this.backParameter)
+    }
   }
 
-  setModeSolidRainbowParameter() {
-    console.log("set")
-    this.httpClient.post<ModeSolidRainbowParameter>(REST_MODE_SOLID_RAINBOW_URL, this.modeSolidRainbowParameter, {}).subscribe()
+  receiveLimits(limits: ModeSolidRainbowLimits) {
+    this.limits = limits
   }
 
-  updateModeSolidRainbowLimits(limits: ModeSolidRainbowLimits) {
-     this.modeSolidRainbowLimits = limits
+  sendParameter() {
+    this.websocketService.send({
+      cmd: "mode",
+      parm: {
+        id: this.name,
+        parm: this.parameter
+      } as CmdMode
+    } as Cmd)
   }
 
 }

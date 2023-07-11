@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
-
-import { REST_MODE_EMITTER_URL } from '../../config/const';
-import { deepCopy } from '../../lib/deep-copy';
+import { deepCopy } from 'src/app/lib/deep-copy';
 import { deepEqual } from 'fast-equals';
-import { HttpClient } from '@angular/common/http';
+import { WebsocketService } from 'src/app/websocket/websocket.service';
+import { Cmd, CmdMode } from 'src/app/websocket/commands';
 
 
 // type RunningLedStyle = "linear" | "trigonometric"
@@ -34,45 +33,55 @@ export interface ModeEmitterLimits {
 })
 export class ModeEmitterService {
 
-  public backModeEmitterParameter: ModeEmitterParameter
-  public modeEmitterParameter: ModeEmitterParameter
-  public modeEmitterLimits: ModeEmitterLimits
+  public backParameter: ModeEmitterParameter
+  public parameter: ModeEmitterParameter
+  public limits: ModeEmitterLimits
+
   public brightnessRange: number[] = [0, 0]
   public emitLifetimeMsRange: number[] = [0, 0]
 
-  constructor(private httpClient: HttpClient) { }
+  private name ="ModeEmitter"
+
+  constructor(private websocketService: WebsocketService) { }
 
   getName() {
-    return "ModeEmitter"
+    return this.name
   }
 
-  updateModeEmitterParameter(parm: ModeEmitterParameter) {
-    // this.httpClient.get<ModeEmitterParameter>(REST_MODE_EMITTER_URL).subscribe((data: ModeEmitterParameter) => {
-    if (!deepEqual(this.backModeEmitterParameter, parm)) {
-      this.backModeEmitterParameter = parm
-      this.modeEmitterParameter = deepCopy(this.backModeEmitterParameter)
-      this.brightnessRange = [this.modeEmitterParameter.minBrightness, this.modeEmitterParameter.maxBrightness]
-      this.emitLifetimeMsRange = [this.modeEmitterParameter.minEmitLifetimeMs, this.modeEmitterParameter.maxEmitLifetimeMs]
+  receiveParameter(parm: ModeEmitterParameter) {
+    if (!deepEqual(this.backParameter, parm)) {
+      this.backParameter = parm
+      this.parameter = deepCopy(this.backParameter)
+      this.brightnessRange = [this.parameter.minBrightness, this.parameter.maxBrightness]
+      this.emitLifetimeMsRange = [this.parameter.minEmitLifetimeMs, this.parameter.maxEmitLifetimeMs]
     }
-    // })
   }
 
+  receiveLimits(limits: ModeEmitterLimits) {
+    this.limits = limits 
+  }
+
+  sendParameter() {
+    this.websocketService.send({
+      cmd: "mode",
+      parm: {
+        id: this.name,
+        parm: this.parameter
+      } as CmdMode
+    } as Cmd)
+  }
+
+  
   setBrightness() {
-    this.modeEmitterParameter.minBrightness = this.brightnessRange[0]
-    this.modeEmitterParameter.maxBrightness = this.brightnessRange[1]
+    this.parameter.minBrightness = this.brightnessRange[0]
+    this.parameter.maxBrightness = this.brightnessRange[1]
   }
+
   setEmitLifetimeMs() {
-    this.modeEmitterParameter.minEmitLifetimeMs = this.emitLifetimeMsRange[0]
-    this.modeEmitterParameter.maxEmitLifetimeMs = this.emitLifetimeMsRange[1]
+    this.parameter.minEmitLifetimeMs = this.emitLifetimeMsRange[0]
+    this.parameter.maxEmitLifetimeMs = this.emitLifetimeMsRange[1]
   }
 
-  setModeEmitterParameter() {
-    this.httpClient.post<ModeEmitterParameter>(REST_MODE_EMITTER_URL, this.modeEmitterParameter, {}).subscribe()
-  }
-
-  updateModeEmitterLimits(limits: ModeEmitterLimits) {
-    this.modeEmitterLimits = limits 
-  }
   getAllStyles() {
     return new Array<EmitStyle>(
       EmitStyle.PULSE,

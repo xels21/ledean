@@ -1,11 +1,10 @@
-import { REST_MODE_SOLID_URL } from '../../config/const';
-import { UpdateService } from '../../update/update.service';
-import { HttpClient } from '@angular/common/http';
-import { deepCopy } from '../../lib/deep-copy';
-import { deepEqual } from 'fast-equals';
-
 import { Injectable } from '@angular/core';
-import { RGB } from '../../color/color'
+import { deepEqual } from 'fast-equals';
+import { deepCopy } from 'src/app/lib/deep-copy';
+import { RGB } from 'src/app/color/color'
+import { WebsocketService } from 'src/app/websocket/websocket.service';
+import { CmdMode, Cmd } from 'src/app/websocket/commands';
+
 
 export interface ModeSolidParameter {
   rgb: RGB,
@@ -21,35 +20,37 @@ export interface ModeSolidLimits {
 })
 export class ModeSolidService {
 
-  public backModeSolidParameter: ModeSolidParameter
-  public modeSolidParameter: ModeSolidParameter
-  public modeSolidLimits: ModeSolidLimits
+  public backParameter: ModeSolidParameter
+  public parameter: ModeSolidParameter
+  public limits: ModeSolidLimits
 
-  constructor(private httpClient: HttpClient) { }
+  private name = "ModeSolid"
 
+  constructor(private websocketService: WebsocketService) { }
 
-  updateModeSolidParameter(parm: ModeSolidParameter) {
-    if (!deepEqual(this.backModeSolidParameter, parm)) {
-      this.backModeSolidParameter = parm
-      this.modeSolidParameter = deepCopy(this.backModeSolidParameter)
+  getName() {
+    return this.name
+  }
+
+  receiveParameter(parm: ModeSolidParameter) {
+    if (!deepEqual(this.backParameter, parm)) {
+      this.backParameter = parm
+      this.parameter = deepCopy(this.backParameter)
     }
   }
 
-  getName() {
-    return "ModeSolid"
+
+  receiveLimits(limits: ModeSolidLimits) {
+    this.limits = limits
   }
 
-  setModeSolidParameter() {
-    this.httpClient.post<ModeSolidParameter>(REST_MODE_SOLID_URL, this.modeSolidParameter, {}).subscribe()
+  sendParameter() {
+    this.websocketService.send({
+      cmd: "mode",
+      parm: {
+        id: this.name,
+        parm: this.parameter
+      } as CmdMode
+    } as Cmd)
   }
-
-  updateModeSolidLimits(limits: ModeSolidLimits) {
-    this.modeSolidLimits = limits
-  }
-
-
-  // updateModeSolidLimits() {
-  // this.httpClient.get<ModeSolidLimits>(REST_MODE_SOLID_URL + "/limits").subscribe((data: ModeSolidLimits) => { this.modeSolidLimits = data })
-  // }
-
 }

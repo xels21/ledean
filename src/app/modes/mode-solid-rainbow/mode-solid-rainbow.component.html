@@ -1,30 +1,30 @@
-<div *ngIf="service.modeSolidRainbowParameter && service.modeSolidRainbowLimits">
+<div *ngIf="service.parameter && service.limits">
   <div class="row">
 
     <div class="input-field col s3">
-      <input id="round_time_Ms" type="number" [(ngModel)]="service.modeSolidRainbowParameter.roundTimeMs"
-        (change)="service.setModeSolidRainbowParameter()">
+      <input id="round_time_Ms" type="number" [(ngModel)]="service.parameter.roundTimeMs"
+        (change)="service.sendParameter()">
       <label for="round_time_Ms">Round Time(ms)</label>
     </div>
 
     <div class="col s9 valign-wrapper generic-slider">
-      <input type="range" [min]="service.modeSolidRainbowLimits.minRoundTimeMs"
-        [max]="service.modeSolidRainbowLimits.maxRoundTimeMs" step="1" (change)="service.setModeSolidRainbowParameter()"
-        [(ngModel)]="service.modeSolidRainbowParameter.roundTimeMs" />
+      <input type="range" [min]="service.limits.minRoundTimeMs"
+        [max]="service.limits.maxRoundTimeMs" step="1" (change)="service.sendParameter()"
+        [(ngModel)]="service.parameter.roundTimeMs" />
     </div>
   </div>
 
   <div class="row"
-    [ngStyle]="{'background-color': 'rgba(255,255,255,'+service.modeSolidRainbowParameter.brightness+')'}">
+    [ngStyle]="{'background-color': 'rgba(255,255,255,'+service.parameter.brightness+')'}">
     <div class="input-field col s3">
-      <input id="brightness" type="number" [(ngModel)]="service.modeSolidRainbowParameter.brightness"
-        (change)="service.setModeSolidRainbowParameter()">
+      <input id="brightness" type="number" [(ngModel)]="service.parameter.brightness"
+        (change)="service.sendParameter()">
       <label for="brightness">Brightness</label>
     </div>
     <div class="col s9 valign-wrapper generic-slider">
-      <input type="range" [min]="service.modeSolidRainbowLimits.minBrightness "
-        [max]="service.modeSolidRainbowLimits.maxBrightness" step="0.01"
-        (change)="service.setModeSolidRainbowParameter()" [(ngModel)]="service.modeSolidRainbowParameter.brightness" />
+      <input type="range" [min]="service.limits.minBrightness "
+        [max]="service.limits.maxBrightness" step="0.01"
+        (change)="service.sendParameter()" [(ngModel)]="service.parameter.brightness" />
     </div>
   </div>
 </div>

@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
-import { UpdateService } from '../../update/update.service';
-import { HttpClient } from '@angular/common/http';
-import { deepCopy } from '../../lib/deep-copy';
 import { deepEqual } from 'fast-equals';
-import { REST_MODE_GRADIENT_URL } from '../../config/const';
+import { deepCopy } from 'src/app/lib/deep-copy';
+import { WebsocketService } from 'src/app/websocket/websocket.service';
+import { Cmd, CmdMode } from 'src/app/websocket/commands';
 
 
 export interface ModeGradientParameter {
   count: number
-  roundTimeMs:number
+  roundTimeMs: number
   brightness: number
 
 }
@@ -25,32 +24,36 @@ export interface ModeGradientLimits {
   providedIn: 'root'
 })
 export class ModeGradientService {
-  public backModeGradientParameter: ModeGradientParameter
-  public modeGradientParameter: ModeGradientParameter
-  public modeGradientLimits: ModeGradientLimits
+  public backParameter: ModeGradientParameter
+  public parameter: ModeGradientParameter
+  public limits: ModeGradientLimits
 
-  constructor( private httpClient: HttpClient) { }
+  private name = "ModeGradient"
+
+  constructor(private websocketService: WebsocketService) { }
 
   getName() {
-    return "ModeGradient"
+    return this.name
   }
 
-  
-  updateModeGradientParameter(parm : ModeGradientParameter) {
-    // this.httpClient.get<ModeGradientParameter>(REST_MODE_GRADIENT_URL).subscribe((data: ModeGradientParameter) => {
-      if (!deepEqual(this.backModeGradientParameter, parm)) {
-        this.backModeGradientParameter = parm
-        this.modeGradientParameter = deepCopy(this.backModeGradientParameter)
-      }
-    // })
+  receiveParameter(parm: ModeGradientParameter) {
+    if (!deepEqual(this.backParameter, parm)) {
+      this.backParameter = parm
+      this.parameter = deepCopy(this.backParameter)
+    }
   }
 
-
-  setModeGradientParameter() {
-    this.httpClient.post<ModeGradientParameter>(REST_MODE_GRADIENT_URL, this.modeGradientParameter, {}).subscribe()
+  receiveLimits(limits: ModeGradientLimits) {
+    this.limits = limits;
   }
 
-  updateModeGradientLimits(limits: ModeGradientLimits) {
-      this.modeGradientLimits = limits;
+  sendParameter() {
+    this.websocketService.send({
+      cmd: "mode",
+      parm: {
+        id: this.name,
+        parm: this.parameter
+      } as CmdMode
+    } as Cmd)
   }
 }

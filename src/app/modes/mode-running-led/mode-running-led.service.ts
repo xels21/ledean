@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
-
-import { RGB } from '../../color/color';
-import { REST_MODE_RUNNING_LED_URL } from '../../config/const';
-import { UpdateService } from '../../update/update.service';
-import { HttpClient } from '@angular/common/http';
-import { deepCopy } from '../../lib/deep-copy';
 import { deepEqual } from 'fast-equals';
+import { deepCopy } from 'src/app/lib/deep-copy';
+import { WebsocketService } from 'src/app/websocket/websocket.service';
+import { Cmd, CmdMode } from 'src/app/websocket/commands';
+
 
 // type RunningLedStyle = "linear" | "trigonometric"
 export enum RunningLedStyle {
@@ -34,30 +32,40 @@ export interface ModeRunningLedLimits {
   providedIn: 'root'
 })
 export class ModeRunningLedService {
-  public backModeRunningLedParameter: ModeRunningLedParameter
-  public modeRunningLedParameter: ModeRunningLedParameter
-  public modeRunningLedLimits: ModeRunningLedLimits
+  public backParameter: ModeRunningLedParameter
+  public parameter: ModeRunningLedParameter
+  public limits: ModeRunningLedLimits
 
-  constructor(private httpClient: HttpClient) { }
+  private name = "ModeRunningLed"
+
+  constructor(private websocketService: WebsocketService) { }
+
   getName() {
-    return "ModeRunningLed"
+    return this.name
   }
 
 
-  updateModeRunningLedParameter(parm:ModeRunningLedParameter) {
-      if (!deepEqual(this.backModeRunningLedParameter, parm)) {
-        this.backModeRunningLedParameter = parm
-        this.modeRunningLedParameter = deepCopy(this.backModeRunningLedParameter)
-      }
+  receiveParameter(parm: ModeRunningLedParameter) {
+    if (!deepEqual(this.backParameter, parm)) {
+      this.backParameter = parm
+      this.parameter = deepCopy(this.backParameter)
+    }
   }
 
-  setModeRunningLedParameter() {
-    this.httpClient.post<ModeRunningLedParameter>(REST_MODE_RUNNING_LED_URL, this.modeRunningLedParameter, {}).subscribe()
+  receiveLimits(limits: ModeRunningLedLimits) {
+    this.limits = limits
   }
 
-  updateModeRunningLedLimits(limits: ModeRunningLedLimits) {
-    this.modeRunningLedLimits = limits
+  sendParameter() {
+    this.websocketService.send({
+      cmd: "mode",
+      parm: {
+        id: this.name,
+        parm: this.parameter
+      } as CmdMode
+    } as Cmd)
   }
+
 
   getAllStyles() {
     return new Array<RunningLedStyle>(

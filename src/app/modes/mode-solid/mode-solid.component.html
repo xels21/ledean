@@ -1,56 +1,56 @@
-<div *ngIf="service.modeSolidParameter && service.modeSolidLimits">
+<div *ngIf="service.parameter && service.limits">
   <div class="row" style="padding:0 10px"
-    [ngStyle]="{'background-color': 'rgb('+service.modeSolidParameter.rgb.r+','+service.modeSolidParameter.rgb.g+','+service.modeSolidParameter.rgb.b+')'}">
+    [ngStyle]="{'background-color': 'rgb('+service.parameter.rgb.r+','+service.parameter.rgb.g+','+service.parameter.rgb.b+')'}">
 
     <div class="row">
       <div class="col s3 input-field ">
-        <input id="red" type="number" min="0" max="255" (change)="service.setModeSolidParameter()"
-          [(ngModel)]="service.modeSolidParameter.rgb.r" />
+        <input id="red" type="number" min="0" max="255" (change)="service.sendParameter()"
+          [(ngModel)]="service.parameter.rgb.r" />
         <label for="red">Red</label>
       </div>
       <div class="col s9 valign-wrapper generic-slider"><input type="range" min="0" max="255"
-          (change)="service.setModeSolidParameter()" [(ngModel)]="service.modeSolidParameter.rgb.r" /></div>
+          (change)="service.sendParameter()" [(ngModel)]="service.parameter.rgb.r" /></div>
     </div>
     <hr>
     <div class="row">
       <div class="col s3 input-field ">
-        <input id="green" type="number" min="0" max="255" (change)="service.setModeSolidParameter()"
-          [(ngModel)]="service.modeSolidParameter.rgb.g" />
+        <input id="green" type="number" min="0" max="255" (change)="service.sendParameter()"
+          [(ngModel)]="service.parameter.rgb.g" />
         <label for="green">Green</label>
       </div>
       <div class="col s9 valign-wrapper generic-slider"><input type="range" min="0" max="255"
-          (change)="service.setModeSolidParameter()" [(ngModel)]="service.modeSolidParameter.rgb.g" /></div>
+          (change)="service.sendParameter()" [(ngModel)]="service.parameter.rgb.g" /></div>
     </div>
     <hr>
     <div class="row">
       <div class="col s3 input-field ">
-        <input id="blue" type="number" min="0" max="255" (change)="service.setModeSolidParameter()"
-          [(ngModel)]="service.modeSolidParameter.rgb.b" />
+        <input id="blue" type="number" min="0" max="255" (change)="service.sendParameter()"
+          [(ngModel)]="service.parameter.rgb.b" />
         <label for="blue">Blue</label>
       </div>
       <div class="col s9 valign-wrapper generic-slider"><input type="range" min="0" max="255"
-          (change)="service.setModeSolidParameter()" [(ngModel)]="service.modeSolidParameter.rgb.b" /></div>
+          (change)="service.sendParameter()" [(ngModel)]="service.parameter.rgb.b" /></div>
     </div>
 
   </div>
 
-  <div class="row" [ngStyle]="{'background-color': 'rgba(255,255,255,'+service.modeSolidParameter.brightness+')'}">
+  <div class="row" [ngStyle]="{'background-color': 'rgba(255,255,255,'+service.parameter.brightness+')'}">
     <div class="input-field col s3">
-      <input id="brightness" type="number" [(ngModel)]="service.modeSolidParameter.brightness"
-        (change)="service.setModeSolidParameter()" />
+      <input id="brightness" type="number" [(ngModel)]="service.parameter.brightness"
+        (change)="service.sendParameter()" />
       <label for="brightness">Brightness</label>
     </div>
 
     <div class="col s9 valign-wrapper generic-slider">
-      <input type="range" [min]="service.modeSolidLimits.minBrightness" [max]="service.modeSolidLimits.maxBrightness"
-        step="0.01" (change)="service.setModeSolidParameter()" [(ngModel)]="service.modeSolidParameter.brightness" />
+      <input type="range" [min]="service.limits.minBrightness" [max]="service.limits.maxBrightness"
+        step="0.01" (change)="service.sendParameter()" [(ngModel)]="service.parameter.brightness" />
     </div>
   </div>
 
 
 
   <!-- <div class="row" style="margin-top: 10px;">
-  <div class="col s6" style="text-align: center;"><button class="btn waves-effect button-control grey" (click)="updateModeSolidParameter()">reload</button></div>
-  <div class="col s6" style="text-align: center;"><button class="btn waves-effect button-control green" (click)="service.setModeSolidParameter()">SET</button></div>
+  <div class="col s6" style="text-align: center;"><button class="btn waves-effect button-control grey" (click)="receiveParameter()">reload</button></div>
+  <div class="col s6" style="text-align: center;"><button class="btn waves-effect button-control green" (click)="service.sendParameter()">SET</button></div>
 </div> -->
 </div>

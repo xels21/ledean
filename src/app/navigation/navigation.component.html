@@ -3,15 +3,15 @@
     <a href="#" class="brand-logo" style="margin-left:10px">LEDean</a>
     <ul id="nav-mobile" class="right">
       <!-- <li><a href="sass.html">Sass</a></li> -->
-      <li><a class="waves-effect waves-light btn" (click)="systemService.exit()">shutdown</a></li>
-      <li><a class="waves-effect waves-light btn" (click)="updateService.update()">update</a></li>
-      <li><a class="waves-effect waves-light btn" (click)="updateService.switchState(!updateService.isActive)">
+      <li><a class="waves-effect waves-light btn red" (click)="systemService.exit()">shutdown</a></li>
+      <!-- <li><a class="waves-effect waves-light btn" (click)="updateService.update()">update</a></li> -->
+      <!-- <li><a class="waves-effect waves-light btn" (click)="updateService.switchState(!updateService.isActive)">
         <i class="material-icons right">
           <span [hidden]="updateService.isActive">check_box_outline_blank</span>
           <span [hidden]="!updateService.isActive">check_box</span>
         </i>
         auto update
-      </a></li>
+      </a></li> -->
     </ul>
     
   </div>
