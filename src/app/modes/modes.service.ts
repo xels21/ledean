@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { REST_GET_MODE_URL, REST_GET_MODE_RESOLVER_URL } from '../config/const';
-import { UpdateService, UpdateIntervall } from '../update/update.service';
 import { WebsocketService } from '../websocket/websocket.service';
 import { ModeEmitterService } from '../modes/mode-emitter/mode-emitter.service';
 import { ModeGradientService } from '../modes/mode-gradient/mode-gradient.service';
@@ -9,7 +7,7 @@ import { ModeRunningLedService } from '../modes/mode-running-led/mode-running-le
 import { ModeSolidService } from '../modes/mode-solid/mode-solid.service';
 import { ModeSolidRainbowService } from '../modes/mode-solid-rainbow/mode-solid-rainbow.service';
 import { ModeTransitionRainbowService } from '../modes/mode-transition-rainbow/mode-transition-rainbow.service';
-import { CmdMode, CmdModeLimits, CmdModeResolver } from '../websocket/commands';
+import { Cmd, CmdMode, CmdModeLimits, CmdModeResolver } from '../websocket/commands';
 
 
 @Injectable({
@@ -22,7 +20,7 @@ export class ModesService {
   public modeResolver: Array<string>
   onModeChange: () => any
 
-  constructor(private httpClient: HttpClient, private updateService: UpdateService, private websocketService: WebsocketService
+  constructor(private httpClient: HttpClient, private websocketService: WebsocketService
     , private modeEmitterService: ModeEmitterService
     , private modeGradientService: ModeGradientService
     , private modeRunningLedService: ModeRunningLedService
@@ -30,12 +28,10 @@ export class ModesService {
     , private modeSolidService: ModeSolidService
     , private modeTransitionRainbowService: ModeTransitionRainbowService
   ) {
-    // updateService.registerPolling({ cb: () => { this.updateActiveMode() }, timeout: 1000 })
-    this.httpClient.get<Array<string>>(REST_GET_MODE_RESOLVER_URL).subscribe((data: Array<string>) => this.modeResolver = data);
     this.setOnModeChange(() => { })
     this.websocketService.modeChanged.subscribe((cmdMode: CmdMode) => this.modeChanged(cmdMode))
     this.websocketService.modeLimitChanged.subscribe((cmdModeLimits: CmdModeLimits) => this.modeLimitChanged(cmdModeLimits))
-    this.websocketService.modeResolverChanged.subscribe((cmdModeResolver: CmdModeResolver) => {this.modeResolver = cmdModeResolver.modes;})
+    this.websocketService.modeResolverChanged.subscribe((cmdModeResolver: CmdModeResolver) => { this.modeResolver = cmdModeResolver.modes; })
   }
 
   private modeChanged(cmdMode: CmdMode) {
@@ -100,13 +96,15 @@ export class ModesService {
 
   public updateActiveModeString(name: string) {
     var id = this.modeStrToIdx(name)
-    if(id != undefined){
+    if (id == undefined) {
+      // mode resolver not ready yet
+      setTimeout(()=>this.updateActiveModeString(name), 100)
+    } else {
       this.updateActiveMode(id)
     }
   }
 
   public updateActiveMode(id: number) {
-    // this.httpClient.get<number>(REST_GET_MODE_URL).subscribe((data: number) => {
     if (this.activeMode != id) {
       this.activeMode = id
       if (this.activeMode >= 0) {
@@ -116,7 +114,6 @@ export class ModesService {
         this.isPictureMode = true
       }
     }
-    // });
   }
 
   public isActive(mode: string) {
@@ -124,10 +121,19 @@ export class ModesService {
   }
 
   public switchState(mode: string) {
-    this.httpClient.get(REST_GET_MODE_URL + "/" + this.modeStrToIdx(mode)).subscribe();
+    this.websocketService.send({
+      cmd: "mode",
+      parm: {
+        id: mode,
+        parm: undefined
+      } as CmdMode
+    } as Cmd)
   }
 
   public modeStrToIdx(mode: string) {
+    if (this.modeResolver == undefined) {
+      return undefined
+    }
     return this.modeResolver.findIndex(m => { return m == mode })
   }
 

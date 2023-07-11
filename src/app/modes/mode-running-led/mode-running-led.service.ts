@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { deepEqual } from 'fast-equals';
-import { deepCopy } from 'src/app/lib/deep-copy';
 import { WebsocketService } from 'src/app/websocket/websocket.service';
-import { Cmd, CmdMode } from 'src/app/websocket/commands';
+import { ParentMode } from 'src/app/modes/parent-mode';
+
 
 
 // type RunningLedStyle = "linear" | "trigonometric"
@@ -31,41 +30,14 @@ export interface ModeRunningLedLimits {
 @Injectable({
   providedIn: 'root'
 })
-export class ModeRunningLedService {
+export class ModeRunningLedService extends ParentMode{
   public backParameter: ModeRunningLedParameter
   public parameter: ModeRunningLedParameter
   public limits: ModeRunningLedLimits
 
-  private name = "ModeRunningLed"
-
-  constructor(private websocketService: WebsocketService) { }
-
-  getName() {
-    return this.name
+  constructor(protected websocketService: WebsocketService) { 
+    super("ModeRunningLed",websocketService)
   }
-
-
-  receiveParameter(parm: ModeRunningLedParameter) {
-    if (!deepEqual(this.backParameter, parm)) {
-      this.backParameter = parm
-      this.parameter = deepCopy(this.backParameter)
-    }
-  }
-
-  receiveLimits(limits: ModeRunningLedLimits) {
-    this.limits = limits
-  }
-
-  sendParameter() {
-    this.websocketService.send({
-      cmd: "mode",
-      parm: {
-        id: this.name,
-        parm: this.parameter
-      } as CmdMode
-    } as Cmd)
-  }
-
 
   getAllStyles() {
     return new Array<RunningLedStyle>(

@@ -8,7 +8,6 @@ import { AppComponent } from './app.component';
 
 import { LedsService } from './leds/leds.service';
 import { ButtonService } from './button/button.service';
-import { UpdateService } from './update/update.service';
 import { SystemService } from './system/system.service';
 import { WebsocketService } from './websocket/websocket.service';
 
@@ -55,7 +54,6 @@ import { ModeGradientComponent } from './modes/mode-gradient/mode-gradient.compo
   providers: [
     LedsService,
     ButtonService,
-    UpdateService,
     SystemService,
     WebsocketService,
     ModeEmitterService,

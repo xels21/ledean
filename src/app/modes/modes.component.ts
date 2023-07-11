@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { ModesService } from './modes.service'
-import { HttpClient } from '@angular/common/http';
-import { REST_RANDOMIZE_URL } from '../config/const';
 import { Cmd, CmdModeAction, CmdModeActionId, CmdModeActionRandomizeId } from '../websocket/commands';
 import { WebsocketService } from '../websocket/websocket.service';
 
@@ -12,7 +10,7 @@ import { WebsocketService } from '../websocket/websocket.service';
 })
 export class ModesComponent implements OnInit {
 
-  constructor(public modesService: ModesService, private websocketService: WebsocketService, private httpClient: HttpClient) { }
+  constructor(public modesService: ModesService, private websocketService: WebsocketService) { }
 
   ngOnInit(): void {
     // $('ul.tabs').tabs();
@@ -29,8 +27,6 @@ export class ModesComponent implements OnInit {
       cmd: CmdModeActionId,
       parm: { action: CmdModeActionRandomizeId } as CmdModeAction
     } as Cmd)
-
-    // this.httpClient.get(REST_RANDOMIZE_URL).subscribe();
   }
 
 }

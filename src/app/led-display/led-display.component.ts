@@ -11,10 +11,4 @@ import { ModesService } from '../modes/modes.service';
 export class LedDisplayComponent {
 
   constructor(public ledsService: LedsService, public modesService: ModesService) { }
-
-  // onPollingChanged(e){
-  //   this.ledsService.pollingActive = e.target.checked
-  //   this.ledsService.checkPollingInterval()
-  // }
-
 }

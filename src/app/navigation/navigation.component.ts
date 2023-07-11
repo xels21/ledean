@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { UpdateService } from '../update/update.service';
 import { SystemService } from '../system/system.service'
 
 @Component({
@@ -8,5 +7,5 @@ import { SystemService } from '../system/system.service'
   styleUrls: ['./navigation.component.scss']
 })
 export class NavigationComponent {
-  constructor(public updateService: UpdateService, public systemService: SystemService) { }
+  constructor( public systemService: SystemService) { }
 }

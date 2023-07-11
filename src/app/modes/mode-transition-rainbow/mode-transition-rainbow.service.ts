@@ -3,7 +3,7 @@ import { deepCopy } from 'src/app/lib/deep-copy';
 import { deepEqual } from 'fast-equals';
 import { WebsocketService } from 'src/app/websocket/websocket.service';
 import { Cmd, CmdMode } from 'src/app/websocket/commands';
-
+import { ParentMode } from 'src/app/modes/parent-mode';
 
 export interface ModeTransitionRainbowParameter {
   roundTimeMs: number,
@@ -21,37 +21,12 @@ export interface ModeTransitionRainbowLimits {
 @Injectable({
   providedIn: 'root'
 })
-export class ModeTransitionRainbowService {
+export class ModeTransitionRainbowService extends ParentMode {
   public backParameter: ModeTransitionRainbowParameter
   public parameter: ModeTransitionRainbowParameter
   public limits: ModeTransitionRainbowLimits
 
-  private name = "ModeTransitionRainbow"
-
-  constructor(private websocketService: WebsocketService) { }
-
-  getName() {
-    return this.name
-  }
-
-  receiveParameter(parm: ModeTransitionRainbowParameter) {
-    if (!deepEqual(this.backParameter, parm)) {
-      this.backParameter = parm
-      this.parameter = deepCopy(this.backParameter)
-    }
-  }
-
-  receiveLimits(limits: ModeTransitionRainbowLimits) {
-    this.limits = limits
-  }
-
-  sendParameter() {
-    this.websocketService.send({
-      cmd: "mode",
-      parm: {
-        id: this.name,
-        parm: this.parameter
-      } as CmdMode
-    } as Cmd)
+  constructor(protected websocketService: WebsocketService) {
+    super("ModeTransitionRainbow", websocketService)
   }
 }
