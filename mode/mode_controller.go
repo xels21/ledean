@@ -65,14 +65,73 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 
 func (self *ModeController) socketHandler() {
 	for {
-		cmdModeAction := <-self.hub.CmdModeActionChannel
-		log.Info(cmdModeAction)
-		switch cmdModeAction.Action {
-		case websocket.CmdModeActionRandomize:
-			self.Randomize()
-		default:
-			log.Info("Unknown mode action: ", cmdModeAction)
+		select {
+		case cmdModeAction := <-self.hub.CmdModeActionChannel:
+			log.Info(cmdModeAction)
+			switch cmdModeAction.Action {
+			case websocket.CmdModeActionRandomize:
+				self.Randomize()
+			default:
+				log.Info("Unknown mode action: ", cmdModeAction)
+			}
+		case cmdMode := <-self.hub.CmdModeChannel:
+			self.handleModeParameterUpdate(cmdMode)
+
 		}
+	}
+}
+
+func (self *ModeController) handleModeParameterUpdate(cmdMode websocket.CmdMode) {
+	switch cmdMode.Id {
+	case self.modeEmitter.name:
+		var modeEmitterParameter ModeEmitterParameter
+		err := json.Unmarshal(cmdMode.Parameter, &modeEmitterParameter)
+		if err != nil {
+			log.Info("could not parse emitter parameter: ", cmdMode.Parameter)
+			return
+		}
+		self.modeEmitter.SetParameter(modeEmitterParameter)
+	case self.modeGradient.name:
+		var modeGradientParameter ModeGradientParameter
+		err := json.Unmarshal(cmdMode.Parameter, &modeGradientParameter)
+		if err != nil {
+			log.Info("could not parse gradient parameter: ", cmdMode.Parameter)
+			return
+		}
+		self.modeGradient.SetParameter(modeGradientParameter)
+	case self.modeRunningLed.name:
+		var modeRunningLedParameter ModeRunningLedParameter
+		err := json.Unmarshal(cmdMode.Parameter, &modeRunningLedParameter)
+		if err != nil {
+			log.Info("could not parse running led parameter: ", cmdMode.Parameter)
+			return
+		}
+		self.modeRunningLed.SetParameter(modeRunningLedParameter)
+	case self.modeSolid.name:
+		var modeSolidParameter ModeSolidParameter
+		err := json.Unmarshal(cmdMode.Parameter, &modeSolidParameter)
+		if err != nil {
+			log.Info("could not parse solid parameter: ", cmdMode.Parameter)
+			return
+		}
+		self.modeSolid.SetParameter(modeSolidParameter)
+		self.Restart()
+	case self.modeSolidRainbow.name:
+		var modeSolidRainbowParameter ModeSolidRainbowParameter
+		err := json.Unmarshal(cmdMode.Parameter, &modeSolidRainbowParameter)
+		if err != nil {
+			log.Info("could not parse solid rainbow parameter: ", cmdMode.Parameter)
+			return
+		}
+		self.modeSolidRainbow.SetParameter(modeSolidRainbowParameter)
+	case self.modeTransitionRainbow.name:
+		var modeTransitionRainbowParameter ModeTransitionRainbowParameter
+		err := json.Unmarshal(cmdMode.Parameter, &modeTransitionRainbowParameter)
+		if err != nil {
+			log.Info("could not parse transition rainbow parameter: ", cmdMode.Parameter)
+			return
+		}
+		self.modeTransitionRainbow.SetParameter(modeTransitionRainbowParameter)
 	}
 }
 

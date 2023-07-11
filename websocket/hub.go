@@ -29,6 +29,7 @@ type Hub struct {
 
 	CmdButtonChannel     chan CmdButton
 	CmdModeActionChannel chan CmdModeAction
+	CmdModeChannel       chan CmdMode
 	// Cmd2sMode        chan Cmd2sMode
 }
 
@@ -40,6 +41,7 @@ func NewHub() *Hub {
 		clients:              make(map[*Client]bool),
 		CmdButtonChannel:     make(chan CmdButton),
 		CmdModeActionChannel: make(chan CmdModeAction),
+		CmdModeChannel:       make(chan CmdMode),
 		// initClientCbs: make([]func(*Client), 16),
 	}
 }
@@ -99,6 +101,8 @@ func (self *Hub) handleCommand(cmd Cmd) {
 	// 		return
 	// 	}
 	// 	self.CmdActionChannel <- cmdAction
+	case "":
+		log.Trace("Empty message. can be ignored")
 	default:
 		log.Info("unknown command: ", cmd.Command)
 	}

@@ -111,7 +111,6 @@ func (self *Client) handleCommand(cmd *Cmd) {
 		}
 		self.hub.CmdButtonChannel <- cmdButton
 	case CmdModeActionId:
-		log.Debug("got command: ", cmd.Command)
 		var cmdModeAction CmdModeAction
 		err := json.Unmarshal(cmd.Parameter, &cmdModeAction)
 		if err != nil {
@@ -119,9 +118,18 @@ func (self *Client) handleCommand(cmd *Cmd) {
 			return
 		}
 		self.hub.CmdModeActionChannel <- cmdModeAction
-
+	case CmdModeId: //for parameter
+		var cmdMode CmdMode
+		err := json.Unmarshal(cmd.Parameter, &cmdMode)
+		if err != nil {
+			log.Debug("Could not parse mode parm mgs: ", string(cmd.Parameter))
+			return
+		}
+		self.hub.CmdModeChannel <- cmdMode
+	case "":
+		log.Trace("Empty message. can be ignored")
 	default:
-		log.Debug("Unknown command: ", cmd.Command, " from client")
+		log.Debug("Unknown command: '", cmd.Command, "' from client")
 	}
 }
 
