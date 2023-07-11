@@ -75,8 +75,10 @@ func (self *ModeController) socketHandler() {
 				log.Info("Unknown mode action: ", cmdModeAction)
 			}
 		case cmdMode := <-self.hub.CmdModeChannel:
-			self.handleModeParameterUpdate(cmdMode)
-
+			if cmdMode.Parameter != nil {
+				self.handleModeParameterUpdate(cmdMode)
+			}
+			self.SwitchIndexFriendlyName(cmdMode.Id)
 		}
 	}
 }
@@ -225,7 +227,7 @@ func (self *ModeController) SwitchIndex(index uint8) {
 	if resume {
 		self.ActivateCurrentMode()
 	}
-	self.BroadcastCurrentMode()
+	// self.BroadcastCurrentMode()
 }
 
 func (self *ModeController) getModeCmd() (websocket.Cmd, error) {

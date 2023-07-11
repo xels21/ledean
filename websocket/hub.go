@@ -1,6 +1,3 @@
-//go:build !tinygo
-// +build !tinygo
-
 // Package websocket provides the websocket implementation to avoid polling
 package websocket
 
@@ -114,18 +111,6 @@ func (self *Hub) Boradcast(cmd Cmd) {
 	}
 }
 
-// func (self *Hub) CmdLeds() {
-// 	cmd2cLedsJSON, err := json.Marshal(CmdLeds{Leds: self.display.GetLeds()})
-// 	if err != nil {
-// 		log.Debug("Couldn't convert err to log JSON. ", err)
-// 		return
-// 	}
-
-// 	for client := range self.clients {
-// 		client.send <- Cmd{Command: "leds", Parameter: cmd2cLedsJSON}
-// 	}
-// }
-
 // serveWs handles websocket requests from the peer.
 func (self *Hub) ServeWs(w http.ResponseWriter, r *http.Request) {
 	upgrader := websocket.Upgrader{
@@ -148,3 +133,15 @@ func (self *Hub) ServeWs(w http.ResponseWriter, r *http.Request) {
 	go client.writePump()
 	go client.readPump()
 }
+
+// func (self *Hub) CmdLeds() {
+// 	cmd2cLedsJSON, err := json.Marshal(CmdLeds{Leds: self.display.GetLeds()})
+// 	if err != nil {
+// 		log.Debug("Couldn't convert err to log JSON. ", err)
+// 		return
+// 	}
+
+// 	for client := range self.clients {
+// 		client.send <- Cmd{Command: "leds", Parameter: cmd2cLedsJSON}
+// 	}
+// }
