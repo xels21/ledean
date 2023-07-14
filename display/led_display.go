@@ -52,8 +52,9 @@ func NewDisplayBase(led_count int, led_rows int, reverse_rows_raw string, hub *w
 	// self.registerEvents()
 	self.Clear()
 	// go self.listen()
-
-	self.hub.AppendInitClientCb(self.initClientCb)
+	if self.hub != nil {
+		self.hub.AppendInitClientCb(self.initClientCb)
+	}
 
 	return &self
 }
@@ -129,9 +130,11 @@ func (self *DisplayBase) ledsChanged() {
 }
 
 func (self *DisplayBase) ForceLedsChanged() {
-	cmd2cLedsJSON, err := json.Marshal(websocket.CmdLeds{Leds: self.leds})
-	if err == nil {
-		self.hub.Boradcast(websocket.Cmd{Command: websocket.CmdLedsId, Parameter: cmd2cLedsJSON})
+	if self.hub != nil {
+		cmd2cLedsJSON, err := json.Marshal(websocket.CmdLeds{Leds: self.leds})
+		if err == nil {
+			self.hub.Boradcast(websocket.Cmd{Command: websocket.CmdLedsId, Parameter: cmd2cLedsJSON})
+		}
 	}
 }
 

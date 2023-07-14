@@ -56,9 +56,12 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 		self.SetIndex(0)
 	}
 
-	go self.socketHandler()
 	self.registerEvents()
-	self.hub.AppendInitClientCb(self.initClientCb)
+
+	if self.hub != nil {
+		go self.socketHandler()
+		self.hub.AppendInitClientCb(self.initClientCb)
+	}
 
 	return &self
 }
@@ -244,20 +247,23 @@ func (self *ModeController) getModeCmd() (websocket.Cmd, error) {
 }
 
 func (self *ModeController) BroadcastCurrentMode() {
-	cmdMode, err := self.getModeCmd()
-	if err != nil {
-		log.Info("Mode Changed: ", err)
+	if self.hub != nil {
+		cmdMode, err := self.getModeCmd()
+		if err == nil {
+			self.hub.Boradcast(cmdMode)
+		}
 	}
 
-	self.hub.Boradcast(cmdMode)
 }
 
 func (self *ModeController) initClientCb(client *websocket.Client) {
-	cmdMode, err := self.getModeCmd()
+	cmdModeResolverJSON, err := json.Marshal(websocket.CmdModeResolver{Modes: self.GetModeResolver()})
 	if err != nil {
 		log.Info(err)
 	} else {
-		client.SendCmd(cmdMode)
+		client.SendCmd(websocket.Cmd{
+			Command:   websocket.CmdModeResolverId,
+			Parameter: cmdModeResolverJSON})
 	}
 
 	for _, mode := range self.modes {
@@ -281,13 +287,11 @@ func (self *ModeController) initClientCb(client *websocket.Client) {
 			Parameter: cmdModeLimitJSON})
 	}
 
-	cmdModeResolverJSON, err := json.Marshal(websocket.CmdModeResolver{Modes: self.GetModeResolver()})
+	cmdMode, err := self.getModeCmd()
 	if err != nil {
 		log.Info(err)
 	} else {
-		client.SendCmd(websocket.Cmd{
-			Command:   websocket.CmdModeResolverId,
-			Parameter: cmdModeResolverJSON})
+		client.SendCmd(cmdMode)
 	}
 }
 

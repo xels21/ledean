@@ -32,13 +32,29 @@ func NewButton(gpio string, longPressMs int, pressDoubleTimeout int, hub *websoc
 		hub:                hub,
 	}
 
-	go self.socketHandler()
+	if hub != nil {
+		go self.socketHandler()
+	}
+
+	go self.listen()
 
 	return &self
 }
 
-func (self *Button) Register() {
-	go self.listen()
+func (self *Button) socketHandler() {
+	for {
+		cmdButton := <-self.hub.CmdButtonChannel
+		switch cmdButton.Action {
+		case "single":
+			self.PressSingle()
+		case "double":
+			self.PressDouble()
+		case "long":
+			self.PressLong()
+		default:
+			log.Info("Unknown button action: ", cmdButton.Action)
+		}
+	}
 }
 
 func (self *Button) listen() {
@@ -122,7 +138,6 @@ func (self *Button) listen() {
 		}
 		lastActionNs = time.Now().UnixNano()
 	}
-	self.Register()
 }
 
 func (self *Button) AddCbPressSingle(cb func()) {

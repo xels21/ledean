@@ -24,6 +24,7 @@ type Parameter struct {
 	Port               int    `json:"port"`
 	Path2DB            string `json:"path2Db"`
 	ReverseRows        string `json:"reverseRows"`
+	NoGui              bool   `json:"noGui"`
 
 	// PathToDB       string
 	// Pw             string
@@ -48,6 +49,7 @@ For RPi (using SPI):
 	'''sudo raspi-config nonint do_spi 0'''
 	`)
 	flag.BoolVar(&parm.IsPictureMode, "picture_mode", false, "Wheter software is used for picture (POI) controll")
+	flag.BoolVar(&parm.NoGui, "no_gui", false, "SW should not provide any gui (including website + websockets)")
 	flag.IntVar(&parm.PressLongMs, "long_press_ms", 1200, "Time for the button long press")
 	flag.IntVar(&parm.PressDoubleTimeout, "double_press_timeout", 350, "Time between single and double press")
 	flag.IntVar(&parm.LedCount, "led_count", 0, "Amount of leds")

@@ -38,10 +38,11 @@ func Run(parm *Parameter) *LEDeanInstance {
 
 	driver.Init()
 
-	self.hub = websocket.NewHub()
+	if !parm.NoGui {
+		self.hub = websocket.NewHub()
+	}
 
 	self.button = button.NewButton(parm.GpioButton, parm.PressLongMs, parm.PressDoubleTimeout, self.hub)
-	self.button.Register()
 
 	self.display = display.NewDisplay(parm.LedCount, parm.LedRows, parm.GpioLedData, parm.ReverseRows, self.hub)
 	if !parm.IsPictureMode {
@@ -52,8 +53,10 @@ func Run(parm *Parameter) *LEDeanInstance {
 	self.button.AddCbPressDouble(func() { log.Info("PRESS_DOUBLE") })
 	self.button.AddCbPressLong(func() { log.Info("PRESS_LONG") })
 
-	go self.hub.Run()
-	go webserver.Start(parm.Address, parm.Port, parm.Path2Frontend, self.modeController, self.button, self.hub)
+	if !parm.NoGui {
+		go self.hub.Run()
+		go webserver.Start(parm.Address, parm.Port, parm.Path2Frontend, self.modeController, self.button, self.hub)
+	}
 
 	if parm.DirectStart {
 		if !parm.IsPictureMode {
