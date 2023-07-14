@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { WebsocketService } from 'src/app/websocket/websocket.service';
-import { ParentMode } from 'src/app/modes/parent-mode';
+import { SuperMode } from 'src/app/modes/super-mode';
 
 
 
@@ -22,7 +22,7 @@ export interface ModeGradientLimits {
 @Injectable({
   providedIn: 'root'
 })
-export class ModeGradientService extends ParentMode{
+export class ModeGradientService extends SuperMode{
   public backParameter: ModeGradientParameter
   public parameter: ModeGradientParameter
   public limits: ModeGradientLimits

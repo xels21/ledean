@@ -3,34 +3,44 @@
   <div class="row">
     <div class="col s12">
       <ul class="tabs">
-        <!-- <li class="tab col s3"><a href="#ModeSolid" [ngClass]="{'active': modesService.isActive('ModeSolid')}" (click)="modesService.switchState('ModeSolid')">Solid</a> -->
-        <li class="tab col "><a href="#ModeSolid" (click)="modesService.switchState('ModeSolid')">Solid</a></li>
-        <li class="tab col "><a href="#ModeSolidRainbow"
-            (click)="modesService.switchState('ModeSolidRainbow')">RainbowSolid</a></li>
-        <li class="tab col "><a href="#ModeTransitionRainbow"
-            (click)="modesService.switchState('ModeTransitionRainbow')">TransitionRainbow</a></li>
-        <li class="tab col "><a href="#ModeRunningLed"
-            (click)="modesService.switchState('ModeRunningLed')">RunningLed</a></li>
-        <li class="tab col "><a href="#ModeEmitter" (click)="modesService.switchState('ModeEmitter')">Emitter</a></li>
-        <li class="tab col "><a href="#ModeGradient" (click)="modesService.switchState('ModeGradient')">Gradient</a></li>
+        <li class="tab col "><a href="#{{modesService.modeSolidService.getName()}}"
+            (click)="modesService.switchState(modesService.modeSolidService.getName())">{{modesService.modeSolidService.getShortName()}}</a>
+        </li>
+        <li class="tab col "><a href="#{{modesService.modeSolidRainbowService.getName()}}"
+            (click)="modesService.switchState(modesService.modeSolidRainbowService.getName())">{{modesService.modeSolidRainbowService.getShortName()}}</a>
+        </li>
+        <li class="tab col "><a href="#{{modesService.modeTransitionRainbowService.getName()}}"
+            (click)="modesService.switchState(modesService.modeTransitionRainbowService.getName())">{{modesService.modeTransitionRainbowService.getShortName()}}</a>
+        </li>
+        <li class="tab col "><a href="#{{modesService.modeRunningLedService.getName()}}"
+            (click)="modesService.switchState(modesService.modeRunningLedService.getName())">{{modesService.modeRunningLedService.getShortName()}}</a>
+        </li>
+        <li class="tab col "><a href="#{{modesService.modeEmitterService.getName()}}"
+            (click)="modesService.switchState(modesService.modeEmitterService.getName())">{{modesService.modeEmitterService.getShortName()}}</a>
+        </li>
+        <li class="tab col "><a href="#{{modesService.modeGradientService.getName()}}"
+            (click)="modesService.switchState(modesService.modeGradientService.getName())">{{modesService.modeGradientService.getShortName()}}</a>
+        </li>
+
+        <!-- <li *ngFor="let modeServices of modesService.modeServices" class="tab col"><a  href="#{{modeServices.getName()}}"(click)="modesService.switchState(modeServices.getName())">{{modeServices.getShortName()}}</a></li> -->
       </ul>
     </div>
-    <div id="ModeSolid" class="col s12">
+    <div id="{{modesService.modeSolidService.getName()}}" class="col s12">
       <app-mode-solid></app-mode-solid>
     </div>
-    <div id="ModeSolidRainbow" class="col s12">
+    <div id="{{modesService.modeSolidRainbowService.getName()}}" class="col s12">
       <app-mode-solid-rainbow></app-mode-solid-rainbow>
     </div>
-    <div id="ModeTransitionRainbow" class="col s12">
+    <div id="{{modesService.modeTransitionRainbowService.getName()}}" class="col s12">
       <app-mode-transition-rainbow></app-mode-transition-rainbow>
     </div>
-    <div id="ModeRunningLed" class="col s12">
+    <div id="{{modesService.modeRunningLedService.getName()}}" class="col s12">
       <app-mode-running-led></app-mode-running-led>
     </div>
-    <div id="ModeEmitter" class="col s12">
+    <div id="{{modesService.modeEmitterService.getName()}}" class="col s12">
       <app-mode-emitter></app-mode-emitter>
     </div>
-    <div id="ModeGradient" class="col s12">
+    <div id="{{modesService.modeGradientService.getName()}}" class="col s12">
       <app-mode-gradient></app-mode-gradient>
     </div>
   </div>

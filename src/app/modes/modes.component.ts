@@ -14,7 +14,7 @@ export class ModesComponent implements OnInit {
 
   ngOnInit(): void {
     // $('ul.tabs').tabs();
-    var instance = M.Tabs.init($('ul.tabs'), { /*swipeable: true*/ })[0];
+    let instance = M.Tabs.init($('ul.tabs'), { /*swipeable: true*/ })[0];
     $('.indicator').css('background-color', 'teal');
     // setTimeout(()=>instance.select(this.modesService.modeResolver[this.modesService.activeMode]),100)
     this.modesService.setOnModeChange(() => {

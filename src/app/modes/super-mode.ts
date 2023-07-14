@@ -3,7 +3,7 @@ import { deepCopy } from 'src/app/lib/deep-copy';
 import { WebsocketService } from 'src/app/websocket/websocket.service';
 import { CmdMode, Cmd } from 'src/app/websocket/commands';
 
-export abstract class ParentMode {
+export abstract class SuperMode {
 
   public backParameter: any
   public parameter: any
@@ -14,6 +14,10 @@ export abstract class ParentMode {
 
   public getName() {
     return this.name
+  }
+
+  public getShortName() {
+    return this.name.replace("Mode","")
   }
 
   public receiveParameter(parm: any) {

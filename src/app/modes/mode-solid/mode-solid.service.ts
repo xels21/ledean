@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { RGB } from 'src/app/color/color'
 import { WebsocketService } from 'src/app/websocket/websocket.service';
-import { ParentMode } from '../parent-mode';
+import { SuperMode } from '../super-mode';
 
 
 export interface ModeSolidParameter {
@@ -16,7 +16,7 @@ export interface ModeSolidLimits {
 @Injectable({
   providedIn: 'root'
 })
-export class ModeSolidService extends ParentMode {
+export class ModeSolidService extends SuperMode {
   public backParameter: ModeSolidParameter
   public parameter: ModeSolidParameter
   public limits: ModeSolidLimits

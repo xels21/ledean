@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { WebsocketService } from 'src/app/websocket/websocket.service';
-import { ParentMode } from 'src/app/modes/parent-mode';
+import { SuperMode } from 'src/app/modes/super-mode';
 
 
 export interface ModeSolidRainbowParameter {
@@ -17,7 +17,7 @@ export interface ModeSolidRainbowLimits {
 @Injectable({
   providedIn: 'root'
 })
-export class ModeSolidRainbowService extends ParentMode {
+export class ModeSolidRainbowService extends SuperMode {
 
   public backParameter: ModeSolidRainbowParameter
   public parameter: ModeSolidRainbowParameter

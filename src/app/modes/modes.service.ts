@@ -8,6 +8,7 @@ import { ModeSolidService } from '../modes/mode-solid/mode-solid.service';
 import { ModeSolidRainbowService } from '../modes/mode-solid-rainbow/mode-solid-rainbow.service';
 import { ModeTransitionRainbowService } from '../modes/mode-transition-rainbow/mode-transition-rainbow.service';
 import { Cmd, CmdMode, CmdModeLimits, CmdModeResolver } from '../websocket/commands';
+import { SuperMode } from './super-mode';
 
 
 @Injectable({
@@ -19,15 +20,18 @@ export class ModesService {
   isPictureMode: boolean
   public modeResolver: Array<string>
   onModeChange: () => any
+  //modeServices: Array<SuperMode>
 
   constructor(private httpClient: HttpClient, private websocketService: WebsocketService
-    , private modeEmitterService: ModeEmitterService
-    , private modeGradientService: ModeGradientService
-    , private modeRunningLedService: ModeRunningLedService
-    , private modeSolidRainbowService: ModeSolidRainbowService
-    , private modeSolidService: ModeSolidService
-    , private modeTransitionRainbowService: ModeTransitionRainbowService
+    , public modeEmitterService: ModeEmitterService
+    , public modeGradientService: ModeGradientService
+    , public modeRunningLedService: ModeRunningLedService
+    , public modeSolidRainbowService: ModeSolidRainbowService
+    , public modeSolidService: ModeSolidService
+    , public modeTransitionRainbowService: ModeTransitionRainbowService
   ) {
+
+    // this.modeServices = [modeEmitterService, modeGradientService, modeRunningLedService, modeSolidRainbowService, modeSolidService, modeTransitionRainbowService]
     this.setOnModeChange(() => { })
     this.websocketService.modeChanged.subscribe((cmdMode: CmdMode) => this.modeChanged(cmdMode))
     this.websocketService.modeLimitChanged.subscribe((cmdModeLimits: CmdModeLimits) => this.modeLimitChanged(cmdModeLimits))
@@ -97,8 +101,8 @@ export class ModesService {
   public updateActiveModeString(name: string) {
     var id = this.modeStrToIdx(name)
     if (id == undefined) {
-      // mode resolver not ready yet
-      setTimeout(()=>this.updateActiveModeString(name), 100)
+      console.log("mode resolver not ready yet: ", name)
+      setTimeout(() => this.updateActiveModeString(name), 100)
     } else {
       this.updateActiveMode(id)
     }

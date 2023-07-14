@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { WebsocketService } from 'src/app/websocket/websocket.service';
-import { ParentMode } from 'src/app/modes/parent-mode';
+import { SuperMode } from 'src/app/modes/super-mode';
 
 
 
@@ -30,7 +30,7 @@ export interface ModeRunningLedLimits {
 @Injectable({
   providedIn: 'root'
 })
-export class ModeRunningLedService extends ParentMode{
+export class ModeRunningLedService extends SuperMode{
   public backParameter: ModeRunningLedParameter
   public parameter: ModeRunningLedParameter
   public limits: ModeRunningLedLimits
