@@ -16,7 +16,7 @@ func main() {
 	parm := ledean.GetParameter()
 	jsonParm, err := json.MarshalIndent(parm, "", "\t")
 	if err != nil {
-		log.Panic("Could not convert params to JSON")
+		log.Fatal("Could not convert params to JSON")
 	}
 
 	fmt.Print("Starting with:\n", string(jsonParm), "\n\n")

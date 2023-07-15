@@ -32,7 +32,6 @@ type Parameter struct {
 }
 
 func GetParameter() *Parameter {
-	log.Debug("meme")
 	var parm Parameter
 	flag.StringVar(&parm.GpioButton, "gpio_button", "GPIO17", "gpio_pin for the button")
 	flag.StringVar(&parm.GpioLedData, "gpio_led_data", "",
@@ -64,7 +63,7 @@ For RPi (using SPI):
 	- debug
 	`)
 	flag.StringVar(&parm.Path2Frontend, "path2frontend", "", "path to static frontend. Keep it empty to dont serve static files")
-	flag.StringVar(&parm.Address, "address", "127.0.0.1", "Local adress. Set it to '' to make the interface globally adressable")
+	flag.StringVar(&parm.Address, "address", "0.0.0.0", "Local adress. Set it to '' to make the interface globally adressable")
 	flag.IntVar(&parm.Port, "port", 2211, "Port for webserver")
 	flag.StringVar(&parm.Path2DB, "path2db", "db", "Path to DB folder (folder with json files)")
 	flag.StringVar(&parm.ReverseRows, "reverse_rows", "0", "defines, which rows should be reversed (e.g. if second row is reversed: 0,1,0,0")
@@ -78,17 +77,17 @@ For RPi (using SPI):
 
 func (self *Parameter) Check() {
 	if self.LedCount <= 0 {
-		log.Panic("Error in parameter 'led_count'\n  - At least one led has to be connected")
+		log.Fatal("Error in parameter 'led_count'\n  - At least one led has to be connected")
 	}
 	if self.LedCount%self.LedRows != 0 {
-		log.Panic("Error in parameter 'led_count' and 'led_rows'\n  - Amount of led have to be equal to each row (e.g. led_count:20, led_rows:2, => 10 leds per row")
+		log.Fatal("Error in parameter 'led_count' and 'led_rows'\n  - Amount of led have to be equal to each row (e.g. led_count:20, led_rows:2, => 10 leds per row")
 	}
 
 	const TINYGO_SUPPORTS_REGEX = false
 	// const TINYGO_SUPPORTS_REGEX = true
 	if TINYGO_SUPPORTS_REGEX {
 		if !regexp.MustCompile("^[01](,[01]){" + strconv.Itoa(self.LedRows-1) + "}$").MatchString(self.ReverseRows) {
-			log.Panic("Reverse Rows are set in a wrong way")
+			log.Fatal("Reverse Rows are set in a wrong way")
 		}
 	} else {
 		commaCnt := strings.Count(self.ReverseRows, ",")

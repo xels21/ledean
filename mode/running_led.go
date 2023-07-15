@@ -130,6 +130,9 @@ func (self *ModeRunningLed) getActiveLedIdx() int {
 	case RunningLedStyleTrigonometric:
 		activeLedIdx = int(((math.Cos((self.positionDeg+180.0)*math.Pi/180.0) + 1.0) / 2) * float64(len(self.activatedLeds)))
 	}
+	if activeLedIdx >= len(self.activatedLeds) {
+		activeLedIdx = len(self.activatedLeds) - 1 //avoid "index out of range [x] with length x"
+	}
 	return activeLedIdx
 }
 

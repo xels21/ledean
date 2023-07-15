@@ -34,7 +34,7 @@ func (self *PiWs28xConnector) Connect(ledCount int) error {
 	portCloser, err := spireg.Open(self.gpioLedData)
 	// defer portCloser.Close()
 	if err != nil {
-		log.Panic(err)
+		log.Fatal("Could not open WS28x communication:\n", err)
 	}
 	opts := &nrzled.Opts{
 		Channels:  3,

@@ -138,6 +138,7 @@ func (self *ModeController) handleModeParameterUpdate(cmdMode websocket.CmdMode)
 		}
 		self.modeTransitionRainbow.SetParameter(modeTransitionRainbowParameter)
 	}
+	self.BroadcastCurrentMode()
 }
 
 func (self *ModeController) SwitchIndexFriendlyName(friendlyName string) {

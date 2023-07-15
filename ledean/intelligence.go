@@ -33,7 +33,7 @@ func Run(parm *Parameter) *LEDeanInstance {
 
 	self.dbdriver, err = dbdriver.NewDbDriver(parm.Path2DB)
 	if err != nil {
-		log.Panic("Error while trying to make a new DB: ", err)
+		log.Fatal("Error while trying to make a new DB: ", err)
 	}
 
 	driver.Init()

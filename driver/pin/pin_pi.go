@@ -17,12 +17,12 @@ type Pin struct {
 func NewPin(gpioName string) *Pin {
 	pin := gpioreg.ByName(gpioName)
 	if pin == nil {
-		log.Fatal("Failed to find: ", gpioName)
+		log.Fatal("Failed to find pin by name: ", gpioName)
 	}
 	self := Pin{pin: pin}
 	// var p PinIn
 	if err := self.pin.In(gpio.PullDown, gpio.BothEdges); err != nil {
-		log.Fatal(err)
+		log.Fatal("Could not init pin:", err)
 	}
 
 	return &self
