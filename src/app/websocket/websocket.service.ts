@@ -1,8 +1,8 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
-import { Cmd, CmdLeds, CmdLedsParameter, CmdMode, CmdModeLimits, CmdModeResolver } from "./commands"
+import { Cmd, CmdLeds, CmdLedsParameter, CmdMode, CmdModeLimits, CmdModeResolver,CmdLedsId, CmdLedsParameterId, CmdModeId, CmdModeLimitsId, CmdModeResolverId } from "./commands"
+// import * as cmd from "./commands"
 import { RGB } from '../color/color';
-// import { RGB } from '../led-display/led-display.component';
 // import { LedsService} from "../leds/leds.service" //Circular dependency
 
 // import { CookieService } from 'ngx-cookie-service';
@@ -59,23 +59,23 @@ export class WebsocketService {
         if (msg.hasOwnProperty("cmd") && msg.hasOwnProperty("parm")) {
           let cmd = msg as Cmd
           switch (cmd.cmd) {
-            case "leds":
+            case CmdLedsId:
               var cmd2cLeds = cmd.parm as CmdLeds
               this.ledsChanged.emit(cmd2cLeds.leds)
               break;
-            case "ledsParameter":
+            case CmdLedsParameterId:
               var cmdLedsParameter = cmd.parm as CmdLedsParameter
               this.ledsParameterChanged.emit(cmdLedsParameter)
               break;
-            case "mode":
+            case CmdModeId:
               var cmdMode = cmd.parm as CmdMode
               this.modeChanged.emit(cmdMode)
               break;
-            case "modeLimits":
+            case CmdModeLimitsId:
               var cmdModeLimits = cmd.parm as CmdModeLimits
               this.modeLimitChanged.emit(cmdModeLimits)
               break;
-            case "modeResolver":
+            case CmdModeResolverId:
               var cmdModeResolver = cmd.parm as CmdModeResolver
               this.modeResolverChanged.emit(cmdModeResolver)
               break;

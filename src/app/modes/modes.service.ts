@@ -7,7 +7,7 @@ import { ModeRunningLedService } from '../modes/mode-running-led/mode-running-le
 import { ModeSolidService } from '../modes/mode-solid/mode-solid.service';
 import { ModeSolidRainbowService } from '../modes/mode-solid-rainbow/mode-solid-rainbow.service';
 import { ModeTransitionRainbowService } from '../modes/mode-transition-rainbow/mode-transition-rainbow.service';
-import { Cmd, CmdMode, CmdModeLimits, CmdModeResolver } from '../websocket/commands';
+import { Cmd, CmdMode,CmdModeId, CmdModeLimits, CmdModeResolver } from '../websocket/commands';
 import { SuperMode } from './super-mode';
 
 
@@ -126,7 +126,7 @@ export class ModesService {
 
   public switchState(mode: string) {
     this.websocketService.send({
-      cmd: "mode",
+      cmd: CmdModeId,
       parm: {
         id: mode,
         parm: undefined

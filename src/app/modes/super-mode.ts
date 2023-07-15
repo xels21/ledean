@@ -17,13 +17,14 @@ export abstract class SuperMode {
   }
 
   public getShortName() {
-    return this.name.replace("Mode","")
+    return this.name.replace("Mode", "")
   }
 
   public receiveParameter(parm: any) {
     if (!deepEqual(this.backParameter, parm)) {
       this.backParameter = parm
       this.parameter = deepCopy(this.backParameter)
+      setTimeout(() => M.updateTextFields());
     }
   }
 

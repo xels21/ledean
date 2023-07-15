@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { WebsocketService } from '../websocket/websocket.service';
-import { Cmd, CmdButton } from '../websocket/commands';
+import { Cmd, CmdButton,CmdButtonId } from '../websocket/commands';
 
 
 @Injectable({
@@ -12,21 +12,21 @@ export class ButtonService {
 
   public pressSingle() {
     this.websocketService.send({
-      cmd: "button",
+      cmd: CmdButtonId,
       parm: { action: "single" } as CmdButton
     } as Cmd)
   }
 
   public pressDouble() {
         this.websocketService.send({
-      cmd: "button",
+      cmd: CmdButtonId,
       parm: { action: "double" } as CmdButton
     } as Cmd)
   }
 
   public pressLong() {
         this.websocketService.send({
-      cmd: "button",
+      cmd: CmdButtonId,
       parm: { action: "long" } as CmdButton
     } as Cmd)
   }

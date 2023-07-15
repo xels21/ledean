@@ -1,5 +1,15 @@
 import { RGB } from '../color/color';
 
+
+export const CmdLedsId = "leds"
+export const CmdLedsParameterId = "ledsParameter"
+export const CmdButtonId = "button"
+export const CmdModeId = "mode"
+export const CmdModeLimitsId = "modeLimits"
+export const CmdModeResolverId = "modeResolver"
+export const CmdModeActionId = "action"
+export const CmdModeActionRandomizeId = "randomize"
+
 export interface Cmd {
 	cmd: string
 	parm: any
@@ -32,9 +42,8 @@ export interface CmdModeResolver {
 	modes: string[]
 }
 
-export const CmdModeActionRandomizeId = "randomize"
-export const CmdModeActionId = "action"
 
-export interface CmdModeAction{
+
+export interface CmdModeAction {
 	action: string
 }
