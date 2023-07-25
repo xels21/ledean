@@ -1,3 +1,6 @@
+//go:build !tinygo
+// +build !tinygo
+
 // Package websocket provides the websocket implementation to avoid polling
 package websocket
 
@@ -24,9 +27,9 @@ type Hub struct {
 
 	initClientCbs []func(*Client)
 
-	CmdButtonChannel     chan CmdButton
-	CmdModeActionChannel chan CmdModeAction
-	CmdModeChannel       chan CmdMode
+	cmdButtonChannel     chan CmdButton
+	cmdModeActionChannel chan CmdModeAction
+	cmdModeChannel       chan CmdMode
 	// Cmd2sMode        chan Cmd2sMode
 }
 
@@ -36,11 +39,21 @@ func NewHub() *Hub {
 		register:             make(chan *Client),
 		unregister:           make(chan *Client),
 		clients:              make(map[*Client]bool),
-		CmdButtonChannel:     make(chan CmdButton),
-		CmdModeActionChannel: make(chan CmdModeAction),
-		CmdModeChannel:       make(chan CmdMode),
+		cmdButtonChannel:     make(chan CmdButton),
+		cmdModeActionChannel: make(chan CmdModeAction),
+		cmdModeChannel:       make(chan CmdMode),
 		// initClientCbs: make([]func(*Client), 16),
 	}
+}
+
+func (self *Hub) GetCmdButtonChannel() *chan CmdButton {
+	return &self.cmdButtonChannel
+}
+func (self *Hub) GetCmdModeActionChannel() *chan CmdModeAction {
+	return &self.cmdModeActionChannel
+}
+func (self *Hub) GetCmdModeChannel() *chan CmdMode {
+	return &self.cmdModeChannel
 }
 
 func (self *Hub) AppendInitClientCb(cb func(*Client)) {
@@ -125,7 +138,7 @@ func (self *Hub) ServeWs(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 		return
 	}
-	client := &Client{hub: self, conn: conn, send: make(chan Cmd)}
+	client := NewClient(self, conn)
 	client.hub.register <- client
 
 	// Allow collection of memory referenced by the caller by doing all work in

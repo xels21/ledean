@@ -32,6 +32,8 @@ type ModeController struct {
 	modeRunningLed        *ModeRunningLed
 	modeEmitter           *ModeEmitter
 	modeGradient          *ModeGradient
+	pCmdModeActionChannel *chan websocket.CmdModeAction
+	pCmdModeChannel       *chan websocket.CmdMode
 }
 
 func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, button *button.Button, hub *websocket.Hub) *ModeController {
@@ -47,6 +49,8 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 		modeRunningLed:        NewModeRunningLed(dbdriver, display),
 		modeEmitter:           NewModeEmitter(dbdriver, display),
 		modeGradient:          NewModeGradient(dbdriver, display),
+		pCmdModeActionChannel: hub.GetCmdModeActionChannel(),
+		pCmdModeChannel:       hub.GetCmdModeChannel(),
 	}
 	self.modes = []Mode{self.modeSolid, self.modeSolidRainbow, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient}
 	self.modesLength = uint8(len(self.modes))
@@ -69,7 +73,7 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 func (self *ModeController) socketHandler() {
 	for {
 		select {
-		case cmdModeAction := <-self.hub.CmdModeActionChannel:
+		case cmdModeAction := <-*self.pCmdModeActionChannel:
 			log.Info(cmdModeAction)
 			switch cmdModeAction.Action {
 			case websocket.CmdModeActionRandomize:
@@ -77,7 +81,7 @@ func (self *ModeController) socketHandler() {
 			default:
 				log.Info("Unknown mode action: ", cmdModeAction)
 			}
-		case cmdMode := <-self.hub.CmdModeChannel:
+		case cmdMode := <-*self.pCmdModeChannel:
 			if cmdMode.Parameter != nil {
 				self.handleModeParameterUpdate(cmdMode)
 			}

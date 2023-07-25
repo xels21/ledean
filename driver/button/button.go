@@ -18,6 +18,7 @@ type Button struct {
 	cbPressSingle      []func()
 	cbPressDouble      []func()
 	hub                *websocket.Hub
+	pCmdButtonChannel  *chan websocket.CmdButton
 }
 
 func NewButton(gpio string, longPressMs int, pressDoubleTimeout int, hub *websocket.Hub) *Button {
@@ -30,6 +31,7 @@ func NewButton(gpio string, longPressMs int, pressDoubleTimeout int, hub *websoc
 		cbPressSingle:      make([]func(), 0, 4),
 		cbPressDouble:      make([]func(), 0, 4),
 		hub:                hub,
+		pCmdButtonChannel:  hub.GetCmdButtonChannel(),
 	}
 
 	if hub != nil {
@@ -43,7 +45,7 @@ func NewButton(gpio string, longPressMs int, pressDoubleTimeout int, hub *websoc
 
 func (self *Button) socketHandler() {
 	for {
-		cmdButton := <-self.hub.CmdButtonChannel
+		cmdButton := <-*self.pCmdButtonChannel
 		switch cmdButton.Action {
 		case "single":
 			self.PressSingle()

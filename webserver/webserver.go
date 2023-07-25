@@ -1,3 +1,6 @@
+//go:build !tinygo
+// +build !tinygo
+
 package webserver
 
 import (
@@ -44,4 +47,10 @@ func MakeExitHandler() http.HandlerFunc {
 		w.Write([]byte{})
 		os.Exit(0)
 	}
+}
+
+// HandleFileServer -
+func HandleFileServer(path2FrontEnd string) { //}, settingsWebserver *schema.SettingsWebserver) {
+	fs := http.FileServer(http.Dir(path2FrontEnd))
+	http.Handle("/", fs)
 }

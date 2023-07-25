@@ -1,3 +1,6 @@
+//go:build !tinygo
+// +build !tinygo
+
 package websocket
 
 import (
@@ -37,6 +40,21 @@ type Client struct {
 
 	// Buffered channel of outbound messages.
 	send chan Cmd
+
+	pCmdButtonChannel     *chan CmdButton
+	pCmdModeActionChannel *chan CmdModeAction
+	pCmdModeChannel       *chan CmdMode
+}
+
+func NewClient(hub *Hub, conn *websocket.Conn) *Client {
+	return &Client{
+		hub:                   hub,
+		conn:                  conn,
+		send:                  make(chan Cmd),
+		pCmdButtonChannel:     hub.GetCmdButtonChannel(),
+		pCmdModeActionChannel: hub.GetCmdModeActionChannel(),
+		pCmdModeChannel:       hub.GetCmdModeChannel(),
+	}
 }
 
 func (self *Client) SendCmd(cmd Cmd) {
@@ -106,7 +124,7 @@ func (self *Client) handleCommand(cmd *Cmd) {
 			log.Debug("Could not parse button parm mgs: ", string(cmd.Parameter))
 			return
 		}
-		self.hub.CmdButtonChannel <- cmdButton
+		*self.pCmdButtonChannel <- cmdButton
 	case CmdModeActionId:
 		var cmdModeAction CmdModeAction
 		err := json.Unmarshal(cmd.Parameter, &cmdModeAction)
@@ -114,7 +132,7 @@ func (self *Client) handleCommand(cmd *Cmd) {
 			log.Debug("Could not parse mode action parm mgs: ", string(cmd.Parameter))
 			return
 		}
-		self.hub.CmdModeActionChannel <- cmdModeAction
+		*self.pCmdModeActionChannel <- cmdModeAction
 	case CmdModeId: //for parameter
 		var cmdMode CmdMode
 		err := json.Unmarshal(cmd.Parameter, &cmdMode)
@@ -122,7 +140,7 @@ func (self *Client) handleCommand(cmd *Cmd) {
 			log.Debug("Could not parse mode parm mgs: ", string(cmd.Parameter))
 			return
 		}
-		self.hub.CmdModeChannel <- cmdMode
+		*self.pCmdModeChannel <- cmdMode
 	case "":
 		log.Trace("Empty message. can be ignored")
 	default:
