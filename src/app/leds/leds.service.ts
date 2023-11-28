@@ -15,11 +15,9 @@ export class LedsService {
   bufferedLedsCount: number
   ledCount: number
   ledRows: number
-  public pollingTimeout: number
 
   constructor(public modesService: ModesService, private websocketService: WebsocketService) {
     this.bufferedLedsCount = 16
-    this.pollingTimeout = 200
 
     websocketService.ledsParameterChanged.subscribe(ledsParameter => this.updateLedParameter(ledsParameter))
     websocketService.ledsChanged.subscribe(leds => this.updateLeds(leds))

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { WebsocketService } from '../websocket/websocket.service';
-import { Cmd, CmdButton,CmdButtonId } from '../websocket/commands';
+import { Cmd, CmdButton, CmdButtonId } from '../websocket/commands';
 
 
 @Injectable({
@@ -8,7 +8,12 @@ import { Cmd, CmdButton,CmdButtonId } from '../websocket/commands';
 })
 export class ButtonService {
 
-  constructor(private websocketService: WebsocketService) { }
+  public isLocked = false;
+
+
+  constructor(private websocketService: WebsocketService) { 
+    websocketService.buttonLockedChanged.subscribe(isLocked => this.isLocked = isLocked)
+  }
 
   public pressSingle() {
     this.websocketService.send({
@@ -18,16 +23,24 @@ export class ButtonService {
   }
 
   public pressDouble() {
-        this.websocketService.send({
+    this.websocketService.send({
       cmd: CmdButtonId,
       parm: { action: "double" } as CmdButton
     } as Cmd)
   }
 
   public pressLong() {
-        this.websocketService.send({
+    this.websocketService.send({
       cmd: CmdButtonId,
       parm: { action: "long" } as CmdButton
     } as Cmd)
   }
+
+  public toggleLock() {
+    this.websocketService.send({
+      cmd: CmdButtonId,
+      parm: { action: "toggleLock" } as CmdButton
+    } as Cmd)
+  }
+
 }
