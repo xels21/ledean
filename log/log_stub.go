@@ -14,7 +14,9 @@ func SetLogger(logLevelStr string) error {
 // Trace logs a message at level Trace on the standard logger.
 func Trace(args ...interface{}) {
 	// log.Trace(args...)
-	log.Print(args...)
+	if false {
+		log.Print(args...)
+	}
 }
 
 // Debug logs a message at level Debug on the standard logger.

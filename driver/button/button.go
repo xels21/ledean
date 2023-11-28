@@ -1,18 +1,24 @@
 package button
 
 import (
+	"ledean/dbdriver"
 	"ledean/driver/pin"
+	"ledean/json"
 	"ledean/log"
 	"ledean/websocket"
 	"time"
+
+	"errors"
 )
 
 const DEBOUNCE_NS = 50 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/
 
 type Button struct {
+	dbdriver           *dbdriver.DbDriver
 	gpio               string
 	longPressMs        int
 	pressDoubleTimeout int
+	isLocked           bool `json:"isLocked"`
 	pin                *pin.Pin
 	cbPressLong        []func()
 	cbPressSingle      []func()
@@ -21,11 +27,13 @@ type Button struct {
 	pCmdButtonChannel  *chan websocket.CmdButton
 }
 
-func NewButton(gpio string, longPressMs int, pressDoubleTimeout int, hub *websocket.Hub) *Button {
+func NewButton(dbdriver *dbdriver.DbDriver, gpio string, longPressMs int, pressDoubleTimeout int, hub *websocket.Hub) *Button {
 
 	self := Button{
+		dbdriver:           dbdriver,
 		longPressMs:        longPressMs,
 		pressDoubleTimeout: pressDoubleTimeout,
+		isLocked:           false,
 		pin:                pin.NewPin(gpio),
 		cbPressLong:        make([]func(), 0, 4),
 		cbPressSingle:      make([]func(), 0, 4),
@@ -34,13 +42,28 @@ func NewButton(gpio string, longPressMs int, pressDoubleTimeout int, hub *websoc
 		pCmdButtonChannel:  hub.GetCmdButtonChannel(),
 	}
 
+	err := dbdriver.Read("button", "isLocked", &self.isLocked)
+	if err != nil {
+		log.Info(err)
+	}
+
 	if hub != nil {
 		go self.socketHandler()
+		self.hub.AppendInitClientCb(self.initClientCb)
 	}
 
 	go self.listen()
 
 	return &self
+}
+
+func (self *Button) initClientCb(client *websocket.Client) {
+	err, cmd := self.GetCmdButtonIsLocked()
+	if err != nil {
+		log.Info(err)
+		return
+	}
+	client.SendCmd(cmd)
 }
 
 func (self *Button) socketHandler() {
@@ -53,6 +76,8 @@ func (self *Button) socketHandler() {
 			self.PressDouble()
 		case "long":
 			self.PressLong()
+		case "toggleLock":
+			self.ToggleLock()
 		default:
 			log.Info("Unknown button action: ", cmdButton.Action)
 		}
@@ -159,11 +184,49 @@ func trigger(cbs []func()) {
 }
 
 func (self *Button) PressSingle() {
-	trigger(self.cbPressSingle)
+	if !self.isLocked {
+		trigger(self.cbPressSingle)
+	}
 }
 func (self *Button) PressDouble() {
-	trigger(self.cbPressDouble)
+	if !self.isLocked {
+		trigger(self.cbPressDouble)
+	}
 }
 func (self *Button) PressLong() {
-	trigger(self.cbPressLong)
+	if !self.isLocked {
+		trigger(self.cbPressLong)
+	}
+}
+func (self *Button) ToggleLock() {
+	self.isLocked = !self.isLocked
+	self.dbdriver.Write("button", "isLocked", self.isLocked)
+	self.BroadcastButtonIsLocked()
+}
+
+func (self *Button) BroadcastButtonIsLocked() {
+	err, cmd := self.GetCmdButtonIsLocked()
+	if err != nil {
+		log.Info(err)
+		return
+	}
+	self.hub.Boradcast(cmd)
+}
+
+func (self *Button) GetCmdButtonIsLocked() (error, websocket.Cmd) {
+	if self.hub == nil {
+		return errors.New("no hub"), websocket.Cmd{}
+	}
+	isLocked := "unlocked"
+	if self.isLocked {
+		isLocked = "locked"
+	}
+	cmdButtonJSON, err := json.Marshal(websocket.CmdButton{Action: isLocked})
+	if err != nil {
+		return err, websocket.Cmd{}
+	} else {
+		return nil, websocket.Cmd{
+			Command:   websocket.CmdButtonId,
+			Parameter: cmdButtonJSON}
+	}
 }

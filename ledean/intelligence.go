@@ -42,7 +42,7 @@ func Run(parm *Parameter) *LEDeanInstance {
 		self.hub = websocket.NewHub()
 	}
 
-	self.button = button.NewButton(parm.GpioButton, parm.PressLongMs, parm.PressDoubleTimeout, self.hub)
+	self.button = button.NewButton(self.dbdriver, parm.GpioButton, parm.PressLongMs, parm.PressDoubleTimeout, self.hub)
 
 	self.display = display.NewDisplay(parm.LedCount, parm.LedRows, parm.GpioLedData, parm.ReverseRows, self.hub)
 	if !parm.IsPictureMode {

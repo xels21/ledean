@@ -106,6 +106,14 @@ func (self *ModeTransitionRainbow) calcDisplay() {
 				self.ledsHSV[i].H += 360.0
 			}
 		}
+
+		//NOT NICE
+		// sin1fac := 3.0
+		// sin1off := 1.0
+		// sin2fac := 1.0
+		// sin2off := 2.2
+		// sinval := self.ledsHSV[i].H / 360.0 * 2 * math.Pi
+		// self.ledsHSV[i].S = ((math.Sin(sinval*sin1fac+sin1off) * math.Sin(sinval*sin2fac+sin2off)) + 1.0) / 2.0
 	}
 
 	self.display.ApplySingleRowHSV(self.ledsHSV)
