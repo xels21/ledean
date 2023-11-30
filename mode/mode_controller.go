@@ -32,6 +32,7 @@ type ModeController struct {
 	modeRunningLed        *ModeRunningLed
 	modeEmitter           *ModeEmitter
 	modeGradient          *ModeGradient
+	modeSpectrum          *ModeSpectrum
 	pCmdModeActionChannel *chan websocket.CmdModeAction
 	pCmdModeChannel       *chan websocket.CmdMode
 }
@@ -49,10 +50,11 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 		modeRunningLed:        NewModeRunningLed(dbdriver, display),
 		modeEmitter:           NewModeEmitter(dbdriver, display),
 		modeGradient:          NewModeGradient(dbdriver, display),
+		modeSpectrum:          NewModeSpectrum(dbdriver, display),
 		pCmdModeActionChannel: hub.GetCmdModeActionChannel(),
 		pCmdModeChannel:       hub.GetCmdModeChannel(),
 	}
-	self.modes = []Mode{self.modeSolid, self.modeSolidRainbow, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient}
+	self.modes = []Mode{self.modeSolid, self.modeSolidRainbow, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient, self.modeSpectrum}
 	self.modesLength = uint8(len(self.modes))
 
 	err := dbdriver.Read("modeController", "modesIndex", &self.modesIndex)
@@ -141,12 +143,25 @@ func (self *ModeController) handleModeParameterUpdate(cmdMode websocket.CmdMode)
 			return
 		}
 		self.modeTransitionRainbow.SetParameter(modeTransitionRainbowParameter)
+	case self.modeSpectrum.name:
+		var modeSpectrumParameter ModeSpectrumParameter
+		err := json.Unmarshal(cmdMode.Parameter, &modeSpectrumParameter)
+		if err != nil {
+			log.Info("could not parse spectrum parameter: ", cmdMode.Parameter)
+			return
+		}
+		self.modeSpectrum.SetParameter(modeSpectrumParameter)
 	}
 	self.BroadcastCurrentMode()
 }
 
 func (self *ModeController) SwitchIndexFriendlyName(friendlyName string) {
-	self.SwitchIndex(self.GetIndexOf(friendlyName))
+	i := self.GetIndexOf(friendlyName)
+	if i == 255 {
+		log.Info("could not switch to '" + friendlyName + "'")
+		return
+	}
+	self.SwitchIndex(i)
 }
 
 func (self *ModeController) GetIndexOf(friendlyName string) uint8 {
