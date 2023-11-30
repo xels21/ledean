@@ -21,6 +21,9 @@
         <li class="tab col "><a href="#{{modesService.modeGradientService.getName()}}"
             (click)="modesService.switchState(modesService.modeGradientService.getName())">{{modesService.modeGradientService.getShortName()}}</a>
         </li>
+        <li class="tab col "><a href="#{{modesService.modeSpectrumService.getName()}}"
+          (click)="modesService.switchState(modesService.modeSpectrumService.getName())">{{modesService.modeSpectrumService.getShortName()}}</a>
+      </li>
 
         <!-- <li *ngFor="let modeServices of modesService.modeServices" class="tab col"><a  href="#{{modeServices.getName()}}"(click)="modesService.switchState(modeServices.getName())">{{modeServices.getShortName()}}</a></li> -->
       </ul>
@@ -42,6 +45,9 @@
     </div>
     <div id="{{modesService.modeGradientService.getName()}}" class="col s12">
       <app-mode-gradient></app-mode-gradient>
+    </div>
+    <div id="{{modesService.modeSpectrumService.getName()}}" class="col s12">
+      <app-mode-spectrum></app-mode-spectrum>
     </div>
   </div>
 

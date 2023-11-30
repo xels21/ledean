@@ -13,6 +13,7 @@ import { WebsocketService } from './websocket/websocket.service';
 
 import { ModeEmitterService } from './modes/mode-emitter/mode-emitter.service';
 import { ModeGradientService } from './modes/mode-gradient/mode-gradient.service';
+import { ModeSpectrumService } from './modes/mode-spectrum/mode-spectrum.service';
 import { ModeRunningLedService } from './modes/mode-running-led/mode-running-led.service';
 import { ModeSolidService } from './modes/mode-solid/mode-solid.service';
 import { ModeSolidRainbowService } from './modes/mode-solid-rainbow/mode-solid-rainbow.service';
@@ -29,6 +30,7 @@ import { ModeRunningLedComponent } from './modes/mode-running-led/mode-running-l
 import { ModeTransitionRainbowComponent } from './modes/mode-transition-rainbow/mode-transition-rainbow.component';
 import { ModeEmitterComponent } from './modes/mode-emitter/mode-emitter.component';
 import { ModeGradientComponent } from './modes/mode-gradient/mode-gradient.component';
+import { ModeSpectrumComponent } from './modes/mode-spectrum/mode-spectrum.component';
 
 
 @NgModule({
@@ -49,7 +51,8 @@ import { ModeGradientComponent } from './modes/mode-gradient/mode-gradient.compo
     ModeRunningLedComponent,
     ModeTransitionRainbowComponent,
     ModeEmitterComponent,
-    ModeGradientComponent
+    ModeGradientComponent,
+    ModeSpectrumComponent
   ],
   providers: [
     LedsService,
@@ -58,6 +61,7 @@ import { ModeGradientComponent } from './modes/mode-gradient/mode-gradient.compo
     WebsocketService,
     ModeEmitterService,
     ModeGradientService,
+    ModeSpectrumService,
     ModeRunningLedService,
     ModeSolidService,
     ModeSolidRainbowService,

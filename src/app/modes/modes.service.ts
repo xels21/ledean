@@ -3,11 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { WebsocketService } from '../websocket/websocket.service';
 import { ModeEmitterService } from '../modes/mode-emitter/mode-emitter.service';
 import { ModeGradientService } from '../modes/mode-gradient/mode-gradient.service';
+import { ModeSpectrumService } from '../modes/mode-spectrum/mode-spectrum.service';
 import { ModeRunningLedService } from '../modes/mode-running-led/mode-running-led.service';
 import { ModeSolidService } from '../modes/mode-solid/mode-solid.service';
 import { ModeSolidRainbowService } from '../modes/mode-solid-rainbow/mode-solid-rainbow.service';
 import { ModeTransitionRainbowService } from '../modes/mode-transition-rainbow/mode-transition-rainbow.service';
-import { Cmd, CmdMode,CmdModeId, CmdModeLimits, CmdModeResolver } from '../websocket/commands';
+import { Cmd, CmdMode, CmdModeId, CmdModeLimits, CmdModeResolver } from '../websocket/commands';
 import { SuperMode } from './super-mode';
 
 
@@ -25,6 +26,7 @@ export class ModesService {
   constructor(private httpClient: HttpClient, private websocketService: WebsocketService
     , public modeEmitterService: ModeEmitterService
     , public modeGradientService: ModeGradientService
+    , public modeSpectrumService: ModeSpectrumService
     , public modeRunningLedService: ModeRunningLedService
     , public modeSolidRainbowService: ModeSolidRainbowService
     , public modeSolidService: ModeSolidService
@@ -46,6 +48,9 @@ export class ModesService {
         break;
       case this.modeGradientService.getName():
         this.modeGradientService.receiveParameter(cmdMode.parm)
+        break;
+      case this.modeSpectrumService.getName():
+        this.modeSpectrumService.receiveParameter(cmdMode.parm)
         break;
       case this.modeRunningLedService.getName():
         this.modeRunningLedService.receiveParameter(cmdMode.parm)
@@ -73,6 +78,9 @@ export class ModesService {
         break;
       case this.modeGradientService.getName():
         this.modeGradientService.receiveLimits(cmdModeLimits.limits)
+        break;
+      case this.modeSpectrumService.getName():
+        this.modeSpectrumService.receiveLimits(cmdModeLimits.limits)
         break;
       case this.modeRunningLedService.getName():
         this.modeRunningLedService.receiveLimits(cmdModeLimits.limits)
