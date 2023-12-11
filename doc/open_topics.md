@@ -1,4 +1,6 @@
-## no output with ESP32 (Chip: ESP32-D0WD-V3 (revision v3.0))
+# Open Topics
+
+## [CLOSED]no output with ESP32 (Chip: ESP32-D0WD-V3 (revision v3.0))
 
 Something is wrong with the protocol timing for WS28x (NZP).
 I guess the new generaton of ESP32 uC has higher frequency, but tinygo lib provides lower.
@@ -6,7 +8,7 @@ I guess the new generaton of ESP32 uC has higher frequency, but tinygo lib provi
 So the generated ASM code is too fast (should be ~300ms, is ~250ns)
 
 I fixed it quick and dirty by hard overwriting the template:
-`pkg\mod\tinygo.org\x\drivers@v0.23.0\ws2812\ws2812_xtensa.go`
+`pkg/mod/tinygo.org/x/drivers@v0.26.0/ws2812/ws2812_xtensa.go`
 
 ```go
 	switch machine.CPUFrequency() {
@@ -17,3 +19,10 @@ I fixed it quick and dirty by hard overwriting the template:
 			nop                               // [37]
 ```
 here I added 6 more `nop`'s (extended 37 to 43)
+
+### solution
+Update delivered in a fork
+`https://github.com/xels21/tinygo-drivers`
+and adjust in gomod
+`replace tinygo.org/x/drivers => github.com/xels21/tinygo-drivers v0.0.0-20231211215924-957e975a7b22`
+
