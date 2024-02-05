@@ -352,11 +352,26 @@ func (self *ModeController) Stop() {
 	if self.active {
 		log.Trace("stop")
 		self.DeactivateCurrentMode()
-		self.display.Clear()
-		self.display.Render()
 		self.active = false
+		go self.intervallClearScreen(10 * time.Second)
 	}
 }
+
+// Just a helper function to clear leds which are on by accident
+func (self *ModeController) intervallClearScreen(invervall time.Duration) {
+	timer := time.NewTimer(invervall)
+	for !self.active {
+		timer.Reset(invervall)
+		self.clearScreen()
+		<-timer.C
+	}
+}
+
+func (self *ModeController) clearScreen() {
+	self.display.Clear()
+	self.display.Render()
+}
+
 func (self *ModeController) Restart() {
 	if self.active {
 		log.Trace("restart")
