@@ -29,6 +29,9 @@ type Button struct {
 
 func NewButton(dbdriver *dbdriver.DbDriver, gpio string, longPressMs int, pressDoubleTimeout int, hub *websocket.Hub) *Button {
 
+	if gpio == "" {
+		return nil
+	}
 	self := Button{
 		dbdriver:           dbdriver,
 		longPressMs:        longPressMs,
@@ -51,6 +54,10 @@ func NewButton(dbdriver *dbdriver.DbDriver, gpio string, longPressMs int, pressD
 		go self.socketHandler()
 		self.hub.AppendInitClientCb(self.initClientCb)
 	}
+
+	self.AddCbPressSingle(func() { log.Info("PRESS_SINGLE") })
+	self.AddCbPressDouble(func() { log.Info("PRESS_DOUBLE") })
+	self.AddCbPressLong(func() { log.Info("PRESS_LONG") })
 
 	go self.listen()
 

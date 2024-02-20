@@ -392,7 +392,9 @@ func (self *ModeController) Randomize() {
 }
 
 func (self *ModeController) registerEvents() {
-	self.button.AddCbPressSingle(self.NextMode)
-	self.button.AddCbPressDouble(self.Randomize)
-	self.button.AddCbPressLong(self.StartStop)
+	if self.button != nil {
+		self.button.AddCbPressSingle(self.NextMode)
+		self.button.AddCbPressDouble(self.Randomize)
+		self.button.AddCbPressLong(self.StartStop)
+	}
 }

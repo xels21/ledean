@@ -8,9 +8,9 @@ import (
 
 	"ledean/log"
 
-	"periph.io/x/periph/conn/physic"
-	"periph.io/x/periph/conn/spi/spireg"
-	"periph.io/x/periph/experimental/devices/nrzled"
+	"periph.io/x/conn/v3/physic"
+	"periph.io/x/conn/v3/spi/spireg"
+	"periph.io/x/devices/v3/nrzled"
 )
 
 type PiWs28xConnector struct {

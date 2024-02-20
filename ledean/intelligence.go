@@ -49,13 +49,9 @@ func Run(parm *Parameter) *LEDeanInstance {
 		self.modeController = mode.NewModeController(self.dbdriver, self.display, self.button, self.hub)
 	}
 
-	self.button.AddCbPressSingle(func() { log.Info("PRESS_SINGLE") })
-	self.button.AddCbPressDouble(func() { log.Info("PRESS_DOUBLE") })
-	self.button.AddCbPressLong(func() { log.Info("PRESS_LONG") })
-
 	if !parm.NoGui {
 		go self.hub.Run()
-		go webserver.Start(parm.Address, parm.Port, parm.Path2Frontend, self.modeController, self.button, self.hub)
+		go webserver.Start(parm.Address, parm.Port, parm.Path2Frontend, self.modeController, self.hub)
 	}
 
 	if parm.DirectStart {

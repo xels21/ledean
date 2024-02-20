@@ -3,7 +3,7 @@
 
 package driver
 
-import "periph.io/x/periph/host"
+import "periph.io/x/host/v3"
 
 func Init() {
 	host.Init()

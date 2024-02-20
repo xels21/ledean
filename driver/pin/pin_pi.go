@@ -5,9 +5,10 @@ package pin
 
 import (
 	"ledean/log"
-	"periph.io/x/periph/conn/gpio"
-	"periph.io/x/periph/conn/gpio/gpioreg"
 	"time"
+
+	"periph.io/x/conn/v3/gpio"
+	"periph.io/x/conn/v3/gpio/gpioreg"
 )
 
 type Pin struct {

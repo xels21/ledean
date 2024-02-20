@@ -177,7 +177,7 @@ func (c *Client) writePump() {
 
 			err := c.conn.WriteJSON(send)
 			if err != nil {
-				c.closeConnection()
+				// c.closeConnection() //will be done by defer
 				return
 				// if err.Error() == "websocket: close sent" {
 				// log.Debug("clean up client connection")

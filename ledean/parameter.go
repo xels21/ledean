@@ -33,7 +33,7 @@ type Parameter struct {
 
 func GetParameter() *Parameter {
 	var parm Parameter
-	flag.StringVar(&parm.GpioButton, "gpio_button", "GPIO17", "gpio_pin for the button")
+	flag.StringVar(&parm.GpioButton, "gpio_button", "", "gpio_pin for the button")
 	flag.StringVar(&parm.GpioLedData, "gpio_led_data", "",
 		`For uC:
 	Define a Gpio pin

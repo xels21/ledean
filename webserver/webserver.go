@@ -4,7 +4,6 @@
 package webserver
 
 import (
-	"ledean/driver/button"
 	"ledean/mode"
 	"ledean/websocket"
 	"net/http"
@@ -17,7 +16,7 @@ import (
 	"github.com/rs/cors"
 )
 
-func Start(addr string, port int, path2Frontend string, modeController *mode.ModeController, button *button.Button, hub *websocket.Hub) {
+func Start(addr string, port int, path2Frontend string, modeController *mode.ModeController, hub *websocket.Hub) {
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
 		// AllowedOrigins: []string{"http://127.0.0.1*", "http://localhost*"},

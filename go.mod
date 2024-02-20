@@ -9,7 +9,9 @@ require (
 	github.com/sdomino/scribble v0.0.0-20230717151034-b95d4df19aa8
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.7.0
-	periph.io/x/periph v3.7.0+incompatible
+	periph.io/x/conn/v3 v3.7.0
+	periph.io/x/devices/v3 v3.7.0
+	periph.io/x/host/v3 v3.8.0
 	tinygo.org/x/drivers v0.26.0
 )
 
