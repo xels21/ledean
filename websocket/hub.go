@@ -7,6 +7,7 @@ package websocket
 import (
 	"ledean/log"
 	"net/http"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
@@ -14,6 +15,8 @@ import (
 type Hub struct {
 	// Registered clients.
 	clients map[*Client]bool
+
+	clientsLock sync.Mutex
 
 	// Incomming commaand from the clients.
 	// just a forwarder to the command_handler
@@ -70,11 +73,16 @@ func (self *Hub) Run() {
 	for {
 		select {
 		case client := <-self.register:
+			self.clientsLock.Lock()
 			self.clients[client] = true
 			self.clientInit(client)
+			self.clientsLock.Unlock()
 		case client := <-self.unregister:
 			if _, ok := self.clients[client]; ok {
+				self.clientsLock.Lock()
 				delete(self.clients, client)
+				self.clientsLock.Unlock()
+				client.conn.Close()
 				close(client.send)
 			}
 
@@ -119,9 +127,11 @@ func (self *Hub) handleCommand(cmd Cmd) {
 }
 
 func (self *Hub) Boradcast(cmd Cmd) {
+	self.clientsLock.Lock()
 	for client := range self.clients {
 		client.send <- cmd
 	}
+	self.clientsLock.Unlock()
 }
 
 // serveWs handles websocket requests from the peer.

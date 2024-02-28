@@ -151,7 +151,6 @@ func (self *Client) handleCommand(cmd *Cmd) {
 func (c *Client) closeConnection() {
 	log.Info("Close connection")
 	c.hub.unregister <- c
-	c.conn.Close()
 }
 
 // writePump pumps messages from the hub to the websocket connection.
