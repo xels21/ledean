@@ -62,7 +62,7 @@ func (self *ModeSuper) Activate() {
 		self.display.Render()
 		self.display.ForceLedsChanged() //needed for delayed display render
 	case RenderTypeDynamic:
-		ticker := time.NewTicker(RefreshIntervalNs)
+		ticker := time.NewTicker(self.display.GetRefreshIntervalNs())
 		go func() {
 			for {
 				select {

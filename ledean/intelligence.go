@@ -44,7 +44,7 @@ func Run(parm *Parameter) *LEDeanInstance {
 
 	self.button = button.NewButton(self.dbdriver, parm.GpioButton, parm.PressLongMs, parm.PressDoubleTimeout, self.hub)
 
-	self.display = display.NewDisplay(parm.LedCount, parm.LedRows, parm.GpioLedData, parm.ReverseRows, self.hub)
+	self.display = display.NewDisplay(parm.LedCount, parm.LedRows, parm.GpioLedData, parm.ReverseRows, parm.Fps, self.hub)
 	if !parm.IsPictureMode {
 		self.modeController = mode.NewModeController(self.dbdriver, self.display, self.button, self.hub)
 	}

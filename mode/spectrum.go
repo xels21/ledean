@@ -11,6 +11,7 @@ import (
 )
 
 type ModeSpectrumPosition struct {
+	refreshIntervalNs time.Duration
 	factor            float64
 	factorPercent     float64
 	factorPercentStep float64
@@ -36,8 +37,8 @@ func (self *ModeSpectrumPosition) StepForward() {
 }
 
 func (self *ModeSpectrumPosition) postSetParameter() {
-	self.factorPercentStep = 1.0 / float64(self.parm.FacRoundTimeMs) * float64(RefreshIntervalNs) / 1000.0 /*us*/ / 1000.0 /*ms*/
-	self.offsetPercentStep = 1.0 / float64(self.parm.OffRoundTimeMs) * float64(RefreshIntervalNs) / 1000.0 /*us*/ / 1000.0 /*ms*/
+	self.factorPercentStep = 1.0 / float64(self.parm.FacRoundTimeMs) * float64(self.refreshIntervalNs) / 1000.0 /*us*/ / 1000.0 /*ms*/
+	self.offsetPercentStep = 1.0 / float64(self.parm.OffRoundTimeMs) * float64(self.refreshIntervalNs) / 1000.0 /*us*/ / 1000.0 /*ms*/
 	self.factorPercent = rand.Float64()
 	self.offsetPercent = rand.Float64()
 }
@@ -152,6 +153,7 @@ func (self *ModeSpectrum) SetParameter(parm ModeSpectrumParameter) {
 func (self *ModeSpectrum) postSetParameter() {
 	for i := range self.positions {
 		self.positions[i].parm = &self.parameter.Positions[i]
+		self.positions[i].refreshIntervalNs = self.display.GetRefreshIntervalNs()
 		self.positions[i].postSetParameter()
 	}
 

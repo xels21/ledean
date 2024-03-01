@@ -22,6 +22,7 @@ type Parameter struct {
 	Path2Frontend      string `json:"path2Frontend"`
 	Address            string `json:"address"`
 	Port               int    `json:"port"`
+	Fps                int    `json:"fps"`
 	Path2DB            string `json:"path2Db"`
 	ReverseRows        string `json:"reverseRows"`
 	NoGui              bool   `json:"noGui"`
@@ -65,6 +66,7 @@ For RPi (using SPI):
 	flag.StringVar(&parm.Path2Frontend, "path2frontend", "", "path to static frontend. Keep it empty to dont serve static files")
 	flag.StringVar(&parm.Address, "address", "0.0.0.0", "Local adress. Set it to '' to make the interface globally adressable")
 	flag.IntVar(&parm.Port, "port", 2211, "Port for webserver")
+	flag.IntVar(&parm.Fps, "fps", 40, "Display refresh rate. Should be between 1 and 200")
 	flag.StringVar(&parm.Path2DB, "path2db", "db", "Path to DB folder (folder with json files)")
 	flag.StringVar(&parm.ReverseRows, "reverse_rows", "0", "defines, which rows should be reversed (e.g. if second row is reversed: 0,1,0,0")
 	// pathToDB := flag.String("db", "../db", "Path to database folder")

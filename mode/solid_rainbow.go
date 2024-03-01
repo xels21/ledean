@@ -73,7 +73,7 @@ func (self *ModeSolidRainbow) SetParameter(parm ModeSolidRainbowParameter) {
 
 func (self *ModeSolidRainbow) postSetParameter() {
 	self.parameter.Hsv.V = self.parameter.Brightness
-	self.stepSizeHue = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(RefreshIntervalNs) / 1000 / 1000 / 1000)
+	self.stepSizeHue = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(self.display.GetRefreshIntervalNs()) / 1000 / 1000 / 1000)
 }
 
 func (self *ModeSolidRainbow) calcDisplay() {

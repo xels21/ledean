@@ -101,9 +101,9 @@ func (self *ModeRunningLed) postSetParameter() {
 	if self.parameter.HueFrom > self.parameter.HueTo {
 		self.hueDistanceFct = -1.0
 	}
-	self.positionDegStepSize = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(RefreshIntervalNs) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
-	self.darkenStepSize = (1 / self.parameter.FadePct) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(RefreshIntervalNs) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
-	self.lightenStepSize = 2 * self.parameter.Brightness * (float64(self.display.GetRowLedCount())) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(RefreshIntervalNs) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
+	self.positionDegStepSize = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(self.display.GetRefreshIntervalNs()) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
+	self.darkenStepSize = (1 / self.parameter.FadePct) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(self.display.GetRefreshIntervalNs()) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
+	self.lightenStepSize = 2 * self.parameter.Brightness * (float64(self.display.GetRowLedCount())) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(self.display.GetRefreshIntervalNs()) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
 }
 
 func (self *ModeRunningLed) darkenLeds() {

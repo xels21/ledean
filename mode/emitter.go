@@ -22,15 +22,16 @@ const (
 )
 
 type ModeEmit struct {
-	pParameter      *ModeEmitterParameter
-	HueFrom         float64
-	HueTo           float64
-	Brightness      float64
-	LifetimeMs      uint32
-	PositionPer     float64
-	ImpactPer       float64
-	ProgressPer     float64
-	ProgressPerStep float64
+	pParameter        *ModeEmitterParameter
+	refreshIntervalNs time.Duration
+	HueFrom           float64
+	HueTo             float64
+	Brightness        float64
+	LifetimeMs        uint32
+	PositionPer       float64
+	ImpactPer         float64
+	ProgressPer       float64
+	ProgressPerStep   float64
 }
 
 func (self *ModeEmit) addPulseToLeds(leds []color.HSV) {
@@ -127,9 +128,9 @@ func (self *ModeEmit) randomize() {
 	self.ProgressPer = -rand.Float64() * MaxCooldown
 	switch self.pParameter.EmitStyle {
 	case EmitStylePulse:
-		self.ProgressPerStep = 1.0 / (float64(self.LifetimeMs) / 1000) * (float64(RefreshIntervalNs) / 1000 / 1000 / 1000)
+		self.ProgressPerStep = 1.0 / (float64(self.LifetimeMs) / 1000) * (float64(self.refreshIntervalNs) / 1000 / 1000 / 1000)
 	case EmitStyleDrop:
-		self.ProgressPerStep = 1.0 / self.pParameter.WaveSpeedFac * self.Brightness * self.pParameter.WaveWidthFac * (float64(RefreshIntervalNs) / 1000 / 1000 / 1000)
+		self.ProgressPerStep = 1.0 / self.pParameter.WaveSpeedFac * self.Brightness * self.pParameter.WaveWidthFac * (float64(self.refreshIntervalNs) / 1000 / 1000 / 1000)
 	default:
 		self.ProgressPerStep = 1.0
 	}
@@ -179,6 +180,7 @@ func NewModeEmitter(dbdriver *dbdriver.DbDriver, display *display.Display) *Mode
 	self.emits = make([]ModeEmit, self.limits.MaxEmitCount)
 	for i := uint8(0); i < self.limits.MaxEmitCount; i++ {
 		self.emits[i].pParameter = &self.parameter
+		self.emits[i].refreshIntervalNs = self.display.GetRefreshIntervalNs()
 	}
 
 	err := dbdriver.Read(self.name, "parameter", &self.parameter)

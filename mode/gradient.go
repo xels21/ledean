@@ -121,7 +121,7 @@ func (self *ModeGradientPosition) Randomize() {
 }
 
 func (self *ModeGradient) postSetParameter() {
-	self.percentStep = 100 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(RefreshIntervalNs) / 1000 / 1000 / 1000)
+	self.percentStep = 100 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(self.display.GetRefreshIntervalNs()) / 1000 / 1000 / 1000)
 
 	for i := range self.positions {
 		self.positions[i].Randomize()

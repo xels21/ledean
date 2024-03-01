@@ -22,12 +22,14 @@ type DisplayBase struct {
 	buffer               []byte
 	displayTimer         *time.Timer
 	hub                  *websocket.Hub
+	fps                  int //not used in display, but its central point for the modes
+	refreshIntervalNs    time.Duration
 
 	// active           bool
 	// modeController *mode.ModeController //[]mode.Mode
 }
 
-func NewDisplayBase(led_count int, led_rows int, reverse_rows_raw string, hub *websocket.Hub) *DisplayBase {
+func NewDisplayBase(led_count int, led_rows int, reverse_rows_raw string, fps int, hub *websocket.Hub) *DisplayBase {
 	self := DisplayBase{
 		led_count:            led_count,
 		led_rows:             led_rows,
@@ -39,6 +41,9 @@ func NewDisplayBase(led_count int, led_rows int, reverse_rows_raw string, hub *w
 		buffer:               make([]byte, 9*led_count),
 		displayTimer:         time.NewTimer(DISPLAY_TIMER_DELAY * time.Millisecond),
 		hub:                  hub,
+		fps:                  fps,
+		refreshIntervalNs:    time.Duration(1000 /*ms*/ *1000 /*us*/ *1000 /*ns*/ /fps) * time.Nanosecond,
+
 		// active:    false,
 	}
 
@@ -57,6 +62,14 @@ func NewDisplayBase(led_count int, led_rows int, reverse_rows_raw string, hub *w
 	}
 
 	return &self
+}
+
+func (self *DisplayBase) GetFps() int {
+	return self.fps
+}
+
+func (self *DisplayBase) GetRefreshIntervalNs() time.Duration {
+	return self.refreshIntervalNs
 }
 
 func (self *DisplayBase) GetLedsJson() []byte {

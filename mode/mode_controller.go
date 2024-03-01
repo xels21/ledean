@@ -12,10 +12,10 @@ import (
 	"ledean/log"
 )
 
-const (
-	FPS               = 40
-	RefreshIntervalNs = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / FPS) * time.Nanosecond)
-)
+// const (
+// 	FPS               = 40
+// 	RefreshIntervalNs = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / FPS) * time.Nanosecond)
+// )
 
 type ModeController struct {
 	dbdriver              *dbdriver.DbDriver

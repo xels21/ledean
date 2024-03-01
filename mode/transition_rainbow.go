@@ -86,7 +86,7 @@ func (self *ModeTransitionRainbow) SetParameter(parm ModeTransitionRainbowParame
 }
 
 func (self *ModeTransitionRainbow) postSetParameter() {
-	self.progressDegStepSize = 360 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(RefreshIntervalNs) / 1000 / 1000 / 1000)
+	self.progressDegStepSize = 360 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(self.display.GetRefreshIntervalNs()) / 1000 / 1000 / 1000)
 	for i := 0; i < len(self.ledsHSV); i++ {
 		self.ledsHSV[i].H = self.ledsHSV[0].H + float64(i)/float64(len(self.ledsHSV))*self.parameter.Spectrum*360.0
 		self.ledsHSV[i].V = self.parameter.Brightness
