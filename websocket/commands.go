@@ -51,6 +51,7 @@ type CmdModeResolver struct {
 
 const (
 	CmdModeActionRandomize string = "randomize"
+	CmdModeActionPlayPause string = "playPause"
 )
 
 type CmdModeAction struct {

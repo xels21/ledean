@@ -33,6 +33,7 @@ type ModeController struct {
 	modeEmitter           *ModeEmitter
 	modeGradient          *ModeGradient
 	modeSpectrum          *ModeSpectrum
+	isPaused              bool
 	pCmdModeActionChannel *chan websocket.CmdModeAction
 	pCmdModeChannel       *chan websocket.CmdMode
 }
@@ -62,6 +63,11 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 		self.SetIndex(0)
 	}
 
+	err = dbdriver.Read("modeController", "isPaused", &self.isPaused)
+	if err != nil {
+		self.isPaused = false
+	}
+
 	self.registerEvents()
 
 	if self.hub != nil {
@@ -80,6 +86,8 @@ func (self *ModeController) socketHandler() {
 			switch cmdModeAction.Action {
 			case websocket.CmdModeActionRandomize:
 				self.Randomize()
+			case websocket.CmdModeActionPlayPause:
+				self.PlayPause()
 			default:
 				log.Info("Unknown mode action: ", cmdModeAction)
 			}
@@ -335,7 +343,7 @@ func (self *ModeController) GetModes() []Mode {
 func (self *ModeController) StartStop() {
 	// TODO: On/Off
 	if self.active {
-		self.Stop()
+		self.Stop(true)
 	} else {
 		self.Start()
 	}
@@ -348,12 +356,14 @@ func (self *ModeController) Start() {
 		self.active = true
 	}
 }
-func (self *ModeController) Stop() {
+func (self *ModeController) Stop(clearScreen bool) {
 	if self.active {
 		log.Trace("stop")
 		self.DeactivateCurrentMode()
 		self.active = false
-		go self.intervallClearScreen(10 * time.Second)
+		if clearScreen {
+			go self.intervallClearScreen(10 * time.Second)
+		}
 	}
 }
 
@@ -388,6 +398,15 @@ func (self *ModeController) Randomize() {
 	self.RandomizeCurrentMode()
 	if self.active {
 		self.ActivateCurrentMode()
+	}
+}
+
+func (self *ModeController) PlayPause() {
+	log.Info("PlayPause")
+	if self.active {
+		self.Stop(false)
+	} else {
+		self.Start()
 	}
 }
 
