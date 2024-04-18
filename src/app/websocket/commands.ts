@@ -9,6 +9,7 @@ export const CmdModeLimitsId = "modeLimits"
 export const CmdModeResolverId = "modeResolver"
 export const CmdModeActionId = "action"
 export const CmdModeActionRandomizeId = "randomize"
+export const CmdModeActionPlayPause = "playPause"
 
 export interface Cmd {
 	cmd: string
