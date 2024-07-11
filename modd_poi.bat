@@ -1,2 +1,2 @@
 cd ../../go/src/ledean
-modd_.bat
+modd_poi_.bat
