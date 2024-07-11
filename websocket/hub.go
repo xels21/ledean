@@ -74,12 +74,14 @@ func (self *Hub) Run() {
 		select {
 		case client := <-self.register:
 			self.clientsLock.Lock()
+			log.Info("Registered client")
 			self.clients[client] = true
 			self.clientInit(client)
 			self.clientsLock.Unlock()
 		case client := <-self.unregister:
 			if _, ok := self.clients[client]; ok {
 				self.clientsLock.Lock()
+				log.Info("Unregistered client")
 				delete(self.clients, client)
 				self.clientsLock.Unlock()
 				client.conn.Close()

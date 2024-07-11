@@ -1,2 +1,3 @@
 cd ../../../angular/ledean_frontend
-ng serve
+@REM ng serve
+npm start

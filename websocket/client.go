@@ -6,7 +6,6 @@ package websocket
 import (
 	"ledean/json"
 	"ledean/log"
-	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -85,28 +84,28 @@ func (c *Client) readPump() {
 		// log.Info(err)
 		err := c.conn.ReadJSON(&cmd)
 		if err != nil {
-			if websocket.IsUnexpectedCloseError(err,
-				websocket.CloseAbnormalClosure,
+			if websocket.IsCloseError(err,
+				// websocket.CloseNormalClosure,
 				websocket.CloseGoingAway,
-				websocket.CloseInternalServerErr,
-				websocket.CloseInvalidFramePayloadData,
-				websocket.CloseMandatoryExtension,
-				websocket.CloseMessage,
-				websocket.CloseMessageTooBig,
-				websocket.CloseNoStatusReceived,
-				websocket.CloseNormalClosure,
-				websocket.ClosePolicyViolation,
-				websocket.CloseProtocolError,
-				websocket.CloseServiceRestart,
-				websocket.CloseTLSHandshake,
-				websocket.CloseTryAgainLater,
-				websocket.CloseUnsupportedData) ||
-				err.Error() == "websocket: close 1001 (going away)" ||
-				strings.Index(err.Error(), "i/o timeout") >= 0 {
-				log.Debug("Error: ", err)
+			// websocket.CloseProtocolError,
+			// websocket.CloseUnsupportedData,
+			// websocket.CloseNoStatusReceived,
+			// websocket.CloseAbnormalClosure,
+			// websocket.CloseInvalidFramePayloadData,
+			// websocket.ClosePolicyViolation,
+			// websocket.CloseMessageTooBig,
+			// websocket.CloseMandatoryExtension,
+			// websocket.CloseInternalServerErr,
+			// websocket.CloseServiceRestart,
+			// websocket.CloseTryAgainLater,
+			// websocket.CloseTLSHandshake,
+			) {
+				// Connection closed due to client, should be unregistered -> return
+				log.Debug("Connection closed with: '", err, "'")
 				return
 			}
-			log.Debug("Error reading json message from client: ", err)
+
+			log.Error("Error reading json message from client: ", err)
 			continue
 		}
 
@@ -149,7 +148,6 @@ func (self *Client) handleCommand(cmd *Cmd) {
 }
 
 func (c *Client) closeConnection() {
-	log.Info("Close connection")
 	c.hub.unregister <- c
 }
 
