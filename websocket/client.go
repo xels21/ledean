@@ -6,6 +6,7 @@ package websocket
 import (
 	"ledean/json"
 	"ledean/log"
+	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -99,7 +100,7 @@ func (c *Client) readPump() {
 			// websocket.CloseServiceRestart,
 			// websocket.CloseTryAgainLater,
 			// websocket.CloseTLSHandshake,
-			) {
+			) || strings.Contains(err.Error(), "i/o timeout") {
 				// Connection closed due to client, should be unregistered -> return
 				log.Debug("Connection closed with: '", err, "'")
 				return
