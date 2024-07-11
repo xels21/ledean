@@ -1,0 +1,1 @@
+modd --file=./modd_poi.conf
