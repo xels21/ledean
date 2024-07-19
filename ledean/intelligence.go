@@ -6,6 +6,7 @@ import (
 	"ledean/driver"
 	"ledean/driver/button"
 	"ledean/mode"
+	"ledean/poi"
 	"ledean/webserver"
 	"ledean/websocket"
 	"time"
@@ -47,6 +48,9 @@ func Run(parm *Parameter) *LEDeanInstance {
 	self.display = display.NewDisplay(parm.LedCount, parm.LedRows, parm.GpioLedData, parm.ReverseRows, parm.Fps, self.hub)
 	if !parm.IsPictureMode {
 		self.modeController = mode.NewModeController(self.dbdriver, self.display, self.button, self.hub)
+	} else {
+		poiMode := poi.NewModePoi(self.dbdriver, self.display)
+		poiMode.Activate()
 	}
 
 	if !parm.NoGui {

@@ -55,6 +55,14 @@ func (self *ModeSuper) GetName() string {
 	return self.name
 }
 
+func (self *ModeSuper) GetDbDriver() *dbdriver.DbDriver {
+	return self.dbdriver
+}
+
+func (self *ModeSuper) GetDisplay() *display.Display {
+	return self.display
+}
+
 func (self *ModeSuper) Activate() {
 	switch self.renderType {
 	case RenderTypeStatic:
