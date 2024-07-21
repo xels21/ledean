@@ -1,5 +1,5 @@
-//go:build tinygo && !poi
-// +build tinygo,!poi
+//go:build tinygo && poi
+// +build tinygo,poi
 
 package main
 
@@ -15,7 +15,7 @@ func main() {
 	//ESP32 REICHI
 	// os.Args = []string{"tinygo_stub", "-gpio_led_data=23", "-gpio_button=22", "-led_count=50", "-direct_start"}
 	//ESP32 BABSTADT
-	os.Args = []string{"tinygo_stub", "-gpio_led_data=23", "-gpio_button=22", "-led_count=50", "-direct_start", "-no_gui"}
+	os.Args = []string{"tinygo_stub", "-gpio_led_data=26", "-led_count=50", "-direct_start", "-no_gui"}
 	//Arduino Nano
 	// os.Args = []string{"tinygo_stub", "-gpio_led_data=2", "-gpio_button=22", "-led_count=50", "-direct_start"}
 	parm := ledean.GetParameter()
