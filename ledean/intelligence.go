@@ -6,7 +6,6 @@ import (
 	"ledean/driver"
 	"ledean/driver/button"
 	"ledean/mode"
-	"ledean/poi"
 	"ledean/webserver"
 	"ledean/websocket"
 	"time"
@@ -18,6 +17,7 @@ type LEDeanInstance struct {
 	dbdriver       *dbdriver.DbDriver
 	display        *display.Display
 	modeController *mode.ModeController
+	modePoi        *mode.ModePoi
 	button         *button.Button
 	hub            *websocket.Hub
 }
@@ -46,11 +46,10 @@ func Run(parm *Parameter) *LEDeanInstance {
 	self.button = button.NewButton(self.dbdriver, parm.GpioButton, parm.PressLongMs, parm.PressDoubleTimeout, self.hub)
 
 	self.display = display.NewDisplay(parm.LedCount, parm.LedRows, parm.GpioLedData, parm.ReverseRows, parm.Fps, self.hub)
-	if !parm.IsPictureMode {
-		self.modeController = mode.NewModeController(self.dbdriver, self.display, self.button, self.hub)
+	if parm.IsPictureMode {
+		self.modeController = mode.NewModeController(self.dbdriver, self.display, self.button, self.hub, parm.IsPictureMode)
 	} else {
-		poiMode := poi.NewModePoi(self.dbdriver, self.display)
-		poiMode.Activate()
+		self.modeController = mode.NewModeController(self.dbdriver, self.display, self.button, self.hub, parm.IsPictureMode)
 	}
 
 	if !parm.NoGui {
@@ -58,10 +57,8 @@ func Run(parm *Parameter) *LEDeanInstance {
 		go webserver.Start(parm.Address, parm.Port, parm.Path2Frontend, self.modeController, self.hub)
 	}
 
-	if parm.DirectStart {
-		if !parm.IsPictureMode {
-			self.modeController.Start()
-		}
+	if parm.DirectStart && !parm.IsPictureMode {
+		self.modeController.Start()
 		// self.modeController.NextMode()
 	}
 

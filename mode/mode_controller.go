@@ -26,6 +26,7 @@ type ModeController struct {
 	modes                 []Mode
 	modesIndex            uint8
 	modesLength           uint8
+	modePoi               *ModePoi
 	modeSolid             *ModeSolid
 	modeSolidRainbow      *ModeSolidRainbow
 	modeTransitionRainbow *ModeTransitionRainbow
@@ -38,13 +39,14 @@ type ModeController struct {
 	pCmdModeChannel       *chan websocket.CmdMode
 }
 
-func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, button *button.Button, hub *websocket.Hub) *ModeController {
+func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, button *button.Button, hub *websocket.Hub, picture_mode bool) *ModeController {
 	self := ModeController{
 		dbdriver:              dbdriver,
 		display:               display,
 		button:                button,
 		hub:                   hub,
 		active:                false,
+		modePoi:               NewModePoi(dbdriver, display),
 		modeSolid:             NewModeSolid(dbdriver, display),
 		modeSolidRainbow:      NewModeSolidRainbow(dbdriver, display),
 		modeTransitionRainbow: NewModeTransitionRainbow(dbdriver, display),
@@ -75,6 +77,9 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 		self.hub.AppendInitClientCb(self.initClientCb)
 	}
 
+	if picture_mode {
+		self.modePoi.Activate()
+	}
 	return &self
 }
 
@@ -215,10 +220,12 @@ func (self *ModeController) NextMode() {
 func (self *ModeController) ActivateCurrentMode() {
 	parm, _ := json.Marshal(self.modes[self.modesIndex].GetParameter())
 	log.Debugf("Start: `%s` with parameter: `%s`", self.modes[self.modesIndex].GetName(), parm)
+	self.active = true
 	self.modes[self.modesIndex].Activate()
 	self.BroadcastCurrentMode()
 }
 func (self *ModeController) DeactivateCurrentMode() {
+	self.active = false
 	self.modes[self.modesIndex].Deactivate()
 }
 func (self *ModeController) RandomizeCurrentMode() {
@@ -353,14 +360,12 @@ func (self *ModeController) Start() {
 	if !self.active {
 		log.Trace("start")
 		self.ActivateCurrentMode()
-		self.active = true
 	}
 }
 func (self *ModeController) Stop(clearScreen bool) {
 	if self.active {
 		log.Trace("stop")
 		self.DeactivateCurrentMode()
-		self.active = false
 		if clearScreen {
 			go self.intervallClearScreen(10 * time.Second)
 		}

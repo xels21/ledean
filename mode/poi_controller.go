@@ -1,4 +1,4 @@
-package poi
+package mode
 
 import (
 	"image"
@@ -6,35 +6,15 @@ import (
 	"ledean/dbdriver"
 	"ledean/display"
 	"ledean/json"
-	"ledean/mode"
-	poi "ledean/poi/gen"
+	poi "ledean/mode/gen_poi"
 	"log"
 	"time"
 
 	"math/rand"
 )
 
-// type PicRGB struct {
-// col []PicCol
-// }
-//
-// type PicCol struct {
-// row []color.RGB
-// }
-//
-// type PictureController struct {
-// pictures []PicRGB
-//
-// display *display.Display
-// leds    []color.RGB
-// }
-
-// display.ApplySingleRowRGB
-
-// activatedLeds: make([]float64, display.GetRowLedCount()),
-
 type ModePoi struct {
-	mode.ModeSuper
+	ModeSuper
 	parameter          ModePoiParameter
 	limits             ModePoiLimits
 	poiPics            []*image.NRGBA
@@ -50,14 +30,14 @@ type ModePoi struct {
 }
 
 type ModePoiParameter struct {
-	PictureColumnMs          uint32 `json:"pictureColumnMs"`
+	PictureColumnNs          uint32 `json:"pictureColumnNs"`
 	PictureChangeIntervallMs uint32 `json:"pictureChangeIntervallMs"`
 	// PicturePath              string `json:"picturePath"`
 }
 
 type ModePoiLimits struct {
-	MinPictureColumnMs          uint32 `json:"minPictureColumnMs"`
-	MaxPictureColumnMs          uint32 `json:"maxPictureColumnMs"`
+	MinPictureColumnNs          uint32 `json:"minPictureColumnNs"`
+	MaxPictureColumnNs          uint32 `json:"maxPictureColumnNs"`
 	MinPictureChangeIntervallMs uint32 `json:"minPictureChangeIntervallMs"`
 	MaxPictureChangeIntervallMs uint32 `json:"maxPictureChangeIntervallMs"`
 }
@@ -70,8 +50,8 @@ func NewModePoi(dbdriver *dbdriver.DbDriver, display *display.Display) *ModePoi 
 	self := ModePoi{
 		// name: "ModePoi",
 		limits: ModePoiLimits{
-			MinPictureColumnMs:          5,
-			MaxPictureColumnMs:          100,
+			MinPictureColumnNs:          30,
+			MaxPictureColumnNs:          5000,
 			MinPictureChangeIntervallMs: 1000,
 			MaxPictureChangeIntervallMs: 60000,
 		}, //here must
@@ -85,11 +65,12 @@ func NewModePoi(dbdriver *dbdriver.DbDriver, display *display.Display) *ModePoi 
 		picProgressPerStep: 0.0,
 		picIndex:           uint8(rand.Uint32() % uint32(len(poi.PoiPics))),
 	}
-	self.ModeSuper = *mode.NewModeSuper(dbdriver, display, "ModePoi", mode.RenderTypeDynamic, self.calcDisplay)
+	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModePoi", RenderTypeDynamic, self.calcDisplay)
 
 	err := dbdriver.Read(self.GetName(), "parameter", &self.parameter)
 	if err != nil {
-		self.Randomize()
+		// self.Randomize()
+		self.Default()
 	} else {
 		self.postSetParameter()
 	}
@@ -97,14 +78,14 @@ func NewModePoi(dbdriver *dbdriver.DbDriver, display *display.Display) *ModePoi 
 	return &self
 }
 
-// func (self *ModePoi) stepForward() {
-// self.ProgressPer += self.ProgressPerStep
-//
-//	if self.ProgressPer > 1.0 {
-//		self.randomize()
-//	}
-//
-// }
+func (self *ModePoi) Default() {
+	rand.Seed(time.Now().UnixNano())
+	parameter := ModePoiParameter{
+		PictureColumnNs:          100,
+		PictureChangeIntervallMs: 10000,
+	}
+	self.SetParameter(parameter)
+}
 
 func (self *ModePoi) GetParameter() interface{} { return &self.parameter }
 func (self *ModePoi) GetLimits() interface{}    { return &self.limits }
@@ -147,7 +128,7 @@ func (self *ModePoi) TrySetParameter(b []byte) error {
 }
 
 func (self *ModePoi) postSetParameter() {
-	self.colProgressPerStep = 1.0 / (float32(self.parameter.PictureColumnMs) / 1000) * (float32(self.GetDisplay().GetRefreshIntervalNs()) / 1000 / 1000 / 1000)
+	self.colProgressPerStep = 1.0 / (float32(self.parameter.PictureColumnNs / 1000 / 1000)) * (float32(self.GetDisplay().GetRefreshIntervalNs()) / 1000 / 1000 / 1000)
 	self.picProgressPerStep = 1.0 / (float32(self.parameter.PictureChangeIntervallMs) / 1000) * (float32(self.GetDisplay().GetRefreshIntervalNs()) / 1000 / 1000 / 1000)
 }
 
@@ -160,7 +141,7 @@ func (self *ModePoi) SetParameter(parm ModePoiParameter) {
 func (self *ModePoi) Randomize() {
 	rand.Seed(time.Now().UnixNano())
 	parameter := ModePoiParameter{
-		PictureColumnMs:          (rand.Uint32())%(self.limits.MaxPictureColumnMs-self.limits.MinPictureColumnMs) + self.limits.MinPictureColumnMs,
+		PictureColumnNs:          (rand.Uint32())%(self.limits.MaxPictureColumnNs-self.limits.MinPictureColumnNs) + self.limits.MinPictureColumnNs,
 		PictureChangeIntervallMs: (rand.Uint32())%(self.limits.MaxPictureChangeIntervallMs-self.limits.MinPictureChangeIntervallMs) + self.limits.MinPictureChangeIntervallMs,
 	}
 	self.SetParameter(parameter)

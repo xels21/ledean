@@ -1,5 +1,6 @@
 *.log
 *.exe
+*.exe~
 __debug_bin
 **/logs/**
 **/temp/**
