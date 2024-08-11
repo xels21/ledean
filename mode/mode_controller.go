@@ -6,6 +6,7 @@ import (
 	"ledean/display"
 	"ledean/driver/button"
 	"ledean/json"
+	poi "ledean/mode/gen_poi"
 	"ledean/websocket"
 	"time"
 
@@ -78,6 +79,9 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 	}
 
 	if picture_mode {
+		if display.GetRowLedCount() != poi.PixelCount {
+			log.Fatal("Display led size[%d] not matching to generated picture size[%d]", display.GetRowLedCount(), poi.PixelCount)
+		}
 		self.modePoi.Activate()
 	}
 	return &self
@@ -203,6 +207,9 @@ func (self *ModeController) GetModeEmitter() *ModeEmitter {
 }
 func (self *ModeController) GetModeGradient() *ModeGradient {
 	return self.modeGradient
+}
+func (self *ModeController) GetModeSpectrum() *ModeSpectrum {
+	return self.modeSpectrum
 }
 
 func (self *ModeController) NextMode() {

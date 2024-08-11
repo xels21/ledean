@@ -1,1 +1,2 @@
-tinygo flash -target=esp32
+@REM tinygo flash -target=esp32
+tinygo flash -target=esp32c3

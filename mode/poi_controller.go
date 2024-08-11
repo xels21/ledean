@@ -7,7 +7,6 @@ import (
 	"ledean/display"
 	"ledean/json"
 	poi "ledean/mode/gen_poi"
-	"log"
 	"time"
 
 	"math/rand"
@@ -43,14 +42,10 @@ type ModePoiLimits struct {
 }
 
 func NewModePoi(dbdriver *dbdriver.DbDriver, display *display.Display) *ModePoi {
-	if display.GetRowLedCount() != poi.PixelCount {
-		log.Fatalf("Display led size[%d] not matching to generated picture size[%d]", display.GetRowLedCount(), poi.PixelCount)
-	}
-
 	self := ModePoi{
 		// name: "ModePoi",
 		limits: ModePoiLimits{
-			MinPictureColumnNs:          30,
+			MinPictureColumnNs:          1,
 			MaxPictureColumnNs:          5000,
 			MinPictureChangeIntervallMs: 1000,
 			MaxPictureChangeIntervallMs: 60000,
@@ -81,8 +76,8 @@ func NewModePoi(dbdriver *dbdriver.DbDriver, display *display.Display) *ModePoi 
 func (self *ModePoi) Default() {
 	rand.Seed(time.Now().UnixNano())
 	parameter := ModePoiParameter{
-		PictureColumnNs:          100,
-		PictureChangeIntervallMs: 10000,
+		PictureColumnNs:          1,
+		PictureChangeIntervallMs: 5000,
 	}
 	self.SetParameter(parameter)
 }
@@ -94,6 +89,13 @@ func getPixel(pic *image.NRGBA, col int, row int) color.RGB {
 	rgba := pic.NRGBAAt(row, col)
 	return color.RGB{R: rgba.R, G: rgba.G, B: rgba.B}
 }
+
+// func PixelsScale(pixels            []color.RGB){
+// 	for i := range pixels {
+// 		pixels[i].B = pixels[i].B
+// 	}
+
+// }
 
 func (self *ModePoi) calcDisplay() {
 	self.picProgress += self.picProgressPerStep
