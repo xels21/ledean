@@ -1,1 +1,1 @@
-tinygo build -target=esp32 -tags poi -o="build/esp32/ledean"
+tinygo build -target=esp32c3 -tags poi -o="build/esp32/ledean"

@@ -6,7 +6,6 @@ package main
 import (
 	"fmt"
 	"ledean/ledean"
-	"ledean/mode"
 	"os"
 )
 
@@ -23,15 +22,16 @@ func main() {
 
 	fmt.Print("Starting with:\n", os.Args, "\n\n")
 
-	pLedean := ledean.Run(parm)
-	injectFavMode(pLedean)
+	ledean.Run(parm)
+	// pLedean := ledean.Run(parm)
+	// injectFavMode(pLedean)
 
 	ledean.RunForever()
 }
 
-func injectFavMode(pLedean *ledean.LEDeanInstance) {
-	modeController := pLedean.GetModeController()
-	modeGradient := modeController.GetModeGradient()
-	modeGradient.SetParameter(mode.ModeGradientParameter{Brightness: 0.08, Count: 3, RoundTimeMs: 6666})
-	modeController.SwitchIndexFriendlyName("ModeGradient")
-}
+// func injectFavMode(pLedean *ledean.LEDeanInstance) {
+// 	modeController := pLedean.GetModeController()
+// 	modeGradient := modeController.GetModeGradient()
+// 	modeGradient.SetParameter(mode.ModeGradientParameter{Brightness: 0.08, Count: 3, RoundTimeMs: 6666})
+// 	modeController.SwitchIndexFriendlyName("ModeGradient")
+// }
