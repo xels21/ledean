@@ -26,6 +26,8 @@ type Parameter struct {
 	Path2DB            string `json:"path2Db"`
 	ReverseRows        string `json:"reverseRows"`
 	NoGui              bool   `json:"noGui"`
+	LedOrder           string `json:"ledOrder"`
+	LedDevice          string `json:"ledDevice"`
 
 	// PathToDB       string
 	// Pw             string
@@ -69,6 +71,8 @@ For RPi (using SPI):
 	flag.IntVar(&parm.Fps, "fps", 40, "Display refresh rate. Should be between 1 and 200")
 	flag.StringVar(&parm.Path2DB, "path2db", "db", "Path to DB folder (folder with json files)")
 	flag.StringVar(&parm.ReverseRows, "reverse_rows", "0", "defines, which rows should be reversed (e.g. if second row is reversed: 0,1,0,0")
+	flag.StringVar(&parm.LedOrder, "led_order", "RGB", "order of LED for SPI. e.g.: BGR|BRG|GRB|RGB")
+	flag.StringVar(&parm.LedDevice, "led_device", "WS2812", "LED device protocol type: WS2812 | APA102")
 	// pathToDB := flag.String("db", "../db", "Path to database folder")
 	// pw := flag.String("pw", "", "Generate pw for user management")
 	// pathToFrontEnd := flag.String("frontend", "../FrontRbc", "Path to frontend folder.\n"+

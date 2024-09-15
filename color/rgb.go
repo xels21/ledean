@@ -62,15 +62,66 @@ func rgb2hue(r float64, b float64, g float64, maxC float64, minC float64) float6
 	return hue
 }
 
+const (
+	// BGR aka "Blue Green Red" is the current APA102 LED color order.
+	SPI_ORDER_BGR = iota
+	// BRG aka "Blue Red Green" is the typical APA102 color order from 2015-2017.
+	SPI_ORDER_BRG
+	// GRB aka "Green Red Blue" is the typical APA102 color order from pre-2015.
+	SPI_ORDER_GRB
+
+	SPI_ORDER_GBR
+
+	SPI_ORDER_RGB
+
+	SPI_ORDER_RBG
+)
+
+func OrderStr2int(ledOrder string) int {
+	switch ledOrder {
+
+	case "BGR":
+		return SPI_ORDER_BGR
+	case "BRG":
+		return SPI_ORDER_BRG
+	case "GRB":
+		return SPI_ORDER_GRB
+	case "GBR":
+		return SPI_ORDER_GBR
+	case "RGB":
+		return SPI_ORDER_RGB
+	case "RBG":
+		return SPI_ORDER_RBG
+	default:
+		return SPI_ORDER_RGB //error
+	}
+}
+
 // DEFAULT
 //
 //	func (self *RGB) ToSpi() []byte {
 //		return []byte{self.R, self.G, self.B}
 //	}
-//
+
 // POI
-func (self *RGB) ToSpi() []byte {
-	return []byte{self.G, self.R, self.B}
+func (self *RGB) ToSpi(order int) []byte {
+	switch order {
+
+	case SPI_ORDER_BGR:
+		return []byte{self.B, self.G, self.R}
+	case SPI_ORDER_BRG:
+		return []byte{self.B, self.R, self.G}
+	case SPI_ORDER_GRB:
+		return []byte{self.G, self.R, self.B}
+	case SPI_ORDER_GBR:
+		return []byte{self.G, self.B, self.R}
+	case SPI_ORDER_RGB:
+		return []byte{self.R, self.G, self.B}
+	case SPI_ORDER_RBG:
+		return []byte{self.R, self.B, self.G}
+	default:
+		return []byte{0, 0, 0} //error
+	}
 }
 
 func (self *RGB) Add(toAdd RGB) {

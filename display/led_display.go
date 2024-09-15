@@ -11,10 +11,30 @@ import (
 
 const DISPLAY_TIMER_DELAY = 100
 
+const (
+	LED_DEVICE_WS2812 = iota
+
+	LED_DEVICE_APA102
+)
+
+func LedDeviceStr2int(LedDevice string) int {
+	switch LedDevice {
+
+	case "WS2812":
+		return LED_DEVICE_WS2812
+	case "APA102":
+		return LED_DEVICE_APA102
+
+	default:
+		return LED_DEVICE_WS2812 //error
+	}
+}
+
 type DisplayBase struct {
 	led_count            int
 	led_rows             int
 	leds_per_row         int
+	order                int
 	singleRowRGB         []color.RGB
 	reversedSingleRowRGB []color.RGB
 	reverse_rows         []bool
@@ -29,11 +49,12 @@ type DisplayBase struct {
 	// modeController *mode.ModeController //[]mode.Mode
 }
 
-func NewDisplayBase(led_count int, led_rows int, reverse_rows_raw string, fps int, hub *websocket.Hub) *DisplayBase {
+func NewDisplayBase(led_count int, led_rows int, reverse_rows_raw string, fps int, order int, hub *websocket.Hub) *DisplayBase {
 	self := DisplayBase{
 		led_count:            led_count,
 		led_rows:             led_rows,
 		leds_per_row:         led_count / led_rows,
+		order:                order,
 		singleRowRGB:         make([]color.RGB, led_count/led_rows),
 		reversedSingleRowRGB: make([]color.RGB, led_count/led_rows),
 		reverse_rows:         make([]bool, led_rows),
@@ -165,7 +186,7 @@ func (self *DisplayBase) ApplySingleRowHSV(singleRow []color.HSV) {
 func (self *DisplayBase) leds2Buffer() {
 	self.buffer = make([]byte, 0, 9*len(self.leds))
 	for _, led := range self.leds {
-		self.buffer = append(self.buffer, led.ToSpi()...)
+		self.buffer = append(self.buffer, led.ToSpi(self.order)...)
 	}
 }
 

@@ -47,8 +47,19 @@ func TestToSpi(t *testing.T) {
 	cG := uint8(100)
 	cB := uint8(150)
 	c := color.RGB{R: cR, G: cG, B: cB}
-	b := c.ToSpi()
+	b := c.ToSpi(color.SPI_ORDER_RGB)
+	assert.ElementsMatch(t, b, []uint8{cR, cG, cB})
+	b = c.ToSpi(color.SPI_ORDER_RBG)
+	assert.ElementsMatch(t, b, []uint8{cR, cB, cG})
+	b = c.ToSpi(color.SPI_ORDER_GRB)
 	assert.ElementsMatch(t, b, []uint8{cG, cR, cB})
+	b = c.ToSpi(color.SPI_ORDER_GBR)
+	assert.ElementsMatch(t, b, []uint8{cG, cB, cR})
+	b = c.ToSpi(color.SPI_ORDER_BRG)
+	assert.ElementsMatch(t, b, []uint8{cB, cR, cG})
+	b = c.ToSpi(color.SPI_ORDER_BGR)
+	assert.ElementsMatch(t, b, []uint8{cB, cG, cR})
+
 	// 	assert.ElementsMatch(t, b, []uint8{uint8(36), uint8(146), uint8(73), uint8(36), uint8(146), uint8(73), uint8(36), uint8(146), uint8(73)})
 	// 	c = color.RGB{R: 255, G: 0, B: 0}
 	// 	b = c.ToSpi()

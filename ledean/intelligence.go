@@ -1,6 +1,7 @@
 package ledean
 
 import (
+	"ledean/color"
 	"ledean/dbdriver"
 	"ledean/display"
 	"ledean/driver"
@@ -45,7 +46,7 @@ func Run(parm *Parameter) *LEDeanInstance {
 
 	self.button = button.NewButton(self.dbdriver, parm.GpioButton, parm.PressLongMs, parm.PressDoubleTimeout, self.hub)
 
-	self.display = display.NewDisplay(parm.LedCount, parm.LedRows, parm.GpioLedData, parm.ReverseRows, parm.Fps, self.hub)
+	self.display = display.NewDisplay(parm.LedCount, parm.LedRows, parm.GpioLedData, parm.ReverseRows, parm.Fps, color.OrderStr2int(parm.LedOrder), display.LedDeviceStr2int(parm.LedDevice), self.hub)
 	if parm.IsPictureMode {
 		self.modeController = mode.NewModeController(self.dbdriver, self.display, self.button, self.hub, parm.IsPictureMode)
 	} else {
