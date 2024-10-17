@@ -68,6 +68,7 @@ const (
 	// BRG aka "Blue Red Green" is the typical APA102 color order from 2015-2017.
 	SPI_ORDER_BRG
 	// GRB aka "Green Red Blue" is the typical APA102 color order from pre-2015.
+	// ALSO WS2812 144 leds/m
 	SPI_ORDER_GRB
 
 	SPI_ORDER_GBR

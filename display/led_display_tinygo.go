@@ -37,13 +37,14 @@ func NewDisplay(ledCount int, ledRows int, gpioLedData string, reverseRowsRaw st
 		// machine.SPI2.Configure(machine.SPIConfig{
 		// Frequency: 500000,
 		// Mode:      0})
-		//
 		// self.apa = apa102.New(machine.SPI2)
+
 		sckPin := machine.Pin(4)
 		sckPin.Configure(machine.PinConfig{Mode: machine.PinOutput})
 		sdoPin := machine.Pin(6)
 		sdoPin.Configure(machine.PinConfig{Mode: machine.PinOutput})
 		self.apa = apa102.NewSoftwareSPI(sckPin, sdoPin, 10)
+
 		self.cbWrite = self.apa.Write
 		break
 	default:

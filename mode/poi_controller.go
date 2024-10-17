@@ -63,7 +63,8 @@ func NewModePoi(dbdriver *dbdriver.DbDriver, display *display.Display) *ModePoi 
 		colProgressPerStep: 0.0,
 		picProgress:        0.0,
 		picProgressPerStep: 0.0,
-		picIndex:           uint8(rand.Uint32() % uint32(len(poi.PoiPics))),
+		picIndex:           0,
+		// picIndex:           uint8(rand.Uint32() % uint32(len(poi.PoiPics))),
 	}
 	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModePoi", RenderTypeDynamic, self.calcDisplay)
 
@@ -80,9 +81,10 @@ func NewModePoi(dbdriver *dbdriver.DbDriver, display *display.Display) *ModePoi 
 
 func (self *ModePoi) Default() {
 	parameter := ModePoiParameter{
+
 		PictureColumnNs:          1,
 		PictureChangeIntervallMs: 5000,
-		Brightness:               0.4,
+		Brightness:               0.1,
 	}
 	self.SetParameter(parameter)
 }
