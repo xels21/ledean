@@ -2,6 +2,10 @@ package poi
 
 import "image"
 
+type GetPoiPic func() image.NRGBA
+
 var PixelCount = 58
 
-var PoiPics = []*image.NRGBA{&PoiPic_fire, &PoiPic_honeycorb, &PoiPic_man_flower, }
+var PoiPicsCount = 6
+
+var PoiPicsGetter = []GetPoiPic{GetPoiPic_fire, GetPoiPic_geo, GetPoiPic_honeycorb, GetPoiPic_man_flower, GetPoiPic_rainbow, GetPoiPic_wave, }
