@@ -14,9 +14,10 @@ import (
 
 type ModePoi struct {
 	ModeSuper
-	parameter          ModePoiParameter
-	limits             ModePoiLimits
-	poiPics            []image.NRGBA
+	parameter ModePoiParameter
+	limits    ModePoiLimits
+	// poiPics            []image.NRGBA
+	currentPic         [][]color.RGB
 	ledsRGB            []color.RGB
 	pixelCount         int
 	picIndex           uint8
@@ -55,9 +56,9 @@ func NewModePoi(dbdriver *dbdriver.DbDriver, display *display.Display) *ModePoi 
 			MinBrightness:               0.0,
 			MaxBrightness:               1.0,
 		}, //here must
-		pixelCount:         poi.PixelCount,
-		ledsRGB:            make([]color.RGB, poi.PixelCount),
-		poiPics:            make([]image.NRGBA, len(poi.PoiPics)),
+		pixelCount: poi.PixelCount,
+		ledsRGB:    make([]color.RGB, poi.PixelCount),
+		// poiPics:            make([]image.NRGBA, len(poi.PoiPics)),
 		colIndex:           0,
 		colProgress:        0.0,
 		colProgressPerStep: 0.0,
@@ -104,22 +105,39 @@ func getPixel(pic *image.NRGBA, col int, row int) color.RGB {
 
 // }
 
+func (self *ModePoi) updateCurrentPic() {
+	self.colIndex = 0
+	pPic := poi.PoiPics[self.picIndex]
+	rows := len(pPic)
+	self.currentPic = make([][]color.RGB, rows)
+	for r := 0; r < rows; r++ {
+		self.currentPic[r] = make([]color.RGB, self.pixelCount)
+		for i := 0; i < self.pixelCount; i++ {
+			// TODO: brightnes
+			self.currentPic[r][i] = color.RGB{R: uint8(float64(pPic[r][i*3+0]) * self.parameter.Brightness),
+				G: uint8(float64(pPic[r][i*3+1]) * self.parameter.Brightness),
+				B: uint8(float64(pPic[r][i*3+2]) * self.parameter.Brightness)}
+		}
+	}
+}
+
 func (self *ModePoi) calcDisplay() {
 	self.picProgress += self.picProgressPerStep
 	if self.picProgress > 1.0 {
 		self.picProgress -= 1.0
-		self.picIndex = (self.picIndex + 1) % (uint8(len(self.poiPics)))
-		self.colIndex = 0
+		self.picIndex = (self.picIndex + 1) % (uint8(len(poi.PoiPics)))
+		self.updateCurrentPic()
 	}
 	self.colProgress += self.colProgressPerStep
 	if self.colProgress > 1.0 {
 		self.colProgress -= 1.0
-		self.colIndex = (self.colIndex + 1) % (uint32(self.poiPics[self.picIndex].Rect.Dy()) - 1)
+		self.colIndex = (self.colIndex + 1) % (uint32(len(self.currentPic)) - 1)
 	}
 
-	for i := range self.pixelCount {
-		self.ledsRGB[i] = getPixel(&self.poiPics[self.picIndex], int(self.colIndex), i)
-	}
+	self.ledsRGB = self.currentPic[self.colIndex]
+	// for i := range self.pixelCount {
+	// self.ledsRGB[i] = getPixel(&self.poiPics[self.picIndex], int(self.colIndex), i)
+	// }
 
 	self.GetDisplay().ApplySingleRowRGB(self.ledsRGB)
 }
@@ -137,16 +155,15 @@ func (self *ModePoi) TrySetParameter(b []byte) error {
 }
 
 func (self *ModePoi) postSetParameter() {
-	for iPic := range len(poi.PoiPics) {
-		// copy(self.poiPics[iPic], *poi.PoiPics[iPic])
-		self.poiPics[iPic].Pix = make([]uint8, len(poi.PoiPics[iPic].Pix))
-		self.poiPics[iPic].Rect = poi.PoiPics[iPic].Rect
-		self.poiPics[iPic].Stride = poi.PoiPics[iPic].Stride
-		for iPix := range poi.PoiPics[iPic].Pix {
-			// self.poiPics[iPic].Pix[iPix] = poi.PoiPics[iPic].Pix[iPix]
-			self.poiPics[iPic].Pix[iPix] = uint8(float64(poi.PoiPics[iPic].Pix[iPix]) * self.parameter.Brightness)
-		}
-	}
+	// for iPic := range len(poi.PoiPics) {
+	// self.poiPics[iPic].Pix = make([]uint8, len(poi.PoiPics[iPic].Pix))
+	// self.poiPics[iPic].Rect = poi.PoiPics[iPic].Rect
+	// self.poiPics[iPic].Stride = poi.PoiPics[iPic].Stride
+	// for iPix := range poi.PoiPics[iPic].Pix {
+	// self.poiPics[iPic].Pix[iPix] = uint8(float64(poi.PoiPics[iPic].Pix[iPix]) * self.parameter.Brightness)
+	// }
+	// }
+	self.updateCurrentPic()
 	self.colProgressPerStep = 1.0 / (float32(self.parameter.PictureColumnNs / 1000 / 1000)) * (float32(self.GetDisplay().GetRefreshIntervalNs()) / 1000 / 1000 / 1000)
 	self.picProgressPerStep = 1.0 / (float32(self.parameter.PictureChangeIntervallMs) / 1000) * (float32(self.GetDisplay().GetRefreshIntervalNs()) / 1000 / 1000 / 1000)
 }

@@ -1,7 +1,5 @@
 package poi
 
-import "image"
-
 var PixelCount = 58
 
-var PoiPics = []*image.NRGBA{&PoiPic_fire, &PoiPic_honeycorb, &PoiPic_man_flower, }
+var PoiPics = [][]string{PoiPic_fire, PoiPic_geo, PoiPic_honeycorb, PoiPic_mario, PoiPic_mosaik, PoiPic_nyan, PoiPic_psych, PoiPic_rainbow, PoiPic_simple_cyan, PoiPic_star, PoiPic_tiles_top, PoiPic_wave, PoiPic_weed, }
