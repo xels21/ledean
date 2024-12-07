@@ -6,16 +6,17 @@ import (
 	"ledean/dbdriver"
 	"ledean/display"
 	"ledean/json"
-	poi "ledean/mode/gen_poi"
+	"ledean/log"
+	picture "ledean/mode/gen_picture"
 	"time"
 
 	"math/rand"
 )
 
-type ModePoi struct {
+type ModePicture struct {
 	ModeSuper
-	parameter ModePoiParameter
-	limits    ModePoiLimits
+	parameter ModePictureParameter
+	limits    ModePictureLimits
 	// poiPics            []image.NRGBA
 	currentPic         [][]color.RGB
 	ledsRGB            []color.RGB
@@ -29,14 +30,14 @@ type ModePoi struct {
 	// ColumnPerStep int
 }
 
-type ModePoiParameter struct {
+type ModePictureParameter struct {
 	PictureColumnNs          uint32  `json:"pictureColumnNs"`
 	PictureChangeIntervallMs uint32  `json:"pictureChangeIntervallMs"`
 	Brightness               float64 `json:"brightness"`
 	// PicturePath              string `json:"picturePath"`
 }
 
-type ModePoiLimits struct {
+type ModePictureLimits struct {
 	MinPictureColumnNs          uint32  `json:"minPictureColumnNs"`
 	MaxPictureColumnNs          uint32  `json:"maxPictureColumnNs"`
 	MinPictureChangeIntervallMs uint32  `json:"minPictureChangeIntervallMs"`
@@ -45,29 +46,32 @@ type ModePoiLimits struct {
 	MaxBrightness               float64 `json:"maxBrightness"`
 }
 
-func NewModePoi(dbdriver *dbdriver.DbDriver, display *display.Display) *ModePoi {
-	self := ModePoi{
-		// name: "ModePoi",
-		limits: ModePoiLimits{
+func NewModePicture(dbdriver *dbdriver.DbDriver, display *display.Display) *ModePicture {
+	if display.GetRowLedCount() != picture.PixelCount {
+		log.Fatal("Display led size[%d] not matching to generated picture size[%d]", display.GetRowLedCount(), picture.PixelCount)
+	}
+	self := ModePicture{
+		// name: "ModePicture",
+		limits: ModePictureLimits{
 			MinPictureColumnNs:          1,
-			MaxPictureColumnNs:          5000,
+			MaxPictureColumnNs:          1000,
 			MinPictureChangeIntervallMs: 1000,
 			MaxPictureChangeIntervallMs: 60000,
 			MinBrightness:               0.0,
 			MaxBrightness:               1.0,
 		}, //here must
-		pixelCount: poi.PixelCount,
-		ledsRGB:    make([]color.RGB, poi.PixelCount),
-		// poiPics:            make([]image.NRGBA, len(poi.PoiPics)),
+		pixelCount: picture.PixelCount,
+		ledsRGB:    make([]color.RGB, picture.PixelCount),
+		// poiPics:            make([]image.NRGBA, len(picture.PoiPics)),
 		colIndex:           0,
 		colProgress:        0.0,
 		colProgressPerStep: 0.0,
 		picProgress:        0.0,
 		picProgressPerStep: 0.0,
 		picIndex:           0,
-		// picIndex:           uint8(rand.Uint32() % uint32(len(poi.PoiPics))),
+		// picIndex:           uint8(rand.Uint32() % uint32(len(picture.PoiPics))),
 	}
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModePoi", RenderTypeDynamic, self.calcDisplay)
+	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModePicture", RenderTypeDynamic, self.calcDisplay)
 
 	err := dbdriver.Read(self.GetName(), "parameter", &self.parameter)
 	if err != nil {
@@ -80,8 +84,8 @@ func NewModePoi(dbdriver *dbdriver.DbDriver, display *display.Display) *ModePoi 
 	return &self
 }
 
-func (self *ModePoi) Default() {
-	parameter := ModePoiParameter{
+func (self *ModePicture) Default() {
+	parameter := ModePictureParameter{
 
 		PictureColumnNs:          1,
 		PictureChangeIntervallMs: 5000,
@@ -90,8 +94,8 @@ func (self *ModePoi) Default() {
 	self.SetParameter(parameter)
 }
 
-func (self *ModePoi) GetParameter() interface{} { return &self.parameter }
-func (self *ModePoi) GetLimits() interface{}    { return &self.limits }
+func (self *ModePicture) GetParameter() interface{} { return &self.parameter }
+func (self *ModePicture) GetLimits() interface{}    { return &self.limits }
 
 func getPixel(pic *image.NRGBA, col int, row int) color.RGB {
 	rgba := pic.NRGBAAt(row, col)
@@ -105,9 +109,9 @@ func getPixel(pic *image.NRGBA, col int, row int) color.RGB {
 
 // }
 
-func (self *ModePoi) updateCurrentPic() {
+func (self *ModePicture) updateCurrentPic() {
 	self.colIndex = 0
-	pPic := poi.PoiPics[self.picIndex]
+	pPic := picture.Pics[self.picIndex]
 	rows := len(pPic)
 	self.currentPic = make([][]color.RGB, rows)
 	for r := 0; r < rows; r++ {
@@ -121,11 +125,11 @@ func (self *ModePoi) updateCurrentPic() {
 	}
 }
 
-func (self *ModePoi) calcDisplay() {
+func (self *ModePicture) calcDisplay() {
 	self.picProgress += self.picProgressPerStep
 	if self.picProgress > 1.0 {
 		self.picProgress -= 1.0
-		self.picIndex = (self.picIndex + 1) % (uint8(len(poi.PoiPics)))
+		self.picIndex = (self.picIndex + 1) % (uint8(len(picture.Pics)))
 		self.updateCurrentPic()
 	}
 	self.colProgress += self.colProgressPerStep
@@ -142,10 +146,9 @@ func (self *ModePoi) calcDisplay() {
 	self.GetDisplay().ApplySingleRowRGB(self.ledsRGB)
 }
 
-func (self *ModePoi) TrySetParameter(b []byte) error {
-	var tempPar ModePoiParameter
+func (self *ModePicture) TrySetParameter(b []byte) error {
+	var tempPar ModePictureParameter
 	err := json.Unmarshal(b, &tempPar)
-
 	if err != nil {
 		return err
 	}
@@ -154,13 +157,13 @@ func (self *ModePoi) TrySetParameter(b []byte) error {
 	return nil
 }
 
-func (self *ModePoi) postSetParameter() {
-	// for iPic := range len(poi.PoiPics) {
-	// self.poiPics[iPic].Pix = make([]uint8, len(poi.PoiPics[iPic].Pix))
-	// self.poiPics[iPic].Rect = poi.PoiPics[iPic].Rect
-	// self.poiPics[iPic].Stride = poi.PoiPics[iPic].Stride
-	// for iPix := range poi.PoiPics[iPic].Pix {
-	// self.poiPics[iPic].Pix[iPix] = uint8(float64(poi.PoiPics[iPic].Pix[iPix]) * self.parameter.Brightness)
+func (self *ModePicture) postSetParameter() {
+	// for iPic := range len(picture.PoiPics) {
+	// self.poiPics[iPic].Pix = make([]uint8, len(picture.PoiPics[iPic].Pix))
+	// self.poiPics[iPic].Rect = picture.PoiPics[iPic].Rect
+	// self.poiPics[iPic].Stride = picture.PoiPics[iPic].Stride
+	// for iPix := range picture.PoiPics[iPic].Pix {
+	// self.poiPics[iPic].Pix[iPix] = uint8(float64(picture.PoiPics[iPic].Pix[iPix]) * self.parameter.Brightness)
 	// }
 	// }
 	self.updateCurrentPic()
@@ -168,15 +171,15 @@ func (self *ModePoi) postSetParameter() {
 	self.picProgressPerStep = 1.0 / (float32(self.parameter.PictureChangeIntervallMs) / 1000) * (float32(self.GetDisplay().GetRefreshIntervalNs()) / 1000 / 1000 / 1000)
 }
 
-func (self *ModePoi) SetParameter(parm ModePoiParameter) {
+func (self *ModePicture) SetParameter(parm ModePictureParameter) {
 	self.parameter = parm
 	self.GetDbDriver().Write(self.GetName(), "parameter", self.parameter)
 	self.postSetParameter()
 }
 
-func (self *ModePoi) Randomize() {
+func (self *ModePicture) Randomize() {
 	rand.Seed(time.Now().UnixNano())
-	parameter := ModePoiParameter{
+	parameter := ModePictureParameter{
 		PictureColumnNs:          (rand.Uint32())%(self.limits.MaxPictureColumnNs-self.limits.MinPictureColumnNs) + self.limits.MinPictureColumnNs,
 		PictureChangeIntervallMs: (rand.Uint32())%(self.limits.MaxPictureChangeIntervallMs-self.limits.MinPictureChangeIntervallMs) + self.limits.MinPictureChangeIntervallMs,
 		Brightness:               rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,

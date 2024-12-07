@@ -6,7 +6,6 @@ import (
 	"ledean/display"
 	"ledean/driver/button"
 	"ledean/json"
-	poi "ledean/mode/gen_poi"
 	"ledean/websocket"
 	"time"
 
@@ -27,7 +26,7 @@ type ModeController struct {
 	modes                 []Mode
 	modesIndex            uint8
 	modesLength           uint8
-	modePoi               *ModePoi
+	modePicture           *ModePicture
 	modeSolid             *ModeSolid
 	modeSolidRainbow      *ModeSolidRainbow
 	modeTransitionRainbow *ModeTransitionRainbow
@@ -47,7 +46,7 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 		button:                button,
 		hub:                   hub,
 		active:                false,
-		modePoi:               NewModePoi(dbdriver, display),
+		modePicture:           NewModePicture(dbdriver, display),
 		modeSolid:             NewModeSolid(dbdriver, display),
 		modeSolidRainbow:      NewModeSolidRainbow(dbdriver, display),
 		modeTransitionRainbow: NewModeTransitionRainbow(dbdriver, display),
@@ -58,11 +57,16 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 		pCmdModeActionChannel: hub.GetCmdModeActionChannel(),
 		pCmdModeChannel:       hub.GetCmdModeChannel(),
 	}
-	self.modes = []Mode{self.modeSolid, self.modeSolidRainbow, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient, self.modeSpectrum}
+	if picture_mode {
+		self.modes = []Mode{self.modePicture}
+		// self.modes = []Mode{self.modePicture, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient, self.modeSpectrum}
+	} else {
+		self.modes = []Mode{self.modeSolid, self.modeSolidRainbow, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient, self.modeSpectrum}
+	}
 	self.modesLength = uint8(len(self.modes))
 
 	err := dbdriver.Read("modeController", "modesIndex", &self.modesIndex)
-	if err != nil {
+	if err != nil || self.modesIndex >= self.modesLength {
 		self.SetIndex(0)
 	}
 
@@ -78,12 +82,6 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 		self.hub.AppendInitClientCb(self.initClientCb)
 	}
 
-	if picture_mode {
-		if display.GetRowLedCount() != poi.PixelCount {
-			log.Fatal("Display led size[%d] not matching to generated picture size[%d]", display.GetRowLedCount(), poi.PixelCount)
-		}
-		self.modePoi.Activate()
-	}
 	return &self
 }
 
@@ -168,6 +166,14 @@ func (self *ModeController) handleModeParameterUpdate(cmdMode websocket.CmdMode)
 			return
 		}
 		self.modeSpectrum.SetParameter(modeSpectrumParameter)
+	case self.modePicture.name:
+		var modePictureParameter ModePictureParameter
+		err := json.Unmarshal(cmdMode.Parameter, &modePictureParameter)
+		if err != nil {
+			log.Info("could not parse picture parameter: ", cmdMode.Parameter)
+			return
+		}
+		self.modePicture.SetParameter(modePictureParameter)
 	}
 	self.BroadcastCurrentMode()
 }
