@@ -18,6 +18,7 @@ import { ModeRunningLedService } from './modes/mode-running-led/mode-running-led
 import { ModeSolidService } from './modes/mode-solid/mode-solid.service';
 import { ModeSolidRainbowService } from './modes/mode-solid-rainbow/mode-solid-rainbow.service';
 import { ModeTransitionRainbowService } from './modes/mode-transition-rainbow/mode-transition-rainbow.service';
+import { ModePictureService } from './modes/mode-picture/mode-picture.service';
 
 
 import { LedDisplayComponent } from './led-display/led-display.component';
@@ -31,6 +32,7 @@ import { ModeTransitionRainbowComponent } from './modes/mode-transition-rainbow/
 import { ModeEmitterComponent } from './modes/mode-emitter/mode-emitter.component';
 import { ModeGradientComponent } from './modes/mode-gradient/mode-gradient.component';
 import { ModeSpectrumComponent } from './modes/mode-spectrum/mode-spectrum.component';
+import { ModePictureComponent } from './modes/mode-picture/mode-picture.component';
 
 
 @NgModule({
@@ -52,7 +54,8 @@ import { ModeSpectrumComponent } from './modes/mode-spectrum/mode-spectrum.compo
     ModeTransitionRainbowComponent,
     ModeEmitterComponent,
     ModeGradientComponent,
-    ModeSpectrumComponent
+    ModeSpectrumComponent,
+    ModePictureComponent
   ],
   providers: [
     LedsService,
@@ -66,6 +69,7 @@ import { ModeSpectrumComponent } from './modes/mode-spectrum/mode-spectrum.compo
     ModeSolidService,
     ModeSolidRainbowService,
     ModeTransitionRainbowService,
+    ModePictureService,
   ],
   bootstrap: [AppComponent]
 })

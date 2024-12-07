@@ -7,6 +7,7 @@ import { ModeSpectrumService } from '../modes/mode-spectrum/mode-spectrum.servic
 import { ModeRunningLedService } from '../modes/mode-running-led/mode-running-led.service';
 import { ModeSolidService } from '../modes/mode-solid/mode-solid.service';
 import { ModeSolidRainbowService } from '../modes/mode-solid-rainbow/mode-solid-rainbow.service';
+import { ModePictureService } from '../modes/mode-picture/mode-picture.service';
 import { ModeTransitionRainbowService } from '../modes/mode-transition-rainbow/mode-transition-rainbow.service';
 import { Cmd, CmdMode, CmdModeId, CmdModeLimits, CmdModeResolver } from '../websocket/commands';
 import { SuperMode } from './super-mode';
@@ -30,6 +31,7 @@ export class ModesService {
     , public modeRunningLedService: ModeRunningLedService
     , public modeSolidRainbowService: ModeSolidRainbowService
     , public modeSolidService: ModeSolidService
+    , public modePictureService: ModePictureService
     , public modeTransitionRainbowService: ModeTransitionRainbowService
   ) {
 
@@ -39,6 +41,11 @@ export class ModesService {
     this.websocketService.modeLimitChanged.subscribe((cmdModeLimits: CmdModeLimits) => this.modeLimitChanged(cmdModeLimits))
     this.websocketService.modeResolverChanged.subscribe((cmdModeResolver: CmdModeResolver) => { this.modeResolver = cmdModeResolver.modes; })
   }
+
+  public isModeAvailable(mode: string) : boolean{
+    if(!this.modeResolver){return false}
+    return this.modeResolver.indexOf(mode) != -1
+  } 
 
   private modeChanged(cmdMode: CmdMode) {
     console.log(cmdMode)
@@ -64,6 +71,9 @@ export class ModesService {
       case this.modeTransitionRainbowService.getName():
         this.modeTransitionRainbowService.receiveParameter(cmdMode.parm)
         break;
+        case this.modePictureService.getName():
+          this.modePictureService.receiveParameter(cmdMode.parm)
+          break;
       default:
         console.log("Unknown limit change for mode: ", cmdMode.id)
         break;
@@ -94,6 +104,9 @@ export class ModesService {
       case this.modeTransitionRainbowService.getName():
         this.modeTransitionRainbowService.receiveLimits(cmdModeLimits.limits)
         break;
+        case this.modePictureService.getName():
+          this.modePictureService.receiveLimits(cmdModeLimits.limits)
+          break;
 
       default:
         console.log("Unknown limit change for mode: ", cmdModeLimits.id)

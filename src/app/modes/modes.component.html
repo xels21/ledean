@@ -1,29 +1,40 @@
+<!-- {{modesService.isPictureMode}} -->
 <!-- <div *ngFor="let mode of modesService.modeResolver">{{mode}}</div> -->
-<div style="padding-bottom: 10px;" [hidden]="modesService.isPictureMode">
+<div style="padding-bottom: 10px;"> <!-- [hidden]="modesService.isPictureMode"> -->
   <div class="row">
     <div class="col s12">
       <ul class="tabs">
-        <li class="tab col "><a href="#{{modesService.modeSolidService.getName()}}"
+        <li [class.disabled]="!modesService.isModeAvailable(modesService.modeSolidService.getName())"
+          class="tab col disabled"><a href="#{{modesService.modeSolidService.getName()}}"
             (click)="modesService.switchState(modesService.modeSolidService.getName())">{{modesService.modeSolidService.getShortName()}}</a>
         </li>
-        <li class="tab col "><a href="#{{modesService.modeSolidRainbowService.getName()}}"
+        <li [class.disabled]="!modesService.isModeAvailable(modesService.modeSolidRainbowService.getName())"
+          class="tab col "><a href="#{{modesService.modeSolidRainbowService.getName()}}"
             (click)="modesService.switchState(modesService.modeSolidRainbowService.getName())">{{modesService.modeSolidRainbowService.getShortName()}}</a>
         </li>
-        <li class="tab col "><a href="#{{modesService.modeTransitionRainbowService.getName()}}"
+        <li [class.disabled]="!modesService.isModeAvailable(modesService.modeTransitionRainbowService.getName())"
+          class="tab col "><a href="#{{modesService.modeTransitionRainbowService.getName()}}"
             (click)="modesService.switchState(modesService.modeTransitionRainbowService.getName())">{{modesService.modeTransitionRainbowService.getShortName()}}</a>
         </li>
-        <li class="tab col "><a href="#{{modesService.modeRunningLedService.getName()}}"
+        <li [class.disabled]="!modesService.isModeAvailable(modesService.modeRunningLedService.getName())"
+          class="tab col "><a href="#{{modesService.modeRunningLedService.getName()}}"
             (click)="modesService.switchState(modesService.modeRunningLedService.getName())">{{modesService.modeRunningLedService.getShortName()}}</a>
         </li>
-        <li class="tab col "><a href="#{{modesService.modeEmitterService.getName()}}"
+        <li [class.disabled]="!modesService.isModeAvailable(modesService.modeEmitterService.getName())"
+          class="tab col "><a href="#{{modesService.modeEmitterService.getName()}}"
             (click)="modesService.switchState(modesService.modeEmitterService.getName())">{{modesService.modeEmitterService.getShortName()}}</a>
         </li>
-        <li class="tab col "><a href="#{{modesService.modeGradientService.getName()}}"
+        <li [class.disabled]="!modesService.isModeAvailable(modesService.modeGradientService.getName())"
+          class="tab col "><a href="#{{modesService.modeGradientService.getName()}}"
             (click)="modesService.switchState(modesService.modeGradientService.getName())">{{modesService.modeGradientService.getShortName()}}</a>
         </li>
-        <li class="tab col "><a href="#{{modesService.modeSpectrumService.getName()}}"
-          (click)="modesService.switchState(modesService.modeSpectrumService.getName())">{{modesService.modeSpectrumService.getShortName()}}</a>
-      </li>
+        <li [class.disabled]="!modesService.isModeAvailable(modesService.modeSpectrumService.getName())"
+          class="tab col "><a href="#{{modesService.modeSpectrumService.getName()}}"
+            (click)="modesService.switchState(modesService.modeSpectrumService.getName())">{{modesService.modeSpectrumService.getShortName()}}</a>
+        <li [class.disabled]="!modesService.isModeAvailable(modesService.modePictureService.getName())"
+          class="tab col "><a href="#{{modesService.modePictureService.getName()}}"
+            (click)="modesService.switchState(modesService.modePictureService.getName())">{{modesService.modePictureService.getShortName()}}</a>
+        </li>
 
         <!-- <li *ngFor="let modeServices of modesService.modeServices" class="tab col"><a  href="#{{modeServices.getName()}}"(click)="modesService.switchState(modeServices.getName())">{{modeServices.getShortName()}}</a></li> -->
       </ul>
@@ -48,6 +59,9 @@
     </div>
     <div id="{{modesService.modeSpectrumService.getName()}}" class="col s12">
       <app-mode-spectrum></app-mode-spectrum>
+    </div>
+    <div id="{{modesService.modePictureService.getName()}}" class="col s12">
+      <app-mode-picture></app-mode-picture>
     </div>
   </div>
 
