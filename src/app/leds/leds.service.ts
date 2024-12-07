@@ -15,6 +15,7 @@ export class LedsService {
   bufferedLedsCount: number
   ledCount: number
   ledRows: number
+  public isBuffered = true;
 
   constructor(public modesService: ModesService, private websocketService: WebsocketService) {
     this.bufferedLedsCount = 16
@@ -47,7 +48,7 @@ export class LedsService {
       return
       // this.leds = leds
     }
-    if (!this.modesService.isPictureMode) {
+    if (!this.isBuffered) {
       for (var i = 0; i < this.leds.length; i++) {
         this.leds[i].r = leds[i].r
         this.leds[i].g = leds[i].g

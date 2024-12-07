@@ -10,5 +10,7 @@ import { ModesService } from '../modes/modes.service';
 })
 export class LedDisplayComponent {
 
+  public isBuffered = true;
+
   constructor(public ledsService: LedsService, public modesService: ModesService) { }
 }
