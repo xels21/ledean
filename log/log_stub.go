@@ -69,3 +69,7 @@ func Panic(args ...interface{}) {
 func Fatal(args ...interface{}) {
 	log.Fatal(args...)
 }
+
+func Fatalf(format string, args ...interface{}) {
+	log.Fatalf(format, args...)
+}
