@@ -68,8 +68,8 @@ func NewModePicture(dbdriver *dbdriver.DbDriver, display *display.Display) *Mode
 		colProgressPerStep: 0.0,
 		picProgress:        0.0,
 		picProgressPerStep: 0.0,
-		picIndex:           0,
-		// picIndex:           uint8(rand.Uint32() % uint32(len(picture.PoiPics))),
+		// picIndex:           0,
+		picIndex: uint8(rand.Uint32() % uint32(len(picture.Pics))),
 	}
 	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModePicture", RenderTypeDynamic, self.calcDisplay)
 
@@ -179,6 +179,7 @@ func (self *ModePicture) SetParameter(parm ModePictureParameter) {
 
 func (self *ModePicture) Randomize() {
 	rand.Seed(time.Now().UnixNano())
+	self.picIndex = uint8(rand.Uint32() % uint32(len(picture.Pics)))
 	parameter := ModePictureParameter{
 		PictureColumnNs:          (rand.Uint32())%(self.limits.MaxPictureColumnNs-self.limits.MinPictureColumnNs) + self.limits.MinPictureColumnNs,
 		PictureChangeIntervallMs: (rand.Uint32())%(self.limits.MaxPictureChangeIntervallMs-self.limits.MinPictureChangeIntervallMs) + self.limits.MinPictureChangeIntervallMs,

@@ -17,6 +17,12 @@ import (
 // 	RefreshIntervalNs = time.Duration((1000 /*ms*/ * 1000 /*us*/ * 1000 /*ns*/ / FPS) * time.Nanosecond)
 // )
 
+type ShowEntry struct {
+	mode       Mode
+	durationMs uint32
+	randomize  bool
+}
+
 type ModeController struct {
 	dbdriver              *dbdriver.DbDriver
 	display               *display.Display
@@ -34,10 +40,18 @@ type ModeController struct {
 	modeEmitter           *ModeEmitter
 	modeGradient          *ModeGradient
 	modeSpectrum          *ModeSpectrum
+	showEntries           []ShowEntry
+	showEntriesIndex      uint8
+	showTimer             *time.Timer
 	isPaused              bool
 	pCmdModeActionChannel *chan websocket.CmdModeAction
 	pCmdModeChannel       *chan websocket.CmdMode
 }
+
+const SHOW_PIC_DURATION = 7000
+
+// const SHOW_PIC_DURATION = 2000
+const SHOW_DEFAULT_DURATION = 5000
 
 func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, button *button.Button, hub *websocket.Hub, picture_mode bool) *ModeController {
 	self := ModeController{
@@ -56,9 +70,29 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 		modeSpectrum:          NewModeSpectrum(dbdriver, display),
 		pCmdModeActionChannel: hub.GetCmdModeActionChannel(),
 		pCmdModeChannel:       hub.GetCmdModeChannel(),
+		showEntriesIndex:      0,
 	}
 	if picture_mode {
-		self.modes = []Mode{self.modePicture}
+		// self.modes = []Mode{self.modePicture}
+		self.modes = []Mode{self.modePicture, self.modeSolid, self.modeSolidRainbow, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient, self.modeSpectrum}
+		self.showEntries = []ShowEntry{
+			{mode: self.modePicture, durationMs: SHOW_PIC_DURATION, randomize: false},
+			// {mode: self.modeSolid, durationMs: 1000},
+			// {mode: self.modePicture, durationMs: SHOW_PIC_DURATION},
+			// {mode: self.modeSolidRainbow, durationMs: 1000},
+			// {mode: self.modePicture, durationMs: SHOW_PIC_DURATION},
+			// {mode: self.modeTransitionRainbow, durationMs: 3000},
+			// {mode: self.modePicture, durationMs: SHOW_PIC_DURATION},
+			{mode: self.modeRunningLed, durationMs: SHOW_DEFAULT_DURATION, randomize: true},
+			{mode: self.modePicture, durationMs: SHOW_PIC_DURATION, randomize: false},
+			{mode: self.modeEmitter, durationMs: SHOW_DEFAULT_DURATION, randomize: true},
+			{mode: self.modePicture, durationMs: SHOW_PIC_DURATION, randomize: false},
+			{mode: self.modeGradient, durationMs: SHOW_DEFAULT_DURATION, randomize: true},
+			{mode: self.modePicture, durationMs: SHOW_PIC_DURATION, randomize: false},
+			{mode: self.modeSpectrum, durationMs: SHOW_DEFAULT_DURATION, randomize: true},
+		}
+		go self.startShow()
+
 		// self.modes = []Mode{self.modePicture, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient, self.modeSpectrum}
 	} else {
 		self.modes = []Mode{self.modeSolid, self.modeSolidRainbow, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient, self.modeSpectrum}
@@ -83,6 +117,24 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 	}
 
 	return &self
+}
+func (self *ModeController) startShow() {
+	for {
+		self.showTimer = time.NewTimer(time.Duration(self.showEntries[self.showEntriesIndex].durationMs) * time.Millisecond)
+
+		self.SwitchIndex(self.GetIndexOf(self.showEntries[self.showEntriesIndex].mode.GetName()))
+		if self.showEntries[self.showEntriesIndex].randomize {
+			self.RandomizeCurrentMode()
+		}
+		// self.SetIndex(self.GetIndexOf(self.showEntries[self.showEntriesIndex].mode.GetName()))
+		// self.ActivateCurrentMode()
+		select {
+		case <-self.showTimer.C:
+			self.showEntriesIndex = (self.showEntriesIndex + 1) % uint8(len(self.showEntries))
+		}
+
+		// self.DeactivateCurrentMode()
+	}
 }
 
 func (self *ModeController) socketHandler() {
