@@ -176,7 +176,9 @@ func (self *ModePicture) SetParameter(parm ModePictureParameter) {
 	self.GetDbDriver().Write(self.GetName(), "parameter", self.parameter)
 	self.postSetParameter()
 }
-
+func (self *ModePicture) RandomizePreset() {
+	self.Randomize()
+}
 func (self *ModePicture) Randomize() {
 	rand.Seed(time.Now().UnixNano())
 	self.picIndex = uint8(rand.Uint32() % uint32(len(picture.Pics)))

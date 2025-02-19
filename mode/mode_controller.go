@@ -72,7 +72,7 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 		pCmdModeChannel:       hub.GetCmdModeChannel(),
 		showEntriesIndex:      0,
 	}
-	if picture_mode {
+	if picture_mode && false {
 		// self.modes = []Mode{self.modePicture}
 		self.modes = []Mode{self.modePicture, self.modeSolid, self.modeSolidRainbow, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient, self.modeSpectrum}
 		self.showEntries = []ShowEntry{
@@ -124,7 +124,7 @@ func (self *ModeController) startShow() {
 
 		self.SwitchIndex(self.GetIndexOf(self.showEntries[self.showEntriesIndex].mode.GetName()))
 		if self.showEntries[self.showEntriesIndex].randomize {
-			self.RandomizeCurrentMode()
+			self.RandomizePresetCurrentMode()
 		}
 		// self.SetIndex(self.GetIndexOf(self.showEntries[self.showEntriesIndex].mode.GetName()))
 		// self.ActivateCurrentMode()
@@ -293,6 +293,9 @@ func (self *ModeController) DeactivateCurrentMode() {
 	self.active = false
 	self.modes[self.modesIndex].Deactivate()
 }
+func (self *ModeController) RandomizePresetCurrentMode() {
+	self.modes[self.modesIndex].RandomizePreset()
+}
 func (self *ModeController) RandomizeCurrentMode() {
 	self.modes[self.modesIndex].Randomize()
 }
@@ -460,13 +463,26 @@ func (self *ModeController) Restart() {
 	}
 }
 
+func (self *ModeController) RandomizePreset() {
+	log.Info("RandomizePreset")
+	resume := self.active
+	if self.active {
+		self.DeactivateCurrentMode()
+	}
+	self.RandomizePresetCurrentMode()
+	if resume {
+		self.ActivateCurrentMode()
+	}
+}
+
 func (self *ModeController) Randomize() {
 	log.Info("Randomize")
+	resume := self.active
 	if self.active {
 		self.DeactivateCurrentMode()
 	}
 	self.RandomizeCurrentMode()
-	if self.active {
+	if resume {
 		self.ActivateCurrentMode()
 	}
 }

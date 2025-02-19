@@ -85,6 +85,9 @@ func (self *ModeSolidRainbow) calcDisplay() {
 	self.display.AllSolid(rgb)
 }
 
+func (self *ModeSolidRainbow) RandomizePreset() {
+	self.Randomize()
+}
 func (self *ModeSolidRainbow) Randomize() {
 	rand.Seed(time.Now().UnixNano())
 	self.SetParameter(ModeSolidRainbowParameter{

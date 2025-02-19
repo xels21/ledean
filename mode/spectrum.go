@@ -189,6 +189,10 @@ func (self *ModeSpectrum) getRandomPosition(seed int64) ModeSpectrumParameterPos
 	}
 }
 
+func (self *ModeSpectrum) RandomizePreset() {
+	self.Randomize()
+}
+
 func (self *ModeSpectrum) Randomize() {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	self.SetParameter(ModeSpectrumParameter{

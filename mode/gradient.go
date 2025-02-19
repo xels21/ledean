@@ -114,6 +114,10 @@ func (self *ModeGradientPosition) randomizeWoFrom() {
 	self.hueDistance = self.hueTo720 - self.hueFrom720
 }
 
+func (self *ModeGradientPosition) RandomizePreset() {
+	self.Randomize()
+}
+
 func (self *ModeGradientPosition) Randomize() {
 	self.percent = rand.Float64() * 100.0
 	self.hueFrom720 = rand.Float64() * 720.0
@@ -160,6 +164,9 @@ func (self *ModeGradient) calcDisplay() {
 	self.calcDisplayWoStep()
 }
 
+func (self *ModeGradient) RandomizePreset() {
+	self.Randomize()
+}
 func (self *ModeGradient) Randomize() {
 	rand.Seed(time.Now().UnixNano())
 	self.SetParameter(ModeGradientParameter{

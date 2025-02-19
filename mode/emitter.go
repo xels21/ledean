@@ -142,6 +142,7 @@ type ModeEmitter struct {
 	limits    ModeEmitterLimits
 	emits     []ModeEmit
 	ledsHSV   []color.HSV
+	presets   []ModeEmitterParameter
 }
 
 type ModeEmitterParameter struct {
@@ -168,7 +169,7 @@ func NewModeEmitter(dbdriver *dbdriver.DbDriver, display *display.Display) *Mode
 	self := ModeEmitter{
 		limits: ModeEmitterLimits{
 			MinEmitCount:      1,
-			MaxEmitCount:      5,
+			MaxEmitCount:      10,
 			MinEmitLifetimeMs: 500,
 			MaxEmitLifetimeMs: 7000,
 			MinBrightness:     0.01,
@@ -178,6 +179,7 @@ func NewModeEmitter(dbdriver *dbdriver.DbDriver, display *display.Display) *Mode
 	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeEmitter", RenderTypeDynamic, self.calcDisplay)
 	self.ledsHSV = make([]color.HSV, display.GetRowLedCount())
 	self.emits = make([]ModeEmit, self.limits.MaxEmitCount)
+	self.presets = self.getPresets()
 	for i := uint8(0); i < self.limits.MaxEmitCount; i++ {
 		self.emits[i].pParameter = &self.parameter
 		self.emits[i].refreshIntervalNs = self.display.GetRefreshIntervalNs()
@@ -191,6 +193,20 @@ func NewModeEmitter(dbdriver *dbdriver.DbDriver, display *display.Display) *Mode
 	}
 
 	return &self
+}
+func (self *ModeEmitter) getPresets() []ModeEmitterParameter {
+	return []ModeEmitterParameter{
+		{
+			EmitCount:         4,
+			EmitStyle:         EmitStylePulse,
+			MinBrightness:     0.4,
+			MaxBrightness:     0.9,
+			MinEmitLifetimeMs: 300,
+			MaxEmitLifetimeMs: 100,
+			WaveSpeedFac:      1,
+			WaveWidthFac:      1,
+		},
+	}
 }
 
 func (self *ModeEmitter) GetParameter() interface{} { return &self.parameter }
@@ -230,6 +246,7 @@ func (self *ModeEmitter) TrySetParameter(b []byte) error {
 func (self *ModeEmitter) postSetParameter() {
 	for i := uint8(0); i < self.parameter.EmitCount; i++ {
 		self.emits[i].randomize()
+		self.emits[i].ProgressPer = rand.Float64()
 	}
 }
 
@@ -237,6 +254,10 @@ func (self *ModeEmitter) SetParameter(parm ModeEmitterParameter) {
 	self.parameter = parm
 	self.dbdriver.Write(self.name, "parameter", self.parameter)
 	self.postSetParameter()
+}
+
+func (self *ModeEmitter) RandomizePreset() {
+	self.Randomize()
 }
 
 func (self *ModeEmitter) Randomize() {

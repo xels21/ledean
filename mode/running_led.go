@@ -173,6 +173,9 @@ func (self *ModeRunningLed) AddRunningLed(position float64, speed float64) {
 
 }
 
+func (self *ModeRunningLed) RandomizePreset() {
+	self.Randomize()
+}
 func (self *ModeRunningLed) Randomize() {
 	rand.Seed(time.Now().UnixNano())
 

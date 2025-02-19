@@ -119,6 +119,9 @@ func (self *ModeTransitionRainbow) calcDisplay() {
 	self.display.ApplySingleRowHSV(self.ledsHSV)
 }
 
+func (self *ModeTransitionRainbow) RandomizePreset() {
+	self.Randomize()
+}
 func (self *ModeTransitionRainbow) Randomize() {
 	rand.Seed(time.Now().UnixNano())
 	self.SetParameter(ModeTransitionRainbowParameter{

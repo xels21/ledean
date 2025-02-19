@@ -13,6 +13,7 @@ type Mode interface {
 	Activate()
 	Deactivate()
 	Randomize()
+	RandomizePreset()
 	TrySetParameter(b []byte) error
 	GetParameter() interface{}
 	GetLimits() interface{}

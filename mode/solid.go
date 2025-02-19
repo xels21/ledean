@@ -72,6 +72,10 @@ func (self *ModeSolid) SetParameter(parm ModeSolidParameter) {
 	self.dbdriver.Write(self.name, "parameter", self.parameter)
 }
 
+func (self *ModeSolid) RandomizePreset() {
+	self.Randomize()
+}
+
 func (self *ModeSolid) Randomize() {
 	rand.Seed(time.Now().UnixNano())
 	parameter := ModeSolidParameter{
