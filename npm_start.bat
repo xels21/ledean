@@ -1,3 +1,5 @@
+@ECHO OFF
+
 PUSHD %~dp0\frontend
 
 @REM echo cwd: %cd%

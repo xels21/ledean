@@ -72,7 +72,7 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 		pCmdModeChannel:       hub.GetCmdModeChannel(),
 		showEntriesIndex:      0,
 	}
-	if show_mode && false {
+	if show_mode {
 		// self.modes = []Mode{self.modePicture}
 		self.modes = []Mode{self.modePicture, self.modeSolid, self.modeSolidRainbow, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient, self.modeSpectrum}
 		self.showEntries = []ShowEntry{
@@ -95,8 +95,8 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 
 		// self.modes = []Mode{self.modePicture, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient, self.modeSpectrum}
 	} else {
-		self.modes = []Mode{self.modePicture}
-		// self.modes = []Mode{self.modeSolid, self.modeSolidRainbow, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient, self.modeSpectrum, self.modePicture}
+		// self.modes = []Mode{self.modePicture}
+		self.modes = []Mode{self.modeSolid, self.modeSolidRainbow, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient, self.modeSpectrum, self.modePicture}
 	}
 	self.modesLength = uint8(len(self.modes))
 
