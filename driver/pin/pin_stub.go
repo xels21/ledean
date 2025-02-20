@@ -10,9 +10,9 @@ import (
 type Pin struct {
 }
 
-func NewPin(gpioName string) *Pin {
+func NewPin(gpioName string) Pin {
 	self := Pin{}
-	return &self
+	return self
 }
 
 func (self *Pin) WaitForEdge(timeout time.Duration) bool {

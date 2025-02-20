@@ -20,9 +20,9 @@ type Display struct {
 	cbWrite func(buf []byte) (n int, err error)
 }
 
-func NewDisplay(ledCount int, ledRows int, gpioLedData string, reverseRowsRaw string, fps int, order int, device int, hub *websocket.Hub) *Display {
+func NewDisplay(ledCount int, ledRows int, gpioLedData string, reverseRowsRaw string, fps int, order int, device int, hub *websocket.Hub) Display {
 	self := Display{
-		DisplayBase: *NewDisplayBase(ledCount, ledRows, reverseRowsRaw, fps, order, hub),
+		DisplayBase: NewDisplayBase(ledCount, ledRows, reverseRowsRaw, fps, order, hub),
 	}
 	switch device {
 	case LED_DEVICE_WS2812:
@@ -50,7 +50,7 @@ func NewDisplay(ledCount int, ledRows int, gpioLedData string, reverseRowsRaw st
 	default:
 		log.Error("not supported SPI device:")
 	}
-	return &self
+	return self
 }
 
 func (self *Display) Render() {

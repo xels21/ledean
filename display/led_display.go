@@ -49,7 +49,7 @@ type DisplayBase struct {
 	// modeController *mode.ModeController //[]mode.Mode
 }
 
-func NewDisplayBase(led_count int, led_rows int, reverse_rows_raw string, fps int, order int, hub *websocket.Hub) *DisplayBase {
+func NewDisplayBase(led_count int, led_rows int, reverse_rows_raw string, fps int, order int, hub *websocket.Hub) DisplayBase {
 	self := DisplayBase{
 		led_count:            led_count,
 		led_rows:             led_rows,
@@ -82,7 +82,7 @@ func NewDisplayBase(led_count int, led_rows int, reverse_rows_raw string, fps in
 		self.hub.AppendInitClientCb(self.initClientCb)
 	}
 
-	return &self
+	return self
 }
 
 func (self *DisplayBase) GetFps() int {
@@ -196,7 +196,7 @@ func (self *DisplayBase) Clear() {
 }
 
 func (self *DisplayBase) AllSolid(rgb color.RGB) {
-	for i, _ := range self.singleRowRGB {
+	for i := range self.singleRowRGB {
 		self.singleRowRGB[i] = rgb
 	}
 	self.applySingleRow()

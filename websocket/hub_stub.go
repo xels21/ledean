@@ -11,9 +11,9 @@ import (
 type Hub struct {
 }
 
-func NewHub() *Hub {
+func NewHub() Hub {
 	log.Error("Not possible with tinygo yet")
-	return nil
+	return Hub{}
 }
 
 func (self *Hub) GetCmdButtonChannel() *chan CmdButton {

@@ -8,9 +8,9 @@ import "errors"
 type DbDriver struct {
 }
 
-func NewDbDriver(dir string) (*DbDriver, error) {
+func NewDbDriver(dir string) (DbDriver, error) {
 	self := DbDriver{}
-	return &self, nil
+	return self, nil
 }
 
 func (self *DbDriver) Read(collection, resource string, v interface{}) error {

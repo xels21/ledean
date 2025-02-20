@@ -48,7 +48,7 @@ type ModeRunningLedLimits struct {
 	MaxFadePct     float64 `json:"maxFadePct"`
 }
 
-func NewModeRunningLed(dbdriver *dbdriver.DbDriver, display *display.Display) *ModeRunningLed {
+func NewModeRunningLed(dbdriver *dbdriver.DbDriver, display *display.Display) ModeRunningLed {
 	self := ModeRunningLed{
 		limits: ModeRunningLedLimits{
 			MinRoundTimeMs: 1000,  //1s
@@ -63,7 +63,7 @@ func NewModeRunningLed(dbdriver *dbdriver.DbDriver, display *display.Display) *M
 		activatedLeds: make([]float64, display.GetRowLedCount()),
 	}
 
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeRunningLed", RenderTypeDynamic, self.calcDisplay)
+	self.ModeSuper = NewModeSuper(dbdriver, display, "ModeRunningLed", RenderTypeDynamic, self.calcDisplay)
 
 	err := dbdriver.Read(self.GetName(), "parameter", &self.parameter)
 	if err != nil {
@@ -72,7 +72,7 @@ func NewModeRunningLed(dbdriver *dbdriver.DbDriver, display *display.Display) *M
 		self.postSetParameter()
 	}
 
-	return &self
+	return self
 }
 
 func (self *ModeRunningLed) GetParameter() interface{} { return &self.parameter }

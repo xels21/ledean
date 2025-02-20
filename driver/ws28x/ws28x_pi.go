@@ -18,8 +18,8 @@ type PiWs28xConnector struct {
 	cWriteBuffer chan []byte
 }
 
-func NewPiWs28xConnector(gpioLedData string) *PiWs28xConnector {
-	return &PiWs28xConnector{
+func NewPiWs28xConnector(gpioLedData string) PiWs28xConnector {
+	return PiWs28xConnector{
 		gpioLedData:  gpioLedData,
 		cWriteBuffer: make(chan []byte, 32),
 	}

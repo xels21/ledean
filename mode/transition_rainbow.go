@@ -35,7 +35,7 @@ type ModeTransitionRainbowLimits struct {
 	MaxSpectrum    float64 `json:"maxSpectrum"`
 }
 
-func NewModeTransitionRainbow(dbdriver *dbdriver.DbDriver, display *display.Display) *ModeTransitionRainbow {
+func NewModeTransitionRainbow(dbdriver *dbdriver.DbDriver, display *display.Display) ModeTransitionRainbow {
 	self := ModeTransitionRainbow{
 		limits: ModeTransitionRainbowLimits{
 			MinRoundTimeMs: 500,
@@ -48,7 +48,7 @@ func NewModeTransitionRainbow(dbdriver *dbdriver.DbDriver, display *display.Disp
 		progressDeg: 0.0,
 	}
 
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeTransitionRainbow", RenderTypeDynamic, self.calcDisplay)
+	self.ModeSuper = NewModeSuper(dbdriver, display, "ModeTransitionRainbow", RenderTypeDynamic, self.calcDisplay)
 
 	self.ledsHSV = make([]color.HSV, self.display.GetRowLedCount())
 	for i := 0; i < len(self.ledsHSV); i++ {
@@ -62,7 +62,7 @@ func NewModeTransitionRainbow(dbdriver *dbdriver.DbDriver, display *display.Disp
 		self.postSetParameter()
 	}
 
-	return &self
+	return self
 }
 
 func (self *ModeTransitionRainbow) GetParameter() interface{} { return &self.parameter }

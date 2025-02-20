@@ -8,12 +8,12 @@ type DbDriver struct {
 	driver *scribble.Driver
 }
 
-func NewDbDriver(dir string) (*DbDriver, error) {
+func NewDbDriver(dir string) (DbDriver, error) {
 	self := DbDriver{}
 
 	driver, err := scribble.New(dir, nil)
 	self.driver = driver
-	return &self, err
+	return self, err
 }
 
 func (self *DbDriver) Read(collection, resource string, v interface{}) error {

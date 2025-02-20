@@ -32,14 +32,14 @@ type ModeController struct {
 	modes                 []Mode
 	modesIndex            uint8
 	modesLength           uint8
-	modePicture           *ModePicture
-	modeSolid             *ModeSolid
-	modeSolidRainbow      *ModeSolidRainbow
-	modeTransitionRainbow *ModeTransitionRainbow
-	modeRunningLed        *ModeRunningLed
-	modeEmitter           *ModeEmitter
-	modeGradient          *ModeGradient
-	modeSpectrum          *ModeSpectrum
+	modePicture           ModePicture
+	modeSolid             ModeSolid
+	modeSolidRainbow      ModeSolidRainbow
+	modeTransitionRainbow ModeTransitionRainbow
+	modeRunningLed        ModeRunningLed
+	modeEmitter           ModeEmitter
+	modeGradient          ModeGradient
+	modeSpectrum          ModeSpectrum
 	showEntries           []ShowEntry
 	showEntriesIndex      uint8
 	showTimer             *time.Timer
@@ -53,7 +53,7 @@ const SHOW_PIC_DURATION = 7000
 // const SHOW_PIC_DURATION = 2000
 const SHOW_DEFAULT_DURATION = 5000
 
-func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, button *button.Button, hub *websocket.Hub, picture_mode bool) *ModeController {
+func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, button *button.Button, hub *websocket.Hub, picture_mode bool) ModeController {
 	self := ModeController{
 		dbdriver:              dbdriver,
 		display:               display,
@@ -74,28 +74,43 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 	}
 	if picture_mode && false {
 		// self.modes = []Mode{self.modePicture}
-		self.modes = []Mode{self.modePicture, self.modeSolid, self.modeSolidRainbow, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient, self.modeSpectrum}
+		self.modes = []Mode{
+			&self.modePicture,
+			&self.modeSolid,
+			&self.modeSolidRainbow,
+			&self.modeTransitionRainbow,
+			&self.modeRunningLed,
+			&self.modeEmitter,
+			&self.modeGradient,
+			&self.modeSpectrum}
 		self.showEntries = []ShowEntry{
-			{mode: self.modePicture, durationMs: SHOW_PIC_DURATION, randomize: false},
-			// {mode: self.modeSolid, durationMs: 1000},
-			// {mode: self.modePicture, durationMs: SHOW_PIC_DURATION},
-			// {mode: self.modeSolidRainbow, durationMs: 1000},
-			// {mode: self.modePicture, durationMs: SHOW_PIC_DURATION},
-			// {mode: self.modeTransitionRainbow, durationMs: 3000},
-			// {mode: self.modePicture, durationMs: SHOW_PIC_DURATION},
-			{mode: self.modeRunningLed, durationMs: SHOW_DEFAULT_DURATION, randomize: true},
-			{mode: self.modePicture, durationMs: SHOW_PIC_DURATION, randomize: false},
-			{mode: self.modeEmitter, durationMs: SHOW_DEFAULT_DURATION, randomize: true},
-			{mode: self.modePicture, durationMs: SHOW_PIC_DURATION, randomize: false},
-			{mode: self.modeGradient, durationMs: SHOW_DEFAULT_DURATION, randomize: true},
-			{mode: self.modePicture, durationMs: SHOW_PIC_DURATION, randomize: false},
-			{mode: self.modeSpectrum, durationMs: SHOW_DEFAULT_DURATION, randomize: true},
+			{mode: &self.modePicture, durationMs: SHOW_PIC_DURATION, randomize: false},
+			// {mode: &self.modeSolid, durationMs: 1000},
+			// {mode: &self.modePicture, durationMs: SHOW_PIC_DURATION},
+			// {mode: &self.modeSolidRainbow, durationMs: 1000},
+			// {mode: &self.modePicture, durationMs: SHOW_PIC_DURATION},
+			// {mode: &self.modeTransitionRainbow, durationMs: 3000},
+			// {mode: &self.modePicture, durationMs: SHOW_PIC_DURATION},
+			{mode: &self.modeRunningLed, durationMs: SHOW_DEFAULT_DURATION, randomize: true},
+			{mode: &self.modePicture, durationMs: SHOW_PIC_DURATION, randomize: false},
+			{mode: &self.modeEmitter, durationMs: SHOW_DEFAULT_DURATION, randomize: true},
+			{mode: &self.modePicture, durationMs: SHOW_PIC_DURATION, randomize: false},
+			{mode: &self.modeGradient, durationMs: SHOW_DEFAULT_DURATION, randomize: true},
+			{mode: &self.modePicture, durationMs: SHOW_PIC_DURATION, randomize: false},
+			{mode: &self.modeSpectrum, durationMs: SHOW_DEFAULT_DURATION, randomize: true},
 		}
 		go self.startShow()
 
 		// self.modes = []Mode{self.modePicture, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient, self.modeSpectrum}
 	} else {
-		self.modes = []Mode{self.modeSolid, self.modeSolidRainbow, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient, self.modeSpectrum}
+		self.modes = []Mode{
+			&self.modeSolid,
+			&self.modeSolidRainbow,
+			&self.modeTransitionRainbow,
+			&self.modeRunningLed,
+			&self.modeEmitter,
+			&self.modeGradient,
+			&self.modeSpectrum}
 	}
 	self.modesLength = uint8(len(self.modes))
 
@@ -109,6 +124,10 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 		self.isPaused = false
 	}
 
+	return self
+}
+
+func (self *ModeController) PostCreate() {
 	self.registerEvents()
 
 	if self.hub != nil {
@@ -116,8 +135,8 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 		self.hub.AppendInitClientCb(self.initClientCb)
 	}
 
-	return &self
 }
+
 func (self *ModeController) startShow() {
 	for {
 		self.showTimer = time.NewTimer(time.Duration(self.showEntries[self.showEntriesIndex].durationMs) * time.Millisecond)
@@ -249,25 +268,25 @@ func (self *ModeController) GetIndexOf(friendlyName string) uint8 {
 }
 
 func (self *ModeController) GetModeSolid() *ModeSolid {
-	return self.modeSolid
+	return &self.modeSolid
 }
 func (self *ModeController) GetModeSolidRainbow() *ModeSolidRainbow {
-	return self.modeSolidRainbow
+	return &self.modeSolidRainbow
 }
 func (self *ModeController) GetModeTransitionRainbow() *ModeTransitionRainbow {
-	return self.modeTransitionRainbow
+	return &self.modeTransitionRainbow
 }
 func (self *ModeController) GetModeRunningLed() *ModeRunningLed {
-	return self.modeRunningLed
+	return &self.modeRunningLed
 }
 func (self *ModeController) GetModeEmitter() *ModeEmitter {
-	return self.modeEmitter
+	return &self.modeEmitter
 }
 func (self *ModeController) GetModeGradient() *ModeGradient {
-	return self.modeGradient
+	return &self.modeGradient
 }
 func (self *ModeController) GetModeSpectrum() *ModeSpectrum {
-	return self.modeSpectrum
+	return &self.modeSpectrum
 }
 
 func (self *ModeController) NextMode() {

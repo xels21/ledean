@@ -165,7 +165,7 @@ type ModeEmitterLimits struct {
 	MaxBrightness     float64 `json:"maxBrightness"`
 }
 
-func NewModeEmitter(dbdriver *dbdriver.DbDriver, display *display.Display) *ModeEmitter {
+func NewModeEmitter(dbdriver *dbdriver.DbDriver, display *display.Display) ModeEmitter {
 	self := ModeEmitter{
 		limits: ModeEmitterLimits{
 			MinEmitCount:      1,
@@ -176,7 +176,7 @@ func NewModeEmitter(dbdriver *dbdriver.DbDriver, display *display.Display) *Mode
 			MaxBrightness:     1.0,
 		},
 	}
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeEmitter", RenderTypeDynamic, self.calcDisplay)
+	self.ModeSuper = NewModeSuper(dbdriver, display, "ModeEmitter", RenderTypeDynamic, self.calcDisplay)
 	self.ledsHSV = make([]color.HSV, display.GetRowLedCount())
 	self.emits = make([]ModeEmit, self.limits.MaxEmitCount)
 	self.presets = self.getPresets()
@@ -192,7 +192,7 @@ func NewModeEmitter(dbdriver *dbdriver.DbDriver, display *display.Display) *Mode
 		self.postSetParameter()
 	}
 
-	return &self
+	return self
 }
 func (self *ModeEmitter) getPresets() []ModeEmitterParameter {
 	return []ModeEmitterParameter{

@@ -25,21 +25,21 @@ type ModeSolidLimits struct {
 	MaxBrightness float64 `json:"maxBrightness"`
 }
 
-func NewModeSolid(dbdriver *dbdriver.DbDriver, display *display.Display) *ModeSolid {
+func NewModeSolid(dbdriver *dbdriver.DbDriver, display *display.Display) ModeSolid {
 	self := ModeSolid{
 		limits: ModeSolidLimits{
 			MinBrightness: 0.0,
 			MaxBrightness: 1.0,
 		},
 	}
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeSolid", RenderTypeStatic, self.calcDisplay)
+	self.ModeSuper = NewModeSuper(dbdriver, display, "ModeSolid", RenderTypeStatic, self.calcDisplay)
 
 	err := dbdriver.Read(self.name, "parameter", &self.parameter)
 	if err != nil {
 		self.Randomize()
 	}
 
-	return &self
+	return self
 }
 
 func (self *ModeSolid) calcDisplay() {

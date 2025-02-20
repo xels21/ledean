@@ -46,7 +46,7 @@ type ModePictureLimits struct {
 	MaxBrightness               float64 `json:"maxBrightness"`
 }
 
-func NewModePicture(dbdriver *dbdriver.DbDriver, display *display.Display) *ModePicture {
+func NewModePicture(dbdriver *dbdriver.DbDriver, display *display.Display) ModePicture {
 	if display.GetRowLedCount() != picture.PixelCount {
 		log.Fatalf("Display led size[%d] not matching to generated picture size[%d]", display.GetRowLedCount(), picture.PixelCount)
 	}
@@ -71,7 +71,7 @@ func NewModePicture(dbdriver *dbdriver.DbDriver, display *display.Display) *Mode
 		// picIndex:           0,
 		picIndex: uint8(rand.Uint32() % uint32(len(picture.Pics))),
 	}
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModePicture", RenderTypeDynamic, self.calcDisplay)
+	self.ModeSuper = NewModeSuper(dbdriver, display, "ModePicture", RenderTypeDynamic, self.calcDisplay)
 
 	err := dbdriver.Read(self.GetName(), "parameter", &self.parameter)
 	if err != nil {
@@ -81,7 +81,7 @@ func NewModePicture(dbdriver *dbdriver.DbDriver, display *display.Display) *Mode
 		self.postSetParameter()
 	}
 
-	return &self
+	return self
 }
 
 func (self *ModePicture) Default() {

@@ -19,7 +19,7 @@ type Button struct {
 	longPressMs        int
 	pressDoubleTimeout int
 	isLocked           bool `json:"isLocked"`
-	pin                *pin.Pin
+	pin                pin.Pin
 	cbPressLong        []func()
 	cbPressSingle      []func()
 	cbPressDouble      []func()
@@ -27,10 +27,10 @@ type Button struct {
 	pCmdButtonChannel  *chan websocket.CmdButton
 }
 
-func NewButton(dbdriver *dbdriver.DbDriver, gpio string, longPressMs int, pressDoubleTimeout int, hub *websocket.Hub) *Button {
+func NewButton(dbdriver *dbdriver.DbDriver, gpio string, longPressMs int, pressDoubleTimeout int, hub *websocket.Hub) (Button, error) {
 
 	if gpio == "" {
-		return nil
+		return Button{}, errors.New("gpio is empty")
 	}
 	self := Button{
 		dbdriver:           dbdriver,
@@ -61,7 +61,7 @@ func NewButton(dbdriver *dbdriver.DbDriver, gpio string, longPressMs int, pressD
 
 	go self.listen()
 
-	return &self
+	return self, nil
 }
 
 func (self *Button) initClientCb(client *websocket.Client) {

@@ -15,7 +15,7 @@ type Pin struct {
 
 const SAMPLING_RATE_MS = 70
 
-func NewPin(gpioName string) *Pin {
+func NewPin(gpioName string) Pin {
 	gpioInt, _ := strconv.Atoi(gpioName)
 	self := Pin{
 		machine.Pin(gpioInt),
@@ -23,7 +23,7 @@ func NewPin(gpioName string) *Pin {
 
 	self.pin.Configure(machine.PinConfig{Mode: machine.PinInputPulldown})
 
-	return &self
+	return self
 }
 
 func (self *Pin) WaitForEdgeInfinite(returnVal chan bool) {

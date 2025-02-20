@@ -28,7 +28,7 @@ type ModeSolidRainbowLimits struct {
 	MaxBrightness  float64 `json:"maxBrightness"`
 }
 
-func NewModeSolidRainbow(dbdriver *dbdriver.DbDriver, display *display.Display) *ModeSolidRainbow {
+func NewModeSolidRainbow(dbdriver *dbdriver.DbDriver, display *display.Display) ModeSolidRainbow {
 	self := ModeSolidRainbow{
 		limits: ModeSolidRainbowLimits{
 			MinRoundTimeMs: 2000,   //2s
@@ -38,7 +38,7 @@ func NewModeSolidRainbow(dbdriver *dbdriver.DbDriver, display *display.Display) 
 		},
 	}
 
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeSolidRainbow", RenderTypeDynamic, self.calcDisplay)
+	self.ModeSuper = NewModeSuper(dbdriver, display, "ModeSolidRainbow", RenderTypeDynamic, self.calcDisplay)
 
 	err := dbdriver.Read(self.GetName(), "parameter", &self.parameter)
 	if err != nil {
@@ -47,7 +47,7 @@ func NewModeSolidRainbow(dbdriver *dbdriver.DbDriver, display *display.Display) 
 		self.postSetParameter()
 	}
 
-	return &self
+	return self
 }
 
 func (self *ModeSolidRainbow) GetParameter() interface{} { return &self.parameter }

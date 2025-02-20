@@ -36,8 +36,8 @@ type Hub struct {
 	// Cmd2sMode        chan Cmd2sMode
 }
 
-func NewHub() *Hub {
-	return &Hub{
+func NewHub() Hub {
+	return Hub{
 		cmd:                  make(chan Cmd),
 		register:             make(chan *Client),
 		unregister:           make(chan *Client),
@@ -151,7 +151,7 @@ func (self *Hub) ServeWs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	client := NewClient(self, conn)
-	client.hub.register <- client
+	client.hub.register <- &client
 
 	// Allow collection of memory referenced by the caller by doing all work in
 	// new goroutines.

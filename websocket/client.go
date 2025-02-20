@@ -46,8 +46,8 @@ type Client struct {
 	pCmdModeChannel       *chan CmdMode
 }
 
-func NewClient(hub *Hub, conn *websocket.Conn) *Client {
-	return &Client{
+func NewClient(hub *Hub, conn *websocket.Conn) Client {
+	return Client{
 		hub:                   hub,
 		conn:                  conn,
 		send:                  make(chan Cmd),

@@ -36,7 +36,7 @@ type ModeSuper struct {
 	cExit       chan bool
 }
 
-func NewModeSuper(dbdriver *dbdriver.DbDriver, display *display.Display, name string, renderType RenderType, calcDisplay func()) *ModeSuper {
+func NewModeSuper(dbdriver *dbdriver.DbDriver, display *display.Display, name string, renderType RenderType, calcDisplay func()) ModeSuper {
 	self := ModeSuper{
 		dbdriver:    dbdriver,
 		display:     display,
@@ -49,7 +49,7 @@ func NewModeSuper(dbdriver *dbdriver.DbDriver, display *display.Display, name st
 		self.cExit = make(chan bool, 1)
 	}
 
-	return &self
+	return self
 }
 
 func (self *ModeSuper) GetName() string {

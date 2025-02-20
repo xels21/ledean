@@ -15,7 +15,7 @@ type Pin struct {
 	pin gpio.PinIO
 }
 
-func NewPin(gpioName string) *Pin {
+func NewPin(gpioName string) Pin {
 	pin := gpioreg.ByName(gpioName)
 	if pin == nil {
 		log.Fatal("Failed to find pin by name: ", gpioName)
@@ -26,7 +26,7 @@ func NewPin(gpioName string) *Pin {
 		log.Fatal("Could not init pin:", err)
 	}
 
-	return &self
+	return self
 }
 
 func (self *Pin) WaitForEdge(timeout time.Duration) bool {

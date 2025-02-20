@@ -22,7 +22,7 @@ type PicScaler struct {
 	outDir     string
 }
 
-func NewPicScaler(inDir string, outDir string, name string, pixelCount int, asBytes bool) *PicScaler {
+func NewPicScaler(inDir string, outDir string, name string, pixelCount int, asBytes bool) PicScaler {
 	self := PicScaler{
 		inDir:      inDir,
 		pixelCount: pixelCount,
@@ -31,7 +31,7 @@ func NewPicScaler(inDir string, outDir string, name string, pixelCount int, asBy
 		outDir:     outDir,
 	}
 
-	return &self
+	return self
 }
 
 // func (self *PicScaler) ClearOldFiles() {

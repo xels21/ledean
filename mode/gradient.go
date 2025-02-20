@@ -42,7 +42,7 @@ type ModeGradientLimits struct {
 	MaxCount       uint32  `json:"maxCount"`
 }
 
-func NewModeGradient(dbdriver *dbdriver.DbDriver, display *display.Display) *ModeGradient {
+func NewModeGradient(dbdriver *dbdriver.DbDriver, display *display.Display) ModeGradient {
 	self := ModeGradient{
 		limits: ModeGradientLimits{
 			MinRoundTimeMs: 1000,
@@ -54,7 +54,7 @@ func NewModeGradient(dbdriver *dbdriver.DbDriver, display *display.Display) *Mod
 		},
 	}
 
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeGradient", RenderTypeDynamic, self.calcDisplay)
+	self.ModeSuper = NewModeSuper(dbdriver, display, "ModeGradient", RenderTypeDynamic, self.calcDisplay)
 
 	self.posDistances = make([]float64, self.limits.MaxCount-1)
 	self.positions = make([]ModeGradientPosition, self.limits.MaxCount)
@@ -74,7 +74,7 @@ func NewModeGradient(dbdriver *dbdriver.DbDriver, display *display.Display) *Mod
 		self.postSetParameter()
 	}
 
-	return &self
+	return self
 }
 
 func (self *ModeGradient) GetParameter() interface{} { return &self.parameter }

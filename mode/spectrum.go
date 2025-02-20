@@ -77,7 +77,7 @@ type ModeSpectrumLimits struct {
 	MaxOffset      float64 `json:"maxOffset"`
 }
 
-func NewModeSpectrum(dbdriver *dbdriver.DbDriver, display *display.Display) *ModeSpectrum {
+func NewModeSpectrum(dbdriver *dbdriver.DbDriver, display *display.Display) ModeSpectrum {
 	self := ModeSpectrum{
 		limits: ModeSpectrumLimits{
 			MinBrightness:  0.01,
@@ -91,7 +91,7 @@ func NewModeSpectrum(dbdriver *dbdriver.DbDriver, display *display.Display) *Mod
 		},
 	}
 
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeSpectrum", RenderTypeDynamic, self.calcDisplay)
+	self.ModeSuper = NewModeSuper(dbdriver, display, "ModeSpectrum", RenderTypeDynamic, self.calcDisplay)
 
 	self.ledsHSV = make([]color.HSV, self.display.GetRowLedCount())
 	for i := 0; i < len(self.ledsHSV); i++ {
@@ -105,7 +105,7 @@ func NewModeSpectrum(dbdriver *dbdriver.DbDriver, display *display.Display) *Mod
 		self.postSetParameter()
 	}
 
-	return &self
+	return self
 }
 
 func (self *ModeSpectrum) GetParameter() interface{} { return &self.parameter }
