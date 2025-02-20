@@ -1,0 +1,1 @@
+A pre compile script for converting pictures to the right size and save it as byte array (string for rom memory on ecu)
