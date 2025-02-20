@@ -1,0 +1,80 @@
+/* You can add global styles to this file, and also import other style files */
+
+$material-design-icons-font-directory-path: '~material-design-icons-iconfont/dist/fonts/';
+// @import "~material-design-icons-iconfont/src/material-design-icons";
+@import 'material-design-icons-iconfont/src/material-design-icons';
+
+@import "~nouislider/dist/nouislider.min.css";
+
+
+.row{
+  margin-bottom: 0px !important;
+}
+
+// $primary-color: color("materialize-blue", "lighten-2") !default;
+// $primary-color-light: false !default;
+// $primary-color-dark: true !default;
+// @if not $primary-color-light {
+//   $primary-color-light: lighten($primary-color, 15%);
+// }
+// @if not $primary-color-dark {
+//   $primary-color-dark: darken($primary-color, 15%);
+// }
+// $secondary-color: color("teal", "lighten-1") !default;
+// $success-color: color("green", "base") !default;
+// $error-color: color("red", "base") !default;
+
+// $link-color: color("light-blue", "darken-1") !default;
+
+// /*** More variables not shown here.. ***/
+
+
+html{
+  background-color:#222;
+}
+
+h1 {
+  font-size: 3rem !important;
+}
+h2 {
+  font-size: 2.5rem !important;
+}
+h3 {
+  font-size: 2.2rem !important;
+}
+h4 {
+  font-size: 2rem !important;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  text-align: center;
+  //   margin: 0px !important;
+  //   line-height: 200% !important;
+}
+
+.simpleInputTable td {
+  padding: 0px;
+}
+.simpleInputTable tr {
+  border: 0;
+}
+.simpleInputTable > thead {
+  border-bottom: 2px solid rgba(0, 0, 0, 0.4);
+}
+.simpleInputTable thead td {
+  // text-align: center;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.striped > tbody > tr:nth-child(n + 1) {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+
+.modal{
+  color: black
+}

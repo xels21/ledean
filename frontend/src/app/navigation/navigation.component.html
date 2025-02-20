@@ -1,0 +1,22 @@
+<nav>
+  <div class="nav-wrapper teal">
+    <a href="#" class="brand-logo" style="margin-left:10px">LEDean</a>
+
+    <ul id="nav-mobile" class="right">
+      <li><a class="waves-effect waves-light btn red" (click)="systemService.exit()">shutdown</a></li>
+    </ul>
+
+    <ul id="nav-mobile" class="right">
+      
+      <div class="switch" data-tooltip="I am a tooltip">
+        <label data-tooltip="I am a tooltip">
+          <input type="checkbox" [(ngModel)]="ledsService.isBuffered" data-tooltip="I am a tooltip">
+          <span class="lever"></span>
+          buffered
+        </label>
+      </div>
+    </ul>
+
+
+  </div>
+</nav>

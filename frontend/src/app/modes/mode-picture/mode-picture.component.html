@@ -1,0 +1,39 @@
+<div *ngIf="service.parameter && service.limits">
+
+  <div class="row" [ngStyle]="{'background-color': 'rgba(255,255,255,'+service.parameter.brightness+')'}">
+    <div class="input-field col s3">
+      <input id="brightness" type="number" [(ngModel)]="service.parameter.brightness"
+        (change)="service.sendParameter()" />
+      <label for="brightness">brightness</label>
+    </div>
+
+    <div class="col s9 valign-wrapper generic-slider">
+      <input type="range" [min]="service.limits.minBrightness" [max]="service.limits.maxBrightness" step="0.01"
+        (change)="service.sendParameter()" [(ngModel)]="service.parameter.brightness" />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col s3 input-field">
+      <input id="pictureChangeIntervallMs" type="number" [min]="service.limits.minPictureChangeIntervallMs"
+        [max]="service.limits.maxPictureChangeIntervallMs" (change)="service.sendParameter()"
+        [(ngModel)]="service.parameter.pictureChangeIntervallMs" />
+      <label for="PictureChangeIntervallMs">PictureChangeIntervallMs</label>
+    </div>
+    <div class="col s9 valign-wrapper generic-slider"> <input type="range" [min]="service.limits.minPictureChangeIntervallMs"
+        [max]="service.limits.maxPictureChangeIntervallMs" step="1" (change)="service.sendParameter()"
+        [(ngModel)]="service.parameter.pictureChangeIntervallMs" /> </div>
+  </div>
+
+  <div class="row">
+    <div class="col s3 input-field">
+      <input id="PictureColumnNs" type="number" [min]="service.limits.minPictureColumnNs"
+        [max]="service.limits.maxPictureColumnNs" (change)="service.sendParameter()"
+        [(ngModel)]="service.parameter.pictureColumnNs" />
+      <label for="PictureColumnNs">PictureColumnNs</label>
+    </div>
+    <div class="col s9 valign-wrapper generic-slider"> <input type="range" [min]="service.limits.minPictureColumnNs"
+        [max]="service.limits.maxPictureColumnNs" step="1" (change)="service.sendParameter()"
+        [(ngModel)]="service.parameter.pictureColumnNs" /> </div>
+  </div>
+</div>

@@ -1,0 +1,88 @@
+<div *ngIf="service.parameter && service.limits">
+
+  <div class="row" [ngStyle]="{'background-color': 'rgba(255,255,255,'+service.parameter.brightness+')'}">
+    <div class="input-field col s3">
+      <input id="brightness" type="number" [(ngModel)]="service.parameter.brightness"
+        (change)="service.sendParameter()" />
+      <label for="brightness">brightness</label>
+    </div>
+
+    <div class="col s9 valign-wrapper generic-slider">
+      <input type="range" [min]="service.limits.minBrightness"
+        [max]="service.limits.maxBrightness" step="0.01" (change)="service.sendParameter()"
+        [(ngModel)]="service.parameter.brightness" />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="input-field col s3">
+      <input id="fadePct" type="number" [(ngModel)]="service.parameter.fadePct"
+        (change)="service.sendParameter()" />
+      <label for="fadePct">fadePct</label>
+    </div>
+
+    <div class="col s9 valign-wrapper generic-slider">
+      <input type="range" [min]="service.limits.minFadePct"
+        [max]="service.limits.maxFadePct" step="0.01" (change)="service.sendParameter()"
+        [(ngModel)]="service.parameter.fadePct" />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="input-field col s3">
+      <input id="round_time_Ms" type="number" [(ngModel)]="service.parameter.roundTimeMs"
+        (change)="service.sendParameter()">
+      <label for="round_time_Ms">Round Time(ms)</label>
+    </div>
+
+    <div class="col s9 valign-wrapper generic-slider">
+      <input type="range" [min]="service.limits.minRoundTimeMs"
+        [max]="service.limits.maxRoundTimeMs" step="1" (change)="service.sendParameter()"
+        [(ngModel)]="service.parameter.roundTimeMs" />
+    </div>
+  </div>
+
+
+
+  <div class="row" [ngStyle]="{'background-color': 'hsl('+service.parameter.hueFrom+',100%,50%)'}">
+    <div class="input-field col s3">
+      <input id="hueFrom" type="number" [(ngModel)]="service.parameter.hueFrom"
+        (change)="service.sendParameter()" />
+      <label for="hueFrom">hueFrom</label>
+    </div>
+
+    <div class="col s9 valign-wrapper generic-slider">
+      <input type="range" min=0 max=360 step="0.01" (change)="service.sendParameter()"
+        [(ngModel)]="service.parameter.hueFrom" />
+    </div>
+  </div>
+
+  <div class="row" [ngStyle]="{'background-color': 'hsl('+service.parameter.hueTo+',100%,50%)'}">
+    <div class="input-field col s3">
+      <input id="hueTo" type="number" [(ngModel)]="service.parameter.hueTo"
+        (change)="service.sendParameter()" />
+      <label for="hueFrom">hueTo</label>
+    </div>
+
+    <div class="col s9 valign-wrapper generic-slider">
+      <input type="range" min=0 max=360 step="0.01" (change)="service.sendParameter()"
+        [(ngModel)]="service.parameter.hueTo" />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="input-field col s3">
+      <input id="style" type="text" [(ngModel)]="service.parameter.style"
+        (change)="service.sendParameter()" />
+      <label for="style">style</label>
+    </div>
+
+    <div class="col s9 valign-wrapper">
+      <select class="browser-default" [(ngModel)]="service.parameter.style"
+        (change)="service.sendParameter()">
+        <option *ngFor="let style of service.getAllStyles()" [text]="style"></option>
+      </select>
+    </div>
+  </div>
+
+</div>
