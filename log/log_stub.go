@@ -54,6 +54,11 @@ func Warning(args ...interface{}) {
 	log.Print(args...)
 }
 
+func Warningf(format string, args ...interface{}) {
+	// log.Warning(args...)
+	log.Printf(format, args...)
+}
+
 // Error logs a message at level Error on the standard logger.
 func Error(args ...interface{}) {
 	// log.Error(args...)

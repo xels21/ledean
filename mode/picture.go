@@ -48,7 +48,7 @@ type ModePictureLimits struct {
 
 func NewModePicture(dbdriver *dbdriver.DbDriver, display *display.Display) *ModePicture {
 	if display.GetRowLedCount() != picture.PixelCount {
-		log.Fatalf("Display led size[%d] not matching to generated picture size[%d]", display.GetRowLedCount(), picture.PixelCount)
+		log.Warningf("Display led size[%d] not matching to generated picture size[%d]", display.GetRowLedCount(), picture.PixelCount)
 	}
 	self := ModePicture{
 		// name: "ModePicture",
