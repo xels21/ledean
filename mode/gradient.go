@@ -21,6 +21,7 @@ type ModeGradientPosition struct {
 type ModeGradient struct {
 	ModeSuper
 	parameter    ModeGradientParameter
+	presets      []ModeGradientParameter
 	limits       ModeGradientLimits
 	percentStep  float64
 	ledsHSV      []color.HSV
@@ -55,6 +56,7 @@ func NewModeGradient(dbdriver *dbdriver.DbDriver, display *display.Display) *Mod
 	}
 
 	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeGradient", RenderTypeDynamic, self.calcDisplay)
+	self.presets = self.getPresets()
 
 	self.posDistances = make([]float64, self.limits.MaxCount-1)
 	self.positions = make([]ModeGradientPosition, self.limits.MaxCount)
@@ -77,6 +79,20 @@ func NewModeGradient(dbdriver *dbdriver.DbDriver, display *display.Display) *Mod
 	return &self
 }
 
+func (self *ModeGradient) getPresets() []ModeGradientParameter {
+	return []ModeGradientParameter{
+		{
+			Brightness:  0.6,
+			Count:       3,
+			RoundTimeMs: 600,
+		},
+		{
+			Brightness:  0.7,
+			Count:       4,
+			RoundTimeMs: 1000,
+		},
+	}
+}
 func (self *ModeGradient) GetParameter() interface{} { return &self.parameter }
 func (self *ModeGradient) GetLimits() interface{}    { return &self.limits }
 
@@ -112,10 +128,6 @@ func (self *ModeGradientPosition) randomizeWoFrom() {
 	self.hueTo720 = rand.Float64() * 720.0
 
 	self.hueDistance = self.hueTo720 - self.hueFrom720
-}
-
-func (self *ModeGradientPosition) RandomizePreset() {
-	self.Randomize()
 }
 
 func (self *ModeGradientPosition) Randomize() {
@@ -165,8 +177,9 @@ func (self *ModeGradient) calcDisplay() {
 }
 
 func (self *ModeGradient) RandomizePreset() {
-	self.Randomize()
+	self.SetParameter(self.presets[rand.Uint32()%uint32(len(self.presets))])
 }
+
 func (self *ModeGradient) Randomize() {
 	rand.Seed(time.Now().UnixNano())
 	self.SetParameter(ModeGradientParameter{

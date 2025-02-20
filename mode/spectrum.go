@@ -46,6 +46,7 @@ func (self *ModeSpectrumPosition) postSetParameter() {
 type ModeSpectrum struct {
 	ModeSuper
 	parameter ModeSpectrumParameter
+	presets   []ModeSpectrumParameter
 	limits    ModeSpectrumLimits
 	ledsHSV   []color.HSV
 	positions [2]ModeSpectrumPosition
@@ -92,6 +93,7 @@ func NewModeSpectrum(dbdriver *dbdriver.DbDriver, display *display.Display) *Mod
 	}
 
 	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeSpectrum", RenderTypeDynamic, self.calcDisplay)
+	self.presets = self.getPresets()
 
 	self.ledsHSV = make([]color.HSV, self.display.GetRowLedCount())
 	for i := 0; i < len(self.ledsHSV); i++ {
@@ -106,6 +108,57 @@ func NewModeSpectrum(dbdriver *dbdriver.DbDriver, display *display.Display) *Mod
 	}
 
 	return &self
+}
+
+func (self *ModeSpectrum) getPresets() []ModeSpectrumParameter {
+	return []ModeSpectrumParameter{
+		{
+			Brightness: .7,
+			HueFrom720: 470.0,
+			HueTo720:   620.0,
+			Positions: [2]ModeSpectrumParameterPosition{
+				{
+					FacFrom:        1.0,
+					FacTo:          2.0,
+					FacRoundTimeMs: 1000,
+					OffFrom:        1.0,
+					OffTo:          2.0,
+					OffRoundTimeMs: 1000,
+				},
+				{
+					FacFrom:        1.0,
+					FacTo:          2.0,
+					FacRoundTimeMs: 1000,
+					OffFrom:        1.0,
+					OffTo:          2.0,
+					OffRoundTimeMs: 1000,
+				},
+			},
+		},
+		{
+			Brightness: .7,
+			HueFrom720: 250.0,
+			HueTo720:   330.0,
+			Positions: [2]ModeSpectrumParameterPosition{
+				{
+					FacFrom:        1.2,
+					FacTo:          2.0,
+					FacRoundTimeMs: 800,
+					OffFrom:        1.5,
+					OffTo:          2.0,
+					OffRoundTimeMs: 1000,
+				},
+				{
+					FacFrom:        1.0,
+					FacTo:          1.8,
+					FacRoundTimeMs: 1000,
+					OffFrom:        1.0,
+					OffTo:          2.0,
+					OffRoundTimeMs: 1000,
+				},
+			},
+		},
+	}
 }
 
 func (self *ModeSpectrum) GetParameter() interface{} { return &self.parameter }
@@ -190,9 +243,8 @@ func (self *ModeSpectrum) getRandomPosition(seed int64) ModeSpectrumParameterPos
 }
 
 func (self *ModeSpectrum) RandomizePreset() {
-	self.Randomize()
+	self.SetParameter(self.presets[rand.Uint32()%uint32(len(self.presets))])
 }
-
 func (self *ModeSpectrum) Randomize() {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	self.SetParameter(ModeSpectrumParameter{

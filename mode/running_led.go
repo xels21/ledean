@@ -21,6 +21,7 @@ type ModeRunningLed struct {
 	ModeSuper
 	parameter           ModeRunningLedParameter
 	limits              ModeRunningLedLimits
+	presets             []ModeRunningLedParameter
 	ledsRGB             []color.RGB
 	activatedLeds       []float64
 	positionDeg         float64
@@ -63,6 +64,7 @@ func NewModeRunningLed(dbdriver *dbdriver.DbDriver, display *display.Display) *M
 		activatedLeds: make([]float64, display.GetRowLedCount()),
 	}
 
+	self.presets = self.getPresets()
 	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeRunningLed", RenderTypeDynamic, self.calcDisplay)
 
 	err := dbdriver.Read(self.GetName(), "parameter", &self.parameter)
@@ -74,7 +76,26 @@ func NewModeRunningLed(dbdriver *dbdriver.DbDriver, display *display.Display) *M
 
 	return &self
 }
-
+func (self *ModeRunningLed) getPresets() []ModeRunningLedParameter {
+	return []ModeRunningLedParameter{
+		{
+			Brightness:  .6,
+			RoundTimeMs: 500,
+			HueFrom:     259.5,
+			HueTo:       74.32,
+			FadePct:     0.95,
+			Style:       RunningLedStyleLinear,
+		},
+		{
+			Brightness:  .7,
+			RoundTimeMs: 700,
+			HueFrom:     11.04,
+			HueTo:       320.05,
+			FadePct:     0.27,
+			Style:       RunningLedStyleLinear,
+		},
+	}
+}
 func (self *ModeRunningLed) GetParameter() interface{} { return &self.parameter }
 func (self *ModeRunningLed) GetLimits() interface{}    { return &self.limits }
 
@@ -174,7 +195,7 @@ func (self *ModeRunningLed) AddRunningLed(position float64, speed float64) {
 }
 
 func (self *ModeRunningLed) RandomizePreset() {
-	self.Randomize()
+	self.SetParameter(self.presets[rand.Uint32()%uint32(len(self.presets))])
 }
 func (self *ModeRunningLed) Randomize() {
 	rand.Seed(time.Now().UnixNano())

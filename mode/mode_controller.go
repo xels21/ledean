@@ -76,13 +76,14 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 		// self.modes = []Mode{self.modePicture}
 		self.modes = []Mode{self.modePicture, self.modeSolid, self.modeSolidRainbow, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient, self.modeSpectrum}
 		self.showEntries = []ShowEntry{
-			{mode: self.modePicture, durationMs: SHOW_PIC_DURATION, randomize: false},
+			// {mode: self.modePicture, durationMs: SHOW_PIC_DURATION, randomize: false},
 			// {mode: self.modeSolid, durationMs: 1000},
 			// {mode: self.modePicture, durationMs: SHOW_PIC_DURATION},
 			// {mode: self.modeSolidRainbow, durationMs: 1000},
 			// {mode: self.modePicture, durationMs: SHOW_PIC_DURATION},
 			// {mode: self.modeTransitionRainbow, durationMs: 3000},
-			// {mode: self.modePicture, durationMs: SHOW_PIC_DURATION},
+
+			{mode: self.modePicture, durationMs: SHOW_PIC_DURATION},
 			{mode: self.modeRunningLed, durationMs: SHOW_DEFAULT_DURATION, randomize: true},
 			{mode: self.modePicture, durationMs: SHOW_PIC_DURATION, randomize: false},
 			{mode: self.modeEmitter, durationMs: SHOW_DEFAULT_DURATION, randomize: true},

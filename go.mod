@@ -1,6 +1,8 @@
 module ledean
 
-go 1.22.12
+// go 1.24
+// go 1.22.12
+go 1.22.6
 
 require (
 	github.com/disintegration/imaging v1.6.2
@@ -28,4 +30,5 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
+// replace tinygo.org/x/drivers => github.com/xels21/tinygo-drivers v0.0.0-20240721163709-8002ea880704
 replace tinygo.org/x/drivers => github.com/xels21/tinygo-drivers v0.0.0-20250220124013-10bcaf83bd03

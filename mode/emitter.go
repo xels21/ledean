@@ -197,12 +197,22 @@ func NewModeEmitter(dbdriver *dbdriver.DbDriver, display *display.Display) *Mode
 func (self *ModeEmitter) getPresets() []ModeEmitterParameter {
 	return []ModeEmitterParameter{
 		{
+			EmitCount:         8,
+			EmitStyle:         EmitStyleDrop,
+			MinBrightness:     0.4,
+			MaxBrightness:     0.9,
+			MinEmitLifetimeMs: 50,
+			MaxEmitLifetimeMs: 200,
+			WaveSpeedFac:      1,
+			WaveWidthFac:      1,
+		},
+		{
 			EmitCount:         4,
 			EmitStyle:         EmitStylePulse,
 			MinBrightness:     0.4,
 			MaxBrightness:     0.9,
-			MinEmitLifetimeMs: 300,
-			MaxEmitLifetimeMs: 100,
+			MinEmitLifetimeMs: 10,
+			MaxEmitLifetimeMs: 300,
 			WaveSpeedFac:      1,
 			WaveWidthFac:      1,
 		},
@@ -257,7 +267,7 @@ func (self *ModeEmitter) SetParameter(parm ModeEmitterParameter) {
 }
 
 func (self *ModeEmitter) RandomizePreset() {
-	self.Randomize()
+	self.SetParameter(self.presets[rand.Uint32()%uint32(len(self.presets))])
 }
 
 func (self *ModeEmitter) Randomize() {
