@@ -19,7 +19,7 @@ import { SuperMode } from './super-mode';
 export class ModesService {
 
   activeMode: number
-  isPictureMode: boolean
+  isShowMode: boolean
   public modeResolver: Array<string>
   onModeChange: () => any
   //modeServices: Array<SuperMode>
@@ -133,10 +133,10 @@ export class ModesService {
     if (this.activeMode != id) {
       this.activeMode = id
       if (this.activeMode >= 0) {
-        this.isPictureMode = false
+        this.isShowMode = false
         this.onModeChange()
       } else {
-        this.isPictureMode = true
+        this.isShowMode = true
       }
     }
   }

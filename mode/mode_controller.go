@@ -53,7 +53,7 @@ const SHOW_PIC_DURATION = 7000
 // const SHOW_PIC_DURATION = 2000
 const SHOW_DEFAULT_DURATION = 5000
 
-func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, button *button.Button, hub *websocket.Hub, picture_mode bool) *ModeController {
+func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, button *button.Button, hub *websocket.Hub, show_mode bool) *ModeController {
 	self := ModeController{
 		dbdriver:              dbdriver,
 		display:               display,
@@ -72,7 +72,7 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 		pCmdModeChannel:       hub.GetCmdModeChannel(),
 		showEntriesIndex:      0,
 	}
-	if picture_mode && false {
+	if show_mode{
 		// self.modes = []Mode{self.modePicture}
 		self.modes = []Mode{self.modePicture, self.modeSolid, self.modeSolidRainbow, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient, self.modeSpectrum}
 		self.showEntries = []ShowEntry{
@@ -95,7 +95,7 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 
 		// self.modes = []Mode{self.modePicture, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient, self.modeSpectrum}
 	} else {
-		self.modes = []Mode{self.modeSolid, self.modeSolidRainbow, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient, self.modeSpectrum}
+		self.modes = []Mode{self.modeSolid, self.modeSolidRainbow, self.modeTransitionRainbow, self.modeRunningLed, self.modeEmitter, self.modeGradient, self.modeSpectrum, self.modePicture}
 	}
 	self.modesLength = uint8(len(self.modes))
 

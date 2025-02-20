@@ -47,14 +47,14 @@ func Run(parm *Parameter) *LEDeanInstance {
 
 	self.display = display.NewDisplay(parm.LedCount, parm.LedRows, parm.GpioLedData, parm.ReverseRows, parm.Fps, color.OrderStr2int(parm.LedOrder), display.LedDeviceStr2int(parm.LedDevice), self.hub)
 
-	self.modeController = mode.NewModeController(self.dbdriver, self.display, self.button, self.hub, parm.IsPictureMode)
+	self.modeController = mode.NewModeController(self.dbdriver, self.display, self.button, self.hub, parm.IsShowMode)
 
 	if !parm.NoGui {
 		go self.hub.Run()
 		go webserver.Start(parm.Address, parm.Port, parm.Path2Frontend, self.modeController, self.hub)
 	}
 
-	if parm.DirectStart { //&& !parm.IsPictureMode {
+	if parm.DirectStart { //&& !parm.IsShowMode {
 		self.modeController.Start()
 		// self.modeController.NextMode()
 	}

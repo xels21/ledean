@@ -12,7 +12,7 @@ import (
 type Parameter struct {
 	GpioButton         string `json:"gpioButton"`
 	GpioLedData        string `json:"gpioLedData"`
-	IsPictureMode      bool   `json:"isPictureMode"`
+	IsShowMode         bool   `json:"isShowMode"`
 	PressLongMs        int    `json:"pressLongMs"`
 	PressDoubleTimeout int    `json:"pressDoubleTimeout"`
 	LedCount           int    `json:"ledCount"`
@@ -50,7 +50,7 @@ For RPi (using SPI):
 	HINT: SPI0 has to be enabled in raspi-config first
 	'''sudo raspi-config nonint do_spi 0'''
 	`)
-	flag.BoolVar(&parm.IsPictureMode, "picture_mode", false, "Wheter software is used for picture (POI) controll")
+	flag.BoolVar(&parm.IsShowMode, "show_mode", false, "Wheter software is used for picture (POI) controll")
 	flag.BoolVar(&parm.NoGui, "no_gui", false, "SW should not provide any gui (including website + websockets)")
 	flag.IntVar(&parm.PressLongMs, "long_press_ms", 1200, "Time for the button long press")
 	flag.IntVar(&parm.PressDoubleTimeout, "double_press_timeout", 350, "Time between single and double press")

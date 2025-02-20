@@ -25,4 +25,11 @@ Update delivered in a fork
 `https://github.com/xels21/tinygo-drivers`
 and adjust in gomod
 `replace tinygo.org/x/drivers => github.com/xels21/tinygo-drivers v0.0.0-20231211215924-957e975a7b22`
+write `latest` and go mod tidy will resolve the version
+`replace tinygo.org/x/drivers => github.com/xels21/tinygo-drivers latest`
 
+
+latest working go version with tinygo `0.29` is `1.22.12`
+
+some defines are not working, so i just commented them in the sourcecode
+`C:\Users\00dea\scoop\apps\tinygo\current\src\machine\machine_esp32_i2c.go:38:16: undefined: SCL_PIN`
