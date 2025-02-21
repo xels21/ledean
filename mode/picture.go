@@ -8,9 +8,6 @@ import (
 	"ledean/json"
 	"ledean/log"
 	picture "ledean/mode/gen_picture"
-	"time"
-
-	"math/rand"
 )
 
 type ModePicture struct {
@@ -46,7 +43,7 @@ type ModePictureLimits struct {
 	MaxBrightness               float64 `json:"maxBrightness"`
 }
 
-func NewModePicture(dbdriver *dbdriver.DbDriver, display *display.Display) *ModePicture {
+func NewModePicture(dbdriver *dbdriver.DbDriver, display *display.Display, isRandDeterministic bool) *ModePicture {
 	if display.GetRowLedCount() != picture.PixelCount {
 		log.Warningf("Display led size[%d] not matching to generated picture size[%d]", display.GetRowLedCount(), picture.PixelCount)
 	}
@@ -69,10 +66,10 @@ func NewModePicture(dbdriver *dbdriver.DbDriver, display *display.Display) *Mode
 		picProgress:        0.0,
 		picProgressPerStep: 0.0,
 		// picIndex:           0,
-		picIndex: uint8(rand.Uint32() % uint32(len(picture.Pics))),
 	}
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModePicture", RenderTypeDynamic, self.calcDisplay)
+	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModePicture", RenderTypeDynamic, self.calcDisplay, isRandDeterministic)
 
+	self.picIndex = uint8(self.rand.Uint32() % uint32(len(picture.Pics)))
 	err := dbdriver.Read(self.GetName(), "parameter", &self.parameter)
 	if err != nil {
 		// self.Randomize()
@@ -180,12 +177,11 @@ func (self *ModePicture) RandomizePreset() {
 	self.Randomize()
 }
 func (self *ModePicture) Randomize() {
-	rand.Seed(time.Now().UnixNano())
-	self.picIndex = uint8(rand.Uint32() % uint32(len(picture.Pics)))
+	self.picIndex = uint8(self.rand.Uint32() % uint32(len(picture.Pics)))
 	parameter := ModePictureParameter{
-		PictureColumnNs:          (rand.Uint32())%(self.limits.MaxPictureColumnNs-self.limits.MinPictureColumnNs) + self.limits.MinPictureColumnNs,
-		PictureChangeIntervallMs: (rand.Uint32())%(self.limits.MaxPictureChangeIntervallMs-self.limits.MinPictureChangeIntervallMs) + self.limits.MinPictureChangeIntervallMs,
-		Brightness:               rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
+		PictureColumnNs:          (self.rand.Uint32())%(self.limits.MaxPictureColumnNs-self.limits.MinPictureColumnNs) + self.limits.MinPictureColumnNs,
+		PictureChangeIntervallMs: (self.rand.Uint32())%(self.limits.MaxPictureChangeIntervallMs-self.limits.MinPictureChangeIntervallMs) + self.limits.MinPictureChangeIntervallMs,
+		Brightness:               self.rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
 	}
 	self.SetParameter(parameter)
 }

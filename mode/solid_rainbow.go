@@ -5,8 +5,6 @@ import (
 	"ledean/dbdriver"
 	"ledean/display"
 	"ledean/json"
-	"math/rand"
-	"time"
 )
 
 type ModeSolidRainbow struct {
@@ -28,7 +26,7 @@ type ModeSolidRainbowLimits struct {
 	MaxBrightness  float64 `json:"maxBrightness"`
 }
 
-func NewModeSolidRainbow(dbdriver *dbdriver.DbDriver, display *display.Display) *ModeSolidRainbow {
+func NewModeSolidRainbow(dbdriver *dbdriver.DbDriver, display *display.Display, isRandDeterministic bool) *ModeSolidRainbow {
 	self := ModeSolidRainbow{
 		limits: ModeSolidRainbowLimits{
 			MinRoundTimeMs: 2000,   //2s
@@ -38,7 +36,7 @@ func NewModeSolidRainbow(dbdriver *dbdriver.DbDriver, display *display.Display) 
 		},
 	}
 
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeSolidRainbow", RenderTypeDynamic, self.calcDisplay)
+	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeSolidRainbow", RenderTypeDynamic, self.calcDisplay, isRandDeterministic)
 
 	err := dbdriver.Read(self.GetName(), "parameter", &self.parameter)
 	if err != nil {
@@ -89,12 +87,11 @@ func (self *ModeSolidRainbow) RandomizePreset() {
 	self.Randomize()
 }
 func (self *ModeSolidRainbow) Randomize() {
-	rand.Seed(time.Now().UnixNano())
 	self.SetParameter(ModeSolidRainbowParameter{
-		RoundTimeMs: uint32(rand.Float32()*float32(self.limits.MaxRoundTimeMs-self.limits.MinRoundTimeMs)) + self.limits.MinRoundTimeMs,
-		Brightness:  rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
+		RoundTimeMs: uint32(self.rand.Float32()*float32(self.limits.MaxRoundTimeMs-self.limits.MinRoundTimeMs)) + self.limits.MinRoundTimeMs,
+		Brightness:  self.rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
 		Hsv: color.HSV{
-			H: rand.Float64() * 360.0,
+			H: self.rand.Float64() * 360.0,
 			S: 1.0,
 			V: self.parameter.Brightness,
 		},

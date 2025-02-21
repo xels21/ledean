@@ -6,7 +6,6 @@ import (
 	"ledean/display"
 	"ledean/json"
 	"math/rand"
-	"time"
 )
 
 type ModeGradientPosition struct {
@@ -16,6 +15,7 @@ type ModeGradientPosition struct {
 	hueDistance   float64
 	pPercentStep  *float64
 	percent       float64
+	rand          *rand.Rand
 }
 
 type ModeGradient struct {
@@ -43,7 +43,7 @@ type ModeGradientLimits struct {
 	MaxCount       uint32  `json:"maxCount"`
 }
 
-func NewModeGradient(dbdriver *dbdriver.DbDriver, display *display.Display) *ModeGradient {
+func NewModeGradient(dbdriver *dbdriver.DbDriver, display *display.Display, isRandDeterministic bool) *ModeGradient {
 	self := ModeGradient{
 		limits: ModeGradientLimits{
 			MinRoundTimeMs: 1000,
@@ -55,13 +55,14 @@ func NewModeGradient(dbdriver *dbdriver.DbDriver, display *display.Display) *Mod
 		},
 	}
 
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeGradient", RenderTypeDynamic, self.calcDisplay)
-	self.presets = self.getPresets()
+	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeGradient", RenderTypeDynamic, self.calcDisplay, isRandDeterministic)
 
+	self.presets = self.getPresets()
 	self.posDistances = make([]float64, self.limits.MaxCount-1)
 	self.positions = make([]ModeGradientPosition, self.limits.MaxCount)
 	for i := range self.positions {
 		self.positions[i].pPercentStep = &self.percentStep
+		self.positions[i].rand = self.rand
 	}
 
 	self.ledsHSV = make([]color.HSV, self.display.GetRowLedCount())
@@ -125,14 +126,14 @@ func (self *ModeGradientPosition) StepForward() {
 	}
 }
 func (self *ModeGradientPosition) randomizeWoFrom() {
-	self.hueTo720 = rand.Float64() * 720.0
+	self.hueTo720 = self.rand.Float64() * 720.0
 
 	self.hueDistance = self.hueTo720 - self.hueFrom720
 }
 
 func (self *ModeGradientPosition) Randomize() {
-	self.percent = rand.Float64() * 100.0
-	self.hueFrom720 = rand.Float64() * 720.0
+	self.percent = self.rand.Float64() * 100.0
+	self.hueFrom720 = self.rand.Float64() * 720.0
 	self.randomizeWoFrom()
 }
 
@@ -177,14 +178,13 @@ func (self *ModeGradient) calcDisplay() {
 }
 
 func (self *ModeGradient) RandomizePreset() {
-	self.SetParameter(self.presets[rand.Uint32()%uint32(len(self.presets))])
+	self.SetParameter(self.presets[self.rand.Uint32()%uint32(len(self.presets))])
 }
 
 func (self *ModeGradient) Randomize() {
-	rand.Seed(time.Now().UnixNano())
 	self.SetParameter(ModeGradientParameter{
-		Brightness:  rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
-		Count:       rand.Uint32()%(self.limits.MaxCount-self.limits.MinCount) + self.limits.MinCount,
-		RoundTimeMs: uint32(rand.Float32()*float32(self.limits.MaxRoundTimeMs-self.limits.MinRoundTimeMs)) + self.limits.MinRoundTimeMs,
+		Brightness:  self.rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
+		Count:       self.rand.Uint32()%(self.limits.MaxCount-self.limits.MinCount) + self.limits.MinCount,
+		RoundTimeMs: uint32(self.rand.Float32()*float32(self.limits.MaxRoundTimeMs-self.limits.MinRoundTimeMs)) + self.limits.MinRoundTimeMs,
 	})
 }

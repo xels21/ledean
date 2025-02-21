@@ -5,8 +5,6 @@ import (
 	"ledean/color"
 	"ledean/dbdriver"
 	"ledean/display"
-	"math/rand"
-	"time"
 )
 
 type ModeSolid struct {
@@ -25,14 +23,14 @@ type ModeSolidLimits struct {
 	MaxBrightness float64 `json:"maxBrightness"`
 }
 
-func NewModeSolid(dbdriver *dbdriver.DbDriver, display *display.Display) *ModeSolid {
+func NewModeSolid(dbdriver *dbdriver.DbDriver, display *display.Display, isRandDeterministic bool) *ModeSolid {
 	self := ModeSolid{
 		limits: ModeSolidLimits{
 			MinBrightness: 0.0,
 			MaxBrightness: 1.0,
 		},
 	}
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeSolid", RenderTypeStatic, self.calcDisplay)
+	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeSolid", RenderTypeStatic, self.calcDisplay, isRandDeterministic)
 
 	err := dbdriver.Read(self.name, "parameter", &self.parameter)
 	if err != nil {
@@ -77,13 +75,12 @@ func (self *ModeSolid) RandomizePreset() {
 }
 
 func (self *ModeSolid) Randomize() {
-	rand.Seed(time.Now().UnixNano())
 	parameter := ModeSolidParameter{
-		Brightness: rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
+		Brightness: self.rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
 		RGB: color.RGB{
-			R: uint8(rand.Intn(255)),
-			G: uint8(rand.Intn(255)),
-			B: uint8(rand.Intn(255)),
+			R: uint8(self.rand.Intn(255)),
+			G: uint8(self.rand.Intn(255)),
+			B: uint8(self.rand.Intn(255)),
 		},
 	}
 	self.SetParameter(parameter)

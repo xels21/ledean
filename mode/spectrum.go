@@ -78,7 +78,7 @@ type ModeSpectrumLimits struct {
 	MaxOffset      float64 `json:"maxOffset"`
 }
 
-func NewModeSpectrum(dbdriver *dbdriver.DbDriver, display *display.Display) *ModeSpectrum {
+func NewModeSpectrum(dbdriver *dbdriver.DbDriver, display *display.Display, isRandDeterministic bool) *ModeSpectrum {
 	self := ModeSpectrum{
 		limits: ModeSpectrumLimits{
 			MinBrightness:  0.01,
@@ -92,7 +92,7 @@ func NewModeSpectrum(dbdriver *dbdriver.DbDriver, display *display.Display) *Mod
 		},
 	}
 
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeSpectrum", RenderTypeDynamic, self.calcDisplay)
+	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeSpectrum", RenderTypeDynamic, self.calcDisplay, isRandDeterministic)
 	self.presets = self.getPresets()
 
 	self.ledsHSV = make([]color.HSV, self.display.GetRowLedCount())
@@ -231,26 +231,24 @@ func (self *ModeSpectrum) calcDisplay() {
 }
 
 func (self *ModeSpectrum) getRandomPosition(seed int64) ModeSpectrumParameterPosition {
-	r := rand.New(rand.NewSource(seed + time.Now().UnixNano()))
 	return ModeSpectrumParameterPosition{
-		FacFrom:        r.Float64()*(self.limits.MaxFactor-self.limits.MinFactor) + self.limits.MinFactor,
-		FacTo:          r.Float64()*(self.limits.MaxFactor-self.limits.MinFactor) + self.limits.MinFactor,
-		FacRoundTimeMs: uint32(r.Float64()*(float64(self.limits.MaxRoundTimeMs)-float64(self.limits.MinRoundTimeMs)) + float64(self.limits.MinRoundTimeMs)),
-		OffFrom:        r.Float64()*(self.limits.MaxOffset-self.limits.MinOffset) + self.limits.MinOffset,
-		OffTo:          r.Float64()*(self.limits.MaxOffset-self.limits.MinOffset) + self.limits.MinOffset,
-		OffRoundTimeMs: uint32(r.Float64()*(float64(self.limits.MaxRoundTimeMs)-float64(self.limits.MinRoundTimeMs)) + float64(self.limits.MinRoundTimeMs)),
+		FacFrom:        self.rand.Float64()*(self.limits.MaxFactor-self.limits.MinFactor) + self.limits.MinFactor,
+		FacTo:          self.rand.Float64()*(self.limits.MaxFactor-self.limits.MinFactor) + self.limits.MinFactor,
+		FacRoundTimeMs: uint32(self.rand.Float64()*(float64(self.limits.MaxRoundTimeMs)-float64(self.limits.MinRoundTimeMs)) + float64(self.limits.MinRoundTimeMs)),
+		OffFrom:        self.rand.Float64()*(self.limits.MaxOffset-self.limits.MinOffset) + self.limits.MinOffset,
+		OffTo:          self.rand.Float64()*(self.limits.MaxOffset-self.limits.MinOffset) + self.limits.MinOffset,
+		OffRoundTimeMs: uint32(self.rand.Float64()*(float64(self.limits.MaxRoundTimeMs)-float64(self.limits.MinRoundTimeMs)) + float64(self.limits.MinRoundTimeMs)),
 	}
 }
 
 func (self *ModeSpectrum) RandomizePreset() {
-	self.SetParameter(self.presets[rand.Uint32()%uint32(len(self.presets))])
+	self.SetParameter(self.presets[self.rand.Uint32()%uint32(len(self.presets))])
 }
 func (self *ModeSpectrum) Randomize() {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	self.SetParameter(ModeSpectrumParameter{
-		Brightness: r.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
-		HueFrom720: r.Float64() * 720.0,
-		HueTo720:   r.Float64() * 720.0,
+		Brightness: self.rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
+		HueFrom720: self.rand.Float64() * 720.0,
+		HueTo720:   self.rand.Float64() * 720.0,
 		Positions:  [2]ModeSpectrumParameterPosition{self.getRandomPosition(0), self.getRandomPosition(1)},
 	})
 }

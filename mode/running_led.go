@@ -6,8 +6,6 @@ import (
 	"ledean/display"
 	"ledean/json"
 	"math"
-	"math/rand"
-	"time"
 )
 
 const (
@@ -49,7 +47,7 @@ type ModeRunningLedLimits struct {
 	MaxFadePct     float64 `json:"maxFadePct"`
 }
 
-func NewModeRunningLed(dbdriver *dbdriver.DbDriver, display *display.Display) *ModeRunningLed {
+func NewModeRunningLed(dbdriver *dbdriver.DbDriver, display *display.Display, isRandDeterministic bool) *ModeRunningLed {
 	self := ModeRunningLed{
 		limits: ModeRunningLedLimits{
 			MinRoundTimeMs: 1000,  //1s
@@ -65,7 +63,7 @@ func NewModeRunningLed(dbdriver *dbdriver.DbDriver, display *display.Display) *M
 	}
 
 	self.presets = self.getPresets()
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeRunningLed", RenderTypeDynamic, self.calcDisplay)
+	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeRunningLed", RenderTypeDynamic, self.calcDisplay, isRandDeterministic)
 
 	err := dbdriver.Read(self.GetName(), "parameter", &self.parameter)
 	if err != nil {
@@ -195,23 +193,21 @@ func (self *ModeRunningLed) AddRunningLed(position float64, speed float64) {
 }
 
 func (self *ModeRunningLed) RandomizePreset() {
-	self.SetParameter(self.presets[rand.Uint32()%uint32(len(self.presets))])
+	self.SetParameter(self.presets[self.rand.Uint32()%uint32(len(self.presets))])
 }
 func (self *ModeRunningLed) Randomize() {
-	rand.Seed(time.Now().UnixNano())
-
 	self.SetParameter(ModeRunningLedParameter{
-		Brightness:  rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
-		FadePct:     rand.Float64()*(self.limits.MaxFadePct-self.limits.MinFadePct) + self.limits.MinFadePct,
-		HueFrom:     rand.Float64() * 360.0,
-		HueTo:       rand.Float64() * 360.0,
-		RoundTimeMs: rand.Float64()*float64(self.limits.MaxRoundTimeMs-self.limits.MinRoundTimeMs) + float64(self.limits.MinRoundTimeMs),
+		Brightness:  self.rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
+		FadePct:     self.rand.Float64()*(self.limits.MaxFadePct-self.limits.MinFadePct) + self.limits.MinFadePct,
+		HueFrom:     self.rand.Float64() * 360.0,
+		HueTo:       self.rand.Float64() * 360.0,
+		RoundTimeMs: self.rand.Float64()*float64(self.limits.MaxRoundTimeMs-self.limits.MinRoundTimeMs) + float64(self.limits.MinRoundTimeMs),
 		Style:       self.getRandomStyle(),
 	})
 }
 
 func (self *ModeRunningLed) getRandomStyle() RunningLedStyle {
-	styleSwitch := rand.Uint32() % 2
+	styleSwitch := self.rand.Uint32() % 2
 	var style RunningLedStyle
 	switch styleSwitch {
 	case 0:

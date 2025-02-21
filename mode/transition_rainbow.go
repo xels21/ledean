@@ -5,8 +5,6 @@ import (
 	"ledean/dbdriver"
 	"ledean/display"
 	"ledean/json"
-	"math/rand"
-	"time"
 )
 
 type ModeTransitionRainbow struct {
@@ -35,7 +33,7 @@ type ModeTransitionRainbowLimits struct {
 	MaxSpectrum    float64 `json:"maxSpectrum"`
 }
 
-func NewModeTransitionRainbow(dbdriver *dbdriver.DbDriver, display *display.Display) *ModeTransitionRainbow {
+func NewModeTransitionRainbow(dbdriver *dbdriver.DbDriver, display *display.Display, isRandDeterministic bool) *ModeTransitionRainbow {
 	self := ModeTransitionRainbow{
 		limits: ModeTransitionRainbowLimits{
 			MinRoundTimeMs: 500,
@@ -48,7 +46,7 @@ func NewModeTransitionRainbow(dbdriver *dbdriver.DbDriver, display *display.Disp
 		progressDeg: 0.0,
 	}
 
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeTransitionRainbow", RenderTypeDynamic, self.calcDisplay)
+	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeTransitionRainbow", RenderTypeDynamic, self.calcDisplay, isRandDeterministic)
 
 	self.ledsHSV = make([]color.HSV, self.display.GetRowLedCount())
 	for i := 0; i < len(self.ledsHSV); i++ {
@@ -123,11 +121,10 @@ func (self *ModeTransitionRainbow) RandomizePreset() {
 	self.Randomize()
 }
 func (self *ModeTransitionRainbow) Randomize() {
-	rand.Seed(time.Now().UnixNano())
 	self.SetParameter(ModeTransitionRainbowParameter{
-		RoundTimeMs: uint32(rand.Float32()*float32(self.limits.MaxRoundTimeMs-self.limits.MinRoundTimeMs)) + self.limits.MinRoundTimeMs,
-		Brightness:  rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
-		Spectrum:    rand.Float64()*(self.limits.MaxSpectrum-self.limits.MinSpectrum) + self.limits.MinSpectrum,
-		Reverse:     rand.Int()%2 == 1,
+		RoundTimeMs: uint32(self.rand.Float32()*float32(self.limits.MaxRoundTimeMs-self.limits.MinRoundTimeMs)) + self.limits.MinRoundTimeMs,
+		Brightness:  self.rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
+		Spectrum:    self.rand.Float64()*(self.limits.MaxSpectrum-self.limits.MinSpectrum) + self.limits.MinSpectrum,
+		Reverse:     self.rand.Int()%2 == 1,
 	})
 }

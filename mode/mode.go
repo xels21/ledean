@@ -4,6 +4,7 @@ package mode
 import (
 	"ledean/dbdriver"
 	"ledean/display"
+	"math/rand"
 	"time"
 
 	"ledean/log"
@@ -34,15 +35,21 @@ type ModeSuper struct {
 	name        string
 	calcDisplay func()
 	cExit       chan bool
+	rand        *rand.Rand
 }
 
-func NewModeSuper(dbdriver *dbdriver.DbDriver, display *display.Display, name string, renderType RenderType, calcDisplay func()) *ModeSuper {
+func NewModeSuper(dbdriver *dbdriver.DbDriver, display *display.Display, name string, renderType RenderType, calcDisplay func(), isRandDeterministic bool) *ModeSuper {
 	self := ModeSuper{
 		dbdriver:    dbdriver,
 		display:     display,
 		name:        name,
 		renderType:  renderType,
 		calcDisplay: calcDisplay,
+	}
+	if isRandDeterministic {
+		self.rand = rand.New(rand.NewSource(0))
+	} else {
+		self.rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 	}
 
 	if self.renderType == RenderTypeDynamic {

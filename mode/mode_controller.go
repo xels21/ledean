@@ -54,20 +54,21 @@ const SHOW_PIC_DURATION = 7000
 const SHOW_DEFAULT_DURATION = 5000
 
 func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, button *button.Button, hub *websocket.Hub, show_mode bool) *ModeController {
+	// show_mode should make randomness deterministic
 	self := ModeController{
 		dbdriver:              dbdriver,
 		display:               display,
 		button:                button,
 		hub:                   hub,
 		active:                false,
-		modePicture:           NewModePicture(dbdriver, display),
-		modeSolid:             NewModeSolid(dbdriver, display),
-		modeSolidRainbow:      NewModeSolidRainbow(dbdriver, display),
-		modeTransitionRainbow: NewModeTransitionRainbow(dbdriver, display),
-		modeRunningLed:        NewModeRunningLed(dbdriver, display),
-		modeEmitter:           NewModeEmitter(dbdriver, display),
-		modeGradient:          NewModeGradient(dbdriver, display),
-		modeSpectrum:          NewModeSpectrum(dbdriver, display),
+		modePicture:           NewModePicture(dbdriver, display, show_mode),
+		modeSolid:             NewModeSolid(dbdriver, display, show_mode),
+		modeSolidRainbow:      NewModeSolidRainbow(dbdriver, display, show_mode),
+		modeTransitionRainbow: NewModeTransitionRainbow(dbdriver, display, show_mode),
+		modeRunningLed:        NewModeRunningLed(dbdriver, display, show_mode),
+		modeEmitter:           NewModeEmitter(dbdriver, display, show_mode),
+		modeGradient:          NewModeGradient(dbdriver, display, show_mode),
+		modeSpectrum:          NewModeSpectrum(dbdriver, display, show_mode),
 		pCmdModeActionChannel: hub.GetCmdModeActionChannel(),
 		pCmdModeChannel:       hub.GetCmdModeChannel(),
 		showEntriesIndex:      0,
