@@ -113,7 +113,7 @@ func NewModeSpectrum(dbdriver *dbdriver.DbDriver, display *display.Display, isRa
 func (self *ModeSpectrum) getPresets() []ModeSpectrumParameter {
 	return []ModeSpectrumParameter{
 		{
-			Brightness: .7,
+			Brightness: .08,
 			HueFrom720: 470.0,
 			HueTo720:   620.0,
 			Positions: [2]ModeSpectrumParameterPosition{
@@ -136,7 +136,7 @@ func (self *ModeSpectrum) getPresets() []ModeSpectrumParameter {
 			},
 		},
 		{
-			Brightness: .7,
+			Brightness: .08,
 			HueFrom720: 250.0,
 			HueTo720:   330.0,
 			Positions: [2]ModeSpectrumParameterPosition{

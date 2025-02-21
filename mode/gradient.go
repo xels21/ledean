@@ -83,12 +83,12 @@ func NewModeGradient(dbdriver *dbdriver.DbDriver, display *display.Display, isRa
 func (self *ModeGradient) getPresets() []ModeGradientParameter {
 	return []ModeGradientParameter{
 		{
-			Brightness:  0.6,
+			Brightness:  0.1,
 			Count:       3,
 			RoundTimeMs: 600,
 		},
 		{
-			Brightness:  0.7,
+			Brightness:  0.1,
 			Count:       4,
 			RoundTimeMs: 1000,
 		},

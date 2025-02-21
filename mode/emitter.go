@@ -202,8 +202,8 @@ func (self *ModeEmitter) getPresets() []ModeEmitterParameter {
 		{
 			EmitCount:         8,
 			EmitStyle:         EmitStyleDrop,
-			MinBrightness:     0.4,
-			MaxBrightness:     0.9,
+			MinBrightness:     0.01,
+			MaxBrightness:     0.08,
 			MinEmitLifetimeMs: 50,
 			MaxEmitLifetimeMs: 200,
 			WaveSpeedFac:      1,
@@ -212,8 +212,8 @@ func (self *ModeEmitter) getPresets() []ModeEmitterParameter {
 		{
 			EmitCount:         4,
 			EmitStyle:         EmitStylePulse,
-			MinBrightness:     0.4,
-			MaxBrightness:     0.9,
+			MinBrightness:     0.01,
+			MaxBrightness:     0.08,
 			MinEmitLifetimeMs: 10,
 			MaxEmitLifetimeMs: 300,
 			WaveSpeedFac:      1,

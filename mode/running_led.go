@@ -77,16 +77,16 @@ func NewModeRunningLed(dbdriver *dbdriver.DbDriver, display *display.Display, is
 func (self *ModeRunningLed) getPresets() []ModeRunningLedParameter {
 	return []ModeRunningLedParameter{
 		{
-			Brightness:  .6,
-			RoundTimeMs: 500,
+			Brightness:  .1,
+			RoundTimeMs: 300,
 			HueFrom:     259.5,
 			HueTo:       74.32,
 			FadePct:     0.95,
 			Style:       RunningLedStyleLinear,
 		},
 		{
-			Brightness:  .7,
-			RoundTimeMs: 700,
+			Brightness:  .1,
+			RoundTimeMs: 400,
 			HueFrom:     11.04,
 			HueTo:       320.05,
 			FadePct:     0.27,

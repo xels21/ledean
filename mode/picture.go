@@ -83,7 +83,6 @@ func NewModePicture(dbdriver *dbdriver.DbDriver, display *display.Display, isRan
 
 func (self *ModePicture) Default() {
 	parameter := ModePictureParameter{
-
 		PictureColumnNs:          1,
 		PictureChangeIntervallMs: 5000,
 		Brightness:               0.1,
