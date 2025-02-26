@@ -27,13 +27,13 @@
 
   <div class="row">
     <div class="col s3 input-field">
-      <input id="PictureColumnNs" type="number" [min]="service.limits.minPictureColumnNs"
-        [max]="service.limits.maxPictureColumnNs" (change)="service.sendParameter()"
-        [(ngModel)]="service.parameter.pictureColumnNs" />
-      <label for="PictureColumnNs">PictureColumnNs</label>
+      <input id="PictureColumnUs" type="number" [min]="service.limits.minPictureColumnUs"
+        [max]="service.limits.maxPictureColumnUs" (change)="service.sendParameter()"
+        [(ngModel)]="service.parameter.pictureColumnUs" />
+      <label for="PictureColumnUs">PictureColumnUs</label>
     </div>
-    <div class="col s9 valign-wrapper generic-slider"> <input type="range" [min]="service.limits.minPictureColumnNs"
-        [max]="service.limits.maxPictureColumnNs" step="1" (change)="service.sendParameter()"
-        [(ngModel)]="service.parameter.pictureColumnNs" /> </div>
+    <div class="col s9 valign-wrapper generic-slider"> <input type="range" [min]="service.limits.minPictureColumnUs"
+        [max]="service.limits.maxPictureColumnUs" step="1" (change)="service.sendParameter()"
+        [(ngModel)]="service.parameter.pictureColumnUs" /> </div>
   </div>
 </div>

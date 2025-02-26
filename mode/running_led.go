@@ -63,7 +63,7 @@ func NewModeRunningLed(dbdriver *dbdriver.DbDriver, display *display.Display, is
 	}
 
 	self.presets = self.getPresets()
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeRunningLed", RenderTypeDynamic, self.calcDisplay, isRandDeterministic)
+	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeRunningLed", RenderTypeDynamic, self.calcDisplay, self.calcDisplayDelta, isRandDeterministic)
 
 	err := dbdriver.Read(self.GetName(), "parameter", &self.parameter)
 	if err != nil {
@@ -114,24 +114,34 @@ func (self *ModeRunningLed) SetParameter(parm ModeRunningLedParameter) {
 	self.postSetParameter()
 }
 
+func (self *ModeRunningLed) getPositionDegStepSize(timeNs float64) float64 {
+	return 360.0 / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (timeNs / 1000.0 /*us*/ / 1000.0 /*ms*/ / 1000.0 /*s*/)
+}
+func (self *ModeRunningLed) getDarkenStepSize(timeNs float64) float64 {
+	return (1 / self.parameter.FadePct) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (timeNs / 1000.0 /*us*/ / 1000.0 /*ms*/ / 1000.0 /*s*/)
+}
+func (self *ModeRunningLed) getLightenStepSize(timeNs float64) float64 {
+	return 2 * self.parameter.Brightness * (float64(self.display.GetRowLedCount())) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (timeNs / 1000.0 /*us*/ / 1000.0 /*ms*/ / 1000.0 /*s*/)
+}
+
 func (self *ModeRunningLed) postSetParameter() {
 	self.hueDistance = math.Abs(self.parameter.HueFrom - self.parameter.HueTo)
 	self.hueDistanceFct = 1.0
 	if self.parameter.HueFrom > self.parameter.HueTo {
 		self.hueDistanceFct = -1.0
 	}
-	self.positionDegStepSize = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(self.display.GetRefreshIntervalNs()) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
-	self.darkenStepSize = (1 / self.parameter.FadePct) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(self.display.GetRefreshIntervalNs()) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
-	self.lightenStepSize = 2 * self.parameter.Brightness * (float64(self.display.GetRowLedCount())) / (float64(self.parameter.RoundTimeMs) / 1000.0 /*s*/) * (float64(self.display.GetRefreshIntervalNs()) / 1000.0 /*s*/ / 1000.0 /*ms*/ / 1000.0 /*us*/)
+	self.positionDegStepSize = self.getPositionDegStepSize(float64(self.display.GetRefreshIntervalNs()))
+	self.darkenStepSize = self.getDarkenStepSize(float64(self.display.GetRefreshIntervalNs()))
+	self.lightenStepSize = self.getLightenStepSize(float64(self.display.GetRefreshIntervalNs()))
 }
 
-func (self *ModeRunningLed) darkenLeds() {
+func (self *ModeRunningLed) darkenLeds(darkenStepSize float64) {
 	for i := 0; i < len(self.activatedLeds); i++ {
 		if self.activatedLeds[i] != 0.0 {
-			if self.activatedLeds[i] <= self.darkenStepSize {
+			if self.activatedLeds[i] <= darkenStepSize {
 				self.activatedLeds[i] = 0.0
 			} else {
-				self.activatedLeds[i] -= self.darkenStepSize
+				self.activatedLeds[i] -= darkenStepSize
 			}
 		}
 	}
@@ -155,37 +165,41 @@ func (self *ModeRunningLed) getActiveLedIdx() int {
 	return activeLedIdx
 }
 
-func (self *ModeRunningLed) stepForward() {
-	self.positionDeg += self.positionDegStepSize
+func (self *ModeRunningLed) calcDisplayFinal(positionDegStepSize float64, darkenStepSize float64, lightenStepSize float64) {
+	self.positionDeg += positionDegStepSize
 	if self.positionDeg >= 360.0 {
 		self.positionDeg -= 360.0
 	}
-}
-
-func (self *ModeRunningLed) calcDisplay() {
-	self.stepForward()
 	activeLedIdx := self.getActiveLedIdx()
 	//prevent darken active led while lighning it up
-	self.activatedLeds[activeLedIdx] += self.darkenStepSize
-	self.darkenLeds()
+	self.activatedLeds[activeLedIdx] += darkenStepSize
+	self.darkenLeds(darkenStepSize)
 
-	self.activatedLeds[activeLedIdx] += self.lightenStepSize
+	self.activatedLeds[activeLedIdx] += lightenStepSize
 	if self.activatedLeds[activeLedIdx] > 1.0 {
 		self.activatedLeds[activeLedIdx] = 1.0
 	}
 
 	c := color.HSV{H: 0.0, S: 1.0, V: 0.0}
 	for i, activatedLed := range self.activatedLeds {
-		// if i == activeLedIdx {
-		// c.H = self.parameter.HueTo
-		// } else {
 		c.H = self.parameter.HueFrom + (self.hueDistanceFct * self.hueDistance * activatedLed)
-		// }
 		c.V = activatedLed
 		self.ledsRGB[i] = c.ToRGB()
 	}
 
 	self.display.ApplySingleRowRGB(self.ledsRGB)
+}
+
+func (self *ModeRunningLed) calcDisplayDelta(deltaTimeNs int64) {
+	self.calcDisplayFinal(
+		self.getPositionDegStepSize(float64(deltaTimeNs)),
+		self.getDarkenStepSize(float64(deltaTimeNs)),
+		self.getLightenStepSize(float64(deltaTimeNs)),
+	)
+}
+
+func (self *ModeRunningLed) calcDisplay() {
+	self.calcDisplayFinal(self.positionDegStepSize, self.darkenStepSize, self.lightenStepSize)
 }
 
 func (self *ModeRunningLed) AddRunningLed(position float64, speed float64) {

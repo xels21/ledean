@@ -21,14 +21,14 @@ type ModeSpectrumPosition struct {
 	parm              *ModeSpectrumParameterPosition
 }
 
-func (self *ModeSpectrumPosition) StepForward() {
-	self.factorPercent += self.factorPercentStep
+func (self *ModeSpectrumPosition) StepForward(factorPercentStep float64, offsetPercentStep float64) {
+	self.factorPercent += factorPercentStep
 	for self.factorPercent >= 1.0 {
 		self.factorPercent -= 1.0
 	}
 	self.factor = ((self.parm.FacTo - self.parm.FacFrom) * (math.Sin(self.factorPercent*2*math.Pi)*.5 + .5)) + self.parm.FacFrom
 
-	self.offsetPercent += self.offsetPercentStep
+	self.offsetPercent += offsetPercentStep
 	for self.offsetPercent >= 1.0 {
 		self.offsetPercent -= 1.0
 	}
@@ -36,9 +36,16 @@ func (self *ModeSpectrumPosition) StepForward() {
 
 }
 
+func (self *ModeSpectrumPosition) getFactorPercentStep(timeUs float64) float64 {
+	return 1.0 / float64(self.parm.FacRoundTimeMs) * timeUs / 1000.0 /*ms*/
+}
+func (self *ModeSpectrumPosition) getOffsetPercentStep(timeUs float64) float64 {
+	return 1.0 / float64(self.parm.OffRoundTimeMs) * timeUs / 1000.0 /*us*/ / 1000.0 /*ms*/
+}
+
 func (self *ModeSpectrumPosition) postSetParameter() {
-	self.factorPercentStep = 1.0 / float64(self.parm.FacRoundTimeMs) * float64(self.refreshIntervalNs) / 1000.0 /*us*/ / 1000.0 /*ms*/
-	self.offsetPercentStep = 1.0 / float64(self.parm.OffRoundTimeMs) * float64(self.refreshIntervalNs) / 1000.0 /*us*/ / 1000.0 /*ms*/
+	self.factorPercentStep = self.getFactorPercentStep(float64(self.refreshIntervalNs))
+	self.offsetPercentStep = self.getOffsetPercentStep(float64(self.refreshIntervalNs))
 	self.factorPercent = rand.Float64()
 	self.offsetPercent = rand.Float64()
 }
@@ -92,7 +99,7 @@ func NewModeSpectrum(dbdriver *dbdriver.DbDriver, display *display.Display, isRa
 		},
 	}
 
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeSpectrum", RenderTypeDynamic, self.calcDisplay, isRandDeterministic)
+	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeSpectrum", RenderTypeDynamic, self.calcDisplay, self.calcDisplayDelta, isRandDeterministic)
 	self.presets = self.getPresets()
 
 	self.ledsHSV = make([]color.HSV, self.display.GetRowLedCount())
@@ -215,10 +222,7 @@ func (self *ModeSpectrum) postSetParameter() {
 	}
 }
 
-func (self *ModeSpectrum) calcDisplay() {
-	for i := range self.positions {
-		self.positions[i].StepForward()
-	}
+func (self *ModeSpectrum) calcDisplayFinal() {
 
 	hueDist := self.parameter.HueTo720 - self.parameter.HueFrom720
 
@@ -228,6 +232,26 @@ func (self *ModeSpectrum) calcDisplay() {
 	}
 
 	self.display.ApplySingleRowHSV(self.ledsHSV)
+}
+
+func (self *ModeSpectrum) calcDisplayDelta(deltaTimeNs int64) {
+	for i := range self.positions {
+		self.positions[i].StepForward(
+			self.positions[i].getFactorPercentStep(float64(deltaTimeNs)),
+			self.positions[i].getOffsetPercentStep(float64(deltaTimeNs)),
+		)
+	}
+	self.calcDisplayFinal()
+}
+
+func (self *ModeSpectrum) calcDisplay() {
+	for i := range self.positions {
+		self.positions[i].StepForward(
+			self.positions[i].factorPercentStep,
+			self.positions[i].offsetPercentStep,
+		)
+	}
+	self.calcDisplayFinal()
 }
 
 func (self *ModeSpectrum) getRandomPosition(seed int64) ModeSpectrumParameterPosition {

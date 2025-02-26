@@ -29,22 +29,25 @@ const (
 )
 
 type ModeSuper struct {
-	dbdriver    *dbdriver.DbDriver
-	display     *display.Display
-	renderType  RenderType
-	name        string
-	calcDisplay func()
-	cExit       chan bool
-	rand        *rand.Rand
+	dbdriver         *dbdriver.DbDriver
+	display          *display.Display
+	renderType       RenderType
+	name             string
+	calcDisplay      func()
+	calcDisplayDelta func(deltaTimeNs int64)
+	cExit            chan bool
+	lastUpdateTime   time.Time
+	rand             *rand.Rand
 }
 
-func NewModeSuper(dbdriver *dbdriver.DbDriver, display *display.Display, name string, renderType RenderType, calcDisplay func(), isRandDeterministic bool) *ModeSuper {
+func NewModeSuper(dbdriver *dbdriver.DbDriver, display *display.Display, name string, renderType RenderType, calcDisplay func(), calcDisplayDelta func(deltaTimeNs int64), isRandDeterministic bool) *ModeSuper {
 	self := ModeSuper{
-		dbdriver:    dbdriver,
-		display:     display,
-		name:        name,
-		renderType:  renderType,
-		calcDisplay: calcDisplay,
+		dbdriver:         dbdriver,
+		display:          display,
+		name:             name,
+		renderType:       renderType,
+		calcDisplay:      calcDisplay,
+		calcDisplayDelta: calcDisplayDelta,
 	}
 	if isRandDeterministic {
 		self.rand = rand.New(rand.NewSource(0))
@@ -78,19 +81,39 @@ func (self *ModeSuper) Activate() {
 		self.display.Render()
 		self.display.ForceLedsChanged() //needed for delayed display render
 	case RenderTypeDynamic:
-		ticker := time.NewTicker(self.display.GetRefreshIntervalNs())
-		go func() {
-			for {
-				select {
-				case <-self.cExit:
-					ticker.Stop()
-					return
-				case <-ticker.C:
-					self.calcDisplay()
-					self.display.Render()
+		if self.display.GetFps() == 0 {
+			go func() {
+				self.lastUpdateTime = time.Now()
+				var now time.Time
+				var deltaTimeNs int64
+				for {
+					now = time.Now()
+					deltaTimeNs = min(100 /*ms*/ *1000 /*us*/ *1000 /*ns*/, max(1, now.Sub(self.lastUpdateTime).Nanoseconds()))
+					self.lastUpdateTime = now
+					select {
+					case <-self.cExit:
+						return
+					default:
+						self.calcDisplayDelta(deltaTimeNs)
+						self.display.Render()
+					}
 				}
-			}
-		}()
+			}()
+		} else {
+			ticker := time.NewTicker(self.display.GetRefreshIntervalNs())
+			go func() {
+				for {
+					select {
+					case <-self.cExit:
+						ticker.Stop()
+						return
+					case <-ticker.C:
+						self.calcDisplay()
+						self.display.Render()
+					}
+				}
+			}()
+		}
 	default:
 		log.Debugf("unknown render type")
 	}

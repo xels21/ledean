@@ -30,7 +30,7 @@ func NewModeSolid(dbdriver *dbdriver.DbDriver, display *display.Display, isRandD
 			MaxBrightness: 1.0,
 		},
 	}
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeSolid", RenderTypeStatic, self.calcDisplay, isRandDeterministic)
+	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeSolid", RenderTypeStatic, self.calcDisplay, self.calcDisplayDelta, isRandDeterministic)
 
 	err := dbdriver.Read(self.name, "parameter", &self.parameter)
 	if err != nil {
@@ -38,6 +38,10 @@ func NewModeSolid(dbdriver *dbdriver.DbDriver, display *display.Display, isRandD
 	}
 
 	return &self
+}
+
+func (self *ModeSolid) calcDisplayDelta(deltaTimeNs int64) {
+	self.calcDisplay()
 }
 
 func (self *ModeSolid) calcDisplay() {

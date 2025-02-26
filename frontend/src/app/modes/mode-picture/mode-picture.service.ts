@@ -9,7 +9,7 @@ export interface ModePictureParameter {
   // roundTimeMs: number,
   brightness: number,
   pictureChangeIntervallMs: number,
-  pictureColumnNs: number,
+  pictureColumnUs: number,
   // spectrum: number,
   // reverse: boolean,
 }
@@ -20,8 +20,8 @@ export interface ModePictureLimits {
   maxBrightness: number,
   minPictureChangeIntervallMs: number,
   maxPictureChangeIntervallMs: number,
-  minPictureColumnNs: number,
-  maxPictureColumnNs: number,
+  minPictureColumnUs: number,
+  maxPictureColumnUs: number,
 }
 
 @Injectable({

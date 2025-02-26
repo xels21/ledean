@@ -36,7 +36,7 @@ func NewModeSolidRainbow(dbdriver *dbdriver.DbDriver, display *display.Display, 
 		},
 	}
 
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeSolidRainbow", RenderTypeDynamic, self.calcDisplay, isRandDeterministic)
+	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeSolidRainbow", RenderTypeDynamic, self.calcDisplay, self.calcDisplayDelta, isRandDeterministic)
 
 	err := dbdriver.Read(self.GetName(), "parameter", &self.parameter)
 	if err != nil {
@@ -69,18 +69,32 @@ func (self *ModeSolidRainbow) SetParameter(parm ModeSolidRainbowParameter) {
 	self.postSetParameter()
 }
 
-func (self *ModeSolidRainbow) postSetParameter() {
-	self.parameter.Hsv.V = self.parameter.Brightness
-	self.stepSizeHue = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(self.display.GetRefreshIntervalNs()) / 1000 / 1000 / 1000)
+func (self *ModeSolidRainbow) getStepSizeHue(timeNs float64) float64 {
+	// self.stepSizeHue = 360.0 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(self.display.GetRefreshIntervalNs()) / 1000 / 1000 / 1000)
+
+	return 360.0 / (float64(self.parameter.RoundTimeMs) / 1000 /*s*/) * (timeNs / 1000 /*us*/ / 1000 /*ms*/ / 1000 /*s*/)
 }
 
-func (self *ModeSolidRainbow) calcDisplay() {
-	self.parameter.Hsv.H += self.stepSizeHue
+func (self *ModeSolidRainbow) postSetParameter() {
+	self.parameter.Hsv.V = self.parameter.Brightness
+	self.stepSizeHue = self.getStepSizeHue(float64(self.display.GetRefreshIntervalNs()))
+}
+
+func (self *ModeSolidRainbow) calcDisplayFinal(stepSizeHue float64) {
+	self.parameter.Hsv.H += stepSizeHue
 	for self.parameter.Hsv.H > 360.0 {
 		self.parameter.Hsv.H -= 360.0
 	}
 	rgb := self.parameter.Hsv.ToRGB()
 	self.display.AllSolid(rgb)
+}
+
+func (self *ModeSolidRainbow) calcDisplayDelta(deltaTimeNs int64) {
+	self.calcDisplayFinal(self.getStepSizeHue(float64(deltaTimeNs)))
+}
+
+func (self *ModeSolidRainbow) calcDisplay() {
+	self.calcDisplayFinal(self.stepSizeHue)
 }
 
 func (self *ModeSolidRainbow) RandomizePreset() {

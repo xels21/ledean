@@ -19,24 +19,24 @@ type ModePicture struct {
 	ledsRGB            []color.RGB
 	pixelCount         int
 	picIndex           uint8
-	picProgress        float32
-	picProgressPerStep float32
+	picProgress        float64
+	picProgressPerStep float64
 	colIndex           uint32
-	colProgress        float32
-	colProgressPerStep float32
+	colProgress        float64
+	colProgressPerStep float64
 	// ColumnPerStep int
 }
 
 type ModePictureParameter struct {
-	PictureColumnNs          uint32  `json:"pictureColumnNs"`
+	PictureColumnUs          uint32  `json:"pictureColumnUs"`
 	PictureChangeIntervallMs uint32  `json:"pictureChangeIntervallMs"`
 	Brightness               float64 `json:"brightness"`
 	// PicturePath              string `json:"picturePath"`
 }
 
 type ModePictureLimits struct {
-	MinPictureColumnNs          uint32  `json:"minPictureColumnNs"`
-	MaxPictureColumnNs          uint32  `json:"maxPictureColumnNs"`
+	MinPictureColumnUs          uint32  `json:"minPictureColumnUs"`
+	MaxPictureColumnUs          uint32  `json:"maxPictureColumnUs"`
 	MinPictureChangeIntervallMs uint32  `json:"minPictureChangeIntervallMs"`
 	MaxPictureChangeIntervallMs uint32  `json:"maxPictureChangeIntervallMs"`
 	MinBrightness               float64 `json:"minBrightness"`
@@ -50,8 +50,8 @@ func NewModePicture(dbdriver *dbdriver.DbDriver, display *display.Display, isRan
 	self := ModePicture{
 		// name: "ModePicture",
 		limits: ModePictureLimits{
-			MinPictureColumnNs:          1,
-			MaxPictureColumnNs:          1000,
+			MinPictureColumnUs:          1000,
+			MaxPictureColumnUs:          20000,
 			MinPictureChangeIntervallMs: 1000,
 			MaxPictureChangeIntervallMs: 60000,
 			MinBrightness:               0.0,
@@ -67,7 +67,7 @@ func NewModePicture(dbdriver *dbdriver.DbDriver, display *display.Display, isRan
 		picProgressPerStep: 0.0,
 		// picIndex:           0,
 	}
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModePicture", RenderTypeDynamic, self.calcDisplay, isRandDeterministic)
+	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModePicture", RenderTypeDynamic, self.calcDisplay, self.calcDisplayDelta, isRandDeterministic)
 
 	self.picIndex = uint8(self.rand.Uint32() % uint32(len(picture.Pics)))
 	err := dbdriver.Read(self.GetName(), "parameter", &self.parameter)
@@ -83,7 +83,7 @@ func NewModePicture(dbdriver *dbdriver.DbDriver, display *display.Display, isRan
 
 func (self *ModePicture) Default() {
 	parameter := ModePictureParameter{
-		PictureColumnNs:          1,
+		PictureColumnUs:          1,
 		PictureChangeIntervallMs: 5000,
 		Brightness:               0.1,
 	}
@@ -109,6 +109,7 @@ func (self *ModePicture) updateCurrentPic() {
 	self.colIndex = 0
 	pPic := picture.Pics[self.picIndex]
 	rows := len(pPic)
+	// TODO: LOCK
 	self.currentPic = make([][]color.RGB, rows)
 	for r := 0; r < rows; r++ {
 		self.currentPic[r] = make([]color.RGB, self.pixelCount)
@@ -119,27 +120,43 @@ func (self *ModePicture) updateCurrentPic() {
 				B: uint8(float64(pPic[r][i*3+2]) * self.parameter.Brightness)}
 		}
 	}
+	// TODO: UNLOCK
 }
 
-func (self *ModePicture) calcDisplay() {
-	self.picProgress += self.picProgressPerStep
+func (self *ModePicture) calcDisplayFinal(picProgressPerStep float64, colProgressPerStep float64) {
+	self.picProgress += picProgressPerStep
 	if self.picProgress > 1.0 {
 		self.picProgress -= 1.0
 		self.picIndex = (self.picIndex + 1) % (uint8(len(picture.Pics)))
 		self.updateCurrentPic()
 	}
-	self.colProgress += self.colProgressPerStep
+	self.colProgress += colProgressPerStep
 	if self.colProgress > 1.0 {
 		self.colProgress -= 1.0
 		self.colIndex = (self.colIndex + 1) % (uint32(len(self.currentPic)) - 1)
 	}
 
+	// TODO: LOCK
 	self.ledsRGB = self.currentPic[self.colIndex]
+	// TODO: UNLOCK
+
 	// for i := range self.pixelCount {
 	// self.ledsRGB[i] = getPixel(&self.poiPics[self.picIndex], int(self.colIndex), i)
 	// }
 
 	self.GetDisplay().ApplySingleRowRGB(self.ledsRGB)
+}
+
+func (self *ModePicture) calcDisplayDelta(deltaTimeNs int64) {
+	self.calcDisplayFinal(
+		self.getPicProgressPerStep(float64(deltaTimeNs)),
+		self.getColProgressPerStep(float64(deltaTimeNs)),
+	)
+
+}
+
+func (self *ModePicture) calcDisplay() {
+	self.calcDisplayFinal(self.picProgressPerStep, self.colProgressPerStep)
 }
 
 func (self *ModePicture) TrySetParameter(b []byte) error {
@@ -153,6 +170,14 @@ func (self *ModePicture) TrySetParameter(b []byte) error {
 	return nil
 }
 
+func (self *ModePicture) getColProgressPerStep(timeNs float64) float64 {
+	//  1.0 / (float32(self.parameter.PictureColumnUs / 1000 / 1000)) * (float32(self.GetDisplay().GetRefreshIntervalNs()) / 1000 / 1000 / 1000)
+	return 1.0 / (float64(self.parameter.PictureColumnUs) / 1000 / 1000) * (timeNs / 1000 / 1000 / 1000)
+}
+func (self *ModePicture) getPicProgressPerStep(timeNs float64) float64 {
+	return 1.0 / (float64(self.parameter.PictureChangeIntervallMs) / 1000) * (timeNs / 1000 / 1000 / 1000)
+}
+
 func (self *ModePicture) postSetParameter() {
 	// for iPic := range len(picture.PoiPics) {
 	// self.poiPics[iPic].Pix = make([]uint8, len(picture.PoiPics[iPic].Pix))
@@ -163,8 +188,8 @@ func (self *ModePicture) postSetParameter() {
 	// }
 	// }
 	self.updateCurrentPic()
-	self.colProgressPerStep = 1.0 / (float32(self.parameter.PictureColumnNs / 1000 / 1000)) * (float32(self.GetDisplay().GetRefreshIntervalNs()) / 1000 / 1000 / 1000)
-	self.picProgressPerStep = 1.0 / (float32(self.parameter.PictureChangeIntervallMs) / 1000) * (float32(self.GetDisplay().GetRefreshIntervalNs()) / 1000 / 1000 / 1000)
+	self.colProgressPerStep = self.getColProgressPerStep(float64(self.display.GetRefreshIntervalNs()))
+	self.picProgressPerStep = self.getPicProgressPerStep(float64(self.display.GetRefreshIntervalNs()))
 }
 
 func (self *ModePicture) SetParameter(parm ModePictureParameter) {
@@ -178,7 +203,7 @@ func (self *ModePicture) RandomizePreset() {
 func (self *ModePicture) Randomize() {
 	self.picIndex = uint8(self.rand.Uint32() % uint32(len(picture.Pics)))
 	parameter := ModePictureParameter{
-		PictureColumnNs:          (self.rand.Uint32())%(self.limits.MaxPictureColumnNs-self.limits.MinPictureColumnNs) + self.limits.MinPictureColumnNs,
+		PictureColumnUs:          (self.rand.Uint32())%(self.limits.MaxPictureColumnUs-self.limits.MinPictureColumnUs) + self.limits.MinPictureColumnUs,
 		PictureChangeIntervallMs: (self.rand.Uint32())%(self.limits.MaxPictureChangeIntervallMs-self.limits.MinPictureChangeIntervallMs) + self.limits.MinPictureChangeIntervallMs,
 		Brightness:               self.rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
 	}

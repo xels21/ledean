@@ -7,7 +7,6 @@ import (
 	"ledean/json"
 	"math"
 	"math/rand"
-	"time"
 )
 
 type EmitStyle string
@@ -22,8 +21,9 @@ const (
 )
 
 type ModeEmit struct {
-	pParameter        *ModeEmitterParameter
-	refreshIntervalNs time.Duration
+	pParameter *ModeEmitterParameter
+	// refreshIntervalNs time.Duration
+	refreshIntervalNs float64
 	HueFrom           float64
 	HueTo             float64
 	Brightness        float64
@@ -109,12 +109,24 @@ func (self *ModeEmit) addDropToLeds(leds []color.HSV) {
 	//
 }
 
-func (self *ModeEmit) stepForward() {
-	self.ProgressPer += self.ProgressPerStep
+func (self *ModeEmit) stepForward(progressPerStep float64) {
+	self.ProgressPer += progressPerStep
 	if self.ProgressPer > 1.0 {
 		self.randomize()
 	}
 }
+
+func (self *ModeEmit) getProgressPerStep(timeNs float64) float64 {
+	switch self.pParameter.EmitStyle {
+	case EmitStylePulse:
+		return 1.0 / (float64(self.LifetimeMs) / 1000) * (timeNs / 1000 / 1000 / 1000)
+	case EmitStyleDrop:
+		return 1.0 / self.pParameter.WaveSpeedFac * self.Brightness * self.pParameter.WaveWidthFac * (timeNs / 1000 / 1000 / 1000)
+	default:
+		return 1.0
+	}
+}
+
 func (self *ModeEmit) randomize() {
 	self.HueFrom = self.rand.Float64() * 360.0
 	self.HueTo = self.HueFrom + ((self.rand.Float64() - 0.5) * 360.0 * 0.5)
@@ -127,14 +139,8 @@ func (self *ModeEmit) randomize() {
 	}
 	self.PositionPer = self.rand.Float64()
 	self.ProgressPer = -self.rand.Float64() * MaxCooldown
-	switch self.pParameter.EmitStyle {
-	case EmitStylePulse:
-		self.ProgressPerStep = 1.0 / (float64(self.LifetimeMs) / 1000) * (float64(self.refreshIntervalNs) / 1000 / 1000 / 1000)
-	case EmitStyleDrop:
-		self.ProgressPerStep = 1.0 / self.pParameter.WaveSpeedFac * self.Brightness * self.pParameter.WaveWidthFac * (float64(self.refreshIntervalNs) / 1000 / 1000 / 1000)
-	default:
-		self.ProgressPerStep = 1.0
-	}
+	self.ProgressPerStep = self.getProgressPerStep(self.refreshIntervalNs)
+
 }
 
 type ModeEmitter struct {
@@ -177,14 +183,14 @@ func NewModeEmitter(dbdriver *dbdriver.DbDriver, display *display.Display, isRan
 			MaxBrightness:     1.0,
 		},
 	}
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeEmitter", RenderTypeDynamic, self.calcDisplay, isRandDeterministic)
+	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeEmitter", RenderTypeDynamic, self.calcDisplay, self.calcDisplayDelta, isRandDeterministic)
 
 	self.ledsHSV = make([]color.HSV, display.GetRowLedCount())
 	self.emits = make([]ModeEmit, self.limits.MaxEmitCount)
 	self.presets = self.getPresets()
 	for i := uint8(0); i < self.limits.MaxEmitCount; i++ {
 		self.emits[i].pParameter = &self.parameter
-		self.emits[i].refreshIntervalNs = self.display.GetRefreshIntervalNs()
+		self.emits[i].refreshIntervalNs = float64(self.display.GetRefreshIntervalNs())
 		self.emits[i].rand = self.rand
 	}
 
@@ -225,14 +231,12 @@ func (self *ModeEmitter) getPresets() []ModeEmitterParameter {
 func (self *ModeEmitter) GetParameter() interface{} { return &self.parameter }
 func (self *ModeEmitter) GetLimits() interface{}    { return &self.limits }
 
-func (self *ModeEmitter) calcDisplay() {
+func (self *ModeEmitter) calcDisplayFinal() {
 	color.HsvArrClear(self.ledsHSV)
 	for i := uint8(0); i < self.parameter.EmitCount; i++ {
-		self.emits[i].stepForward()
 		if self.emits[i].ProgressPer < 0 {
 			continue
 		}
-
 		switch self.parameter.EmitStyle {
 		case EmitStylePulse:
 			self.emits[i].addPulseToLeds(self.ledsHSV)
@@ -241,7 +245,21 @@ func (self *ModeEmitter) calcDisplay() {
 		}
 
 	}
+
 	self.display.ApplySingleRowHSV(self.ledsHSV)
+}
+
+func (self *ModeEmitter) calcDisplayDelta(deltaTimeNs int64) {
+	for i := uint8(0); i < self.parameter.EmitCount; i++ {
+		self.emits[i].stepForward(self.emits[i].getProgressPerStep(float64(deltaTimeNs)))
+	}
+	self.calcDisplayFinal()
+}
+func (self *ModeEmitter) calcDisplay() {
+	for i := uint8(0); i < self.parameter.EmitCount; i++ {
+		self.emits[i].stepForward(self.emits[i].ProgressPerStep)
+	}
+	self.calcDisplayFinal()
 }
 
 func (self *ModeEmitter) TrySetParameter(b []byte) error {

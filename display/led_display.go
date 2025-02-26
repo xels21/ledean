@@ -44,9 +44,6 @@ type DisplayBase struct {
 	hub                  *websocket.Hub
 	fps                  int //not used in display, but its central point for the modes
 	refreshIntervalNs    time.Duration
-
-	// active           bool
-	// modeController *mode.ModeController //[]mode.Mode
 }
 
 func NewDisplayBase(led_count int, led_rows int, reverse_rows_raw string, fps int, order int, hub *websocket.Hub) *DisplayBase {
@@ -63,9 +60,10 @@ func NewDisplayBase(led_count int, led_rows int, reverse_rows_raw string, fps in
 		displayTimer:         time.NewTimer(DISPLAY_TIMER_DELAY * time.Millisecond),
 		hub:                  hub,
 		fps:                  fps,
-		refreshIntervalNs:    time.Duration(1000 /*ms*/ *1000 /*us*/ *1000 /*ns*/ /fps) * time.Nanosecond,
-
 		// active:    false,
+	}
+	if fps > 0 { //FPS==0 means highest refresh rate (delta time)
+		self.refreshIntervalNs = time.Duration(1000 /*ms*/ *1000 /*us*/ *1000 /*ns*/ /fps) * time.Nanosecond
 	}
 
 	reverse_rows_arr := strings.Split(reverse_rows_raw, ",")

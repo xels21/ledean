@@ -55,7 +55,7 @@ func NewModeGradient(dbdriver *dbdriver.DbDriver, display *display.Display, isRa
 		},
 	}
 
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeGradient", RenderTypeDynamic, self.calcDisplay, isRandDeterministic)
+	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeGradient", RenderTypeDynamic, self.calcDisplay, self.calcDisplayDelta, isRandDeterministic)
 
 	self.presets = self.getPresets()
 	self.posDistances = make([]float64, self.limits.MaxCount-1)
@@ -115,10 +115,10 @@ func (self *ModeGradient) SetParameter(parm ModeGradientParameter) {
 	self.postSetParameter()
 }
 
-func (self *ModeGradientPosition) StepForward() {
+func (self *ModeGradientPosition) StepForward(percentStep float64) {
 	self.hueCurrent720 = self.hueFrom720 + self.hueDistance*self.percent/100
 
-	self.percent += *self.pPercentStep
+	self.percent += percentStep
 	if self.percent > 100 {
 		self.percent -= 100
 		self.hueFrom720 = self.hueTo720
@@ -137,8 +137,12 @@ func (self *ModeGradientPosition) Randomize() {
 	self.randomizeWoFrom()
 }
 
+func (self *ModeGradient) getPercentStep(timeNs float64) float64 {
+	return 100 / (float64(self.parameter.RoundTimeMs) / 1000) * (timeNs / 1000 / 1000 / 1000)
+}
+
 func (self *ModeGradient) postSetParameter() {
-	self.percentStep = 100 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(self.display.GetRefreshIntervalNs()) / 1000 / 1000 / 1000)
+	self.percentStep = self.getPercentStep(float64(self.display.GetRefreshIntervalNs()))
 
 	for i := range self.positions {
 		self.positions[i].Randomize()
@@ -167,14 +171,22 @@ func (self *ModeGradient) calcDisplayWoStep() {
 	self.display.ApplySingleRowHSV(self.ledsHSV)
 }
 
-func (self *ModeGradient) calcDisplay() {
+func (self *ModeGradient) calcDisplayFinal(percentStep float64) {
 	for i := 0; i < int(self.parameter.Count); i++ {
-		self.positions[i].StepForward()
+		self.positions[i].StepForward(percentStep)
 	}
 	for i := 0; i < int(self.parameter.Count-1); i++ {
 		self.posDistances[i] = self.positions[1+i].hueCurrent720 - self.positions[i].hueCurrent720
 	}
 	self.calcDisplayWoStep()
+}
+
+func (self *ModeGradient) calcDisplayDelta(deltaTimeNs int64) {
+	self.calcDisplayFinal(self.getPercentStep(float64(deltaTimeNs)))
+}
+
+func (self *ModeGradient) calcDisplay() {
+	self.calcDisplayFinal(self.percentStep)
 }
 
 func (self *ModeGradient) RandomizePreset() {

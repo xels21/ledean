@@ -68,7 +68,7 @@ For RPi (using SPI):
 	flag.StringVar(&parm.Path2Frontend, "path2frontend", "", "path to static frontend. Keep it empty to dont serve static files")
 	flag.StringVar(&parm.Address, "address", "0.0.0.0", "Local adress. Set it to '' to make the interface globally adressable")
 	flag.IntVar(&parm.Port, "port", 2211, "Port for webserver")
-	flag.IntVar(&parm.Fps, "fps", 40, "Display refresh rate. Should be between 1 and 200")
+	flag.IntVar(&parm.Fps, "fps", 40, "Display refresh rate. Should be between 0 and 200. Special value: 0 for highest refresh rate")
 	flag.StringVar(&parm.Path2DB, "path2db", "db", "Path to DB folder (folder with json files)")
 	flag.StringVar(&parm.ReverseRows, "reverse_rows", "0", "defines, which rows should be reversed (e.g. if second row is reversed: 0,1,0,0")
 	flag.StringVar(&parm.LedOrder, "led_order", "RGB", "order of LED for SPI. e.g.: BGR|BRG|GRB|RGB")

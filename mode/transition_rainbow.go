@@ -46,7 +46,7 @@ func NewModeTransitionRainbow(dbdriver *dbdriver.DbDriver, display *display.Disp
 		progressDeg: 0.0,
 	}
 
-	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeTransitionRainbow", RenderTypeDynamic, self.calcDisplay, isRandDeterministic)
+	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModeTransitionRainbow", RenderTypeDynamic, self.calcDisplay, self.calcDisplayDelta, isRandDeterministic)
 
 	self.ledsHSV = make([]color.HSV, self.display.GetRowLedCount())
 	for i := 0; i < len(self.ledsHSV); i++ {
@@ -83,8 +83,12 @@ func (self *ModeTransitionRainbow) SetParameter(parm ModeTransitionRainbowParame
 	self.postSetParameter()
 }
 
+func (self *ModeTransitionRainbow) getProgressDegStepSize(timeNs float64) float64 {
+	return 360 / (float64(self.parameter.RoundTimeMs) / 1000) * (timeNs / 1000 / 1000 / 1000)
+}
+
 func (self *ModeTransitionRainbow) postSetParameter() {
-	self.progressDegStepSize = 360 / (float64(self.parameter.RoundTimeMs) / 1000) * (float64(self.display.GetRefreshIntervalNs()) / 1000 / 1000 / 1000)
+	self.progressDegStepSize = self.getProgressDegStepSize(float64(self.display.GetRefreshIntervalNs()))
 	for i := 0; i < len(self.ledsHSV); i++ {
 		self.ledsHSV[i].H = self.ledsHSV[0].H + float64(i)/float64(len(self.ledsHSV))*self.parameter.Spectrum*360.0
 		self.ledsHSV[i].V = self.parameter.Brightness
@@ -92,28 +96,27 @@ func (self *ModeTransitionRainbow) postSetParameter() {
 }
 
 func (self *ModeTransitionRainbow) calcDisplay() {
+	self.calcDisplayFinal(self.progressDegStepSize)
+}
+
+func (self *ModeTransitionRainbow) calcDisplayDelta(deltaTimeNs int64) {
+	self.calcDisplayFinal(self.getProgressDegStepSize(float64(deltaTimeNs)))
+}
+
+func (self *ModeTransitionRainbow) calcDisplayFinal(progressDegStepSize float64) {
 	for i := 0; i < len(self.ledsHSV); i++ {
 		if !self.parameter.Reverse {
-			self.ledsHSV[i].H += self.progressDegStepSize
+			self.ledsHSV[i].H += progressDegStepSize
 			if self.ledsHSV[i].H > 360.0 {
 				self.ledsHSV[i].H -= 360.0
 			}
 		} else {
-			self.ledsHSV[i].H -= self.progressDegStepSize
+			self.ledsHSV[i].H -= progressDegStepSize
 			if self.ledsHSV[i].H < 0.0 {
 				self.ledsHSV[i].H += 360.0
 			}
 		}
-
-		//NOT NICE
-		// sin1fac := 3.0
-		// sin1off := 1.0
-		// sin2fac := 1.0
-		// sin2off := 2.2
-		// sinval := self.ledsHSV[i].H / 360.0 * 2 * math.Pi
-		// self.ledsHSV[i].S = ((math.Sin(sinval*sin1fac+sin1off) * math.Sin(sinval*sin2fac+sin2off)) + 1.0) / 2.0
 	}
-
 	self.display.ApplySingleRowHSV(self.ledsHSV)
 }
 
