@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-const DISPLAY_TIMER_DELAY = 100
+const DISPLAY_TIMER_DELAY = 50
 
 const (
 	LED_DEVICE_WS2812 = iota

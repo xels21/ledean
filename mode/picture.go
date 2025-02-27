@@ -8,6 +8,7 @@ import (
 	"ledean/json"
 	"ledean/log"
 	picture "ledean/mode/gen_picture"
+	"sync"
 )
 
 type ModePicture struct {
@@ -15,6 +16,7 @@ type ModePicture struct {
 	parameter ModePictureParameter
 	limits    ModePictureLimits
 	// poiPics            []image.NRGBA
+	muPic              sync.Mutex
 	currentPic         [][]color.RGB
 	ledsRGB            []color.RGB
 	pixelCount         int
@@ -83,8 +85,8 @@ func NewModePicture(dbdriver *dbdriver.DbDriver, display *display.Display, isRan
 
 func (self *ModePicture) Default() {
 	parameter := ModePictureParameter{
-		PictureColumnUs:          1,
-		PictureChangeIntervallMs: 5000,
+		PictureColumnUs:          10000,
+		PictureChangeIntervallMs: 3000,
 		Brightness:               0.1,
 	}
 	self.SetParameter(parameter)
@@ -109,7 +111,7 @@ func (self *ModePicture) updateCurrentPic() {
 	self.colIndex = 0
 	pPic := picture.Pics[self.picIndex]
 	rows := len(pPic)
-	// TODO: LOCK
+	self.muPic.Lock()
 	self.currentPic = make([][]color.RGB, rows)
 	for r := 0; r < rows; r++ {
 		self.currentPic[r] = make([]color.RGB, self.pixelCount)
@@ -120,7 +122,7 @@ func (self *ModePicture) updateCurrentPic() {
 				B: uint8(float64(pPic[r][i*3+2]) * self.parameter.Brightness)}
 		}
 	}
-	// TODO: UNLOCK
+	self.muPic.Unlock()
 }
 
 func (self *ModePicture) calcDisplayFinal(picProgressPerStep float64, colProgressPerStep float64) {
@@ -136,9 +138,9 @@ func (self *ModePicture) calcDisplayFinal(picProgressPerStep float64, colProgres
 		self.colIndex = (self.colIndex + 1) % (uint32(len(self.currentPic)) - 1)
 	}
 
-	// TODO: LOCK
+	self.muPic.Lock()
 	self.ledsRGB = self.currentPic[self.colIndex]
-	// TODO: UNLOCK
+	self.muPic.Unlock()
 
 	// for i := range self.pixelCount {
 	// self.ledsRGB[i] = getPixel(&self.poiPics[self.picIndex], int(self.colIndex), i)

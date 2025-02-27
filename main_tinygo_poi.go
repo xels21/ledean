@@ -18,7 +18,7 @@ func main() {
 	// os.Args = []string{"tinygo_stub", "-gpio_led_data=0", "-led_count=50", "-direct_start", "-no_gui", "-fps=250", "-led_order=GRB", "-show_mode"}
 	// os.Args = []string{"tinygo_stub", "-gpio_led_data=0", "-led_count=50", "-direct_start", "-no_gui", "-fps=250", "-led_type=APA102", "-show_mode"}
 
-	os.Args = []string{"tinygo_stub", "-gpio_led_data=0", "-led_count=58", "-direct_start", "-no_gui", "-fps=250", "-show_mode", "-led_order=GRB"}
+	os.Args = []string{"tinygo_stub", "-gpio_led_data=0", "-led_count=58", "-direct_start", "-no_gui", "-fps=0", "-show_mode", "-led_order=GRB"}
 	//Arduino Nano
 	// os.Args = []string{"tinygo_stub", "-gpio_led_data=2", "-gpio_button=22", "-led_count=50", "-direct_start"}
 	parm := ledean.GetParameter()
