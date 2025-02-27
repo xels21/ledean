@@ -18,9 +18,9 @@ import (
 // )
 
 type ShowEntry struct {
-	mode       Mode
-	durationMs uint32
-	randomize  bool
+	mode      Mode
+	duration  time.Duration
+	randomize bool
 }
 
 type ModeController struct {
@@ -48,10 +48,10 @@ type ModeController struct {
 	pCmdModeChannel       *chan websocket.CmdMode
 }
 
-const SHOW_PIC_DURATION = 7000
+const SHOW_PIC_DURATION = 6000
 
 // const SHOW_PIC_DURATION = 2000
-const SHOW_DEFAULT_DURATION = 5000
+const SHOW_DEFAULT_DURATION = 3000
 
 func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, button *button.Button, hub *websocket.Hub, show_mode bool) *ModeController {
 	// show_mode should make randomness deterministic
@@ -86,12 +86,13 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 			// {mode: self.modePicture, durationMs: SHOW_PIC_DURATION},
 			// {mode: self.modeRunningLed, durationMs: SHOW_DEFAULT_DURATION, randomize: true},
 
-			{mode: self.modePicture, durationMs: SHOW_PIC_DURATION, randomize: false},
-			{mode: self.modeEmitter, durationMs: SHOW_DEFAULT_DURATION, randomize: true},
-			{mode: self.modePicture, durationMs: SHOW_PIC_DURATION, randomize: false},
-			{mode: self.modeGradient, durationMs: SHOW_DEFAULT_DURATION, randomize: true},
-			{mode: self.modePicture, durationMs: SHOW_PIC_DURATION, randomize: false},
-			{mode: self.modeSpectrum, durationMs: SHOW_DEFAULT_DURATION, randomize: true},
+			{mode: self.modePicture, duration: time.Duration(SHOW_PIC_DURATION) * time.Millisecond, randomize: false},
+			{mode: self.modeEmitter, duration: time.Duration(SHOW_DEFAULT_DURATION) * time.Millisecond, randomize: true},
+			{mode: self.modePicture, duration: time.Duration(SHOW_PIC_DURATION) * time.Millisecond, randomize: false},
+			{mode: self.modeGradient, duration: time.Duration(SHOW_DEFAULT_DURATION) * time.Millisecond, randomize: true},
+
+			// {mode: self.modePicture, durationMs: SHOW_PIC_DURATION, randomize: false},
+			// {mode: self.modeSpectrum, durationMs: SHOW_DEFAULT_DURATION, randomize: true},
 		}
 		go self.startShow()
 
@@ -123,7 +124,8 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 }
 func (self *ModeController) startShow() {
 	for {
-		self.showTimer = time.NewTimer(time.Duration(self.showEntries[self.showEntriesIndex].durationMs) * time.Millisecond)
+		// TODO: Timer not working with tinygo yet
+		self.showTimer = time.NewTimer(self.showEntries[self.showEntriesIndex].duration)
 
 		self.SwitchIndex(self.GetIndexOf(self.showEntries[self.showEntriesIndex].mode.GetName()))
 		if self.showEntries[self.showEntriesIndex].randomize {
