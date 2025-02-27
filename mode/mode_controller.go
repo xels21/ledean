@@ -124,21 +124,24 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 }
 func (self *ModeController) startShow() {
 	for {
-		// TODO: Timer not working with tinygo yet
-		self.showTimer = time.NewTimer(self.showEntries[self.showEntriesIndex].duration)
 
 		self.SwitchIndex(self.GetIndexOf(self.showEntries[self.showEntriesIndex].mode.GetName()))
 		if self.showEntries[self.showEntriesIndex].randomize {
 			self.RandomizePresetCurrentMode()
 		}
-		// self.SetIndex(self.GetIndexOf(self.showEntries[self.showEntriesIndex].mode.GetName()))
-		// self.ActivateCurrentMode()
-		select {
-		case <-self.showTimer.C:
+
+		// TODO: Not possible with tinygo yet
+		if true {
+			self.showTimer = time.NewTimer(self.showEntries[self.showEntriesIndex].duration)
+			select {
+			case <-self.showTimer.C:
+				self.showEntriesIndex = (self.showEntriesIndex + 1) % uint8(len(self.showEntries))
+			}
+		} else {
+			time.Sleep(self.showEntries[self.showEntriesIndex].duration)
 			self.showEntriesIndex = (self.showEntriesIndex + 1) % uint8(len(self.showEntries))
 		}
 
-		// self.DeactivateCurrentMode()
 	}
 }
 
