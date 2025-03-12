@@ -150,6 +150,7 @@ func (self *ModePicture) calcDisplayFinal(picProgressPerStep float64, colProgres
 }
 
 func (self *ModePicture) calcDisplayDelta(deltaTimeNs int64) {
+	// log.Debugf("calcDisplayDelta deltaTimeNs: %d", deltaTimeNs)
 	self.calcDisplayFinal(
 		self.getPicProgressPerStep(float64(deltaTimeNs)),
 		self.getColProgressPerStep(float64(deltaTimeNs)),

@@ -87,9 +87,9 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 			// {mode: self.modeRunningLed, durationMs: SHOW_DEFAULT_DURATION, randomize: true},
 
 			{mode: self.modePicture, duration: time.Duration(SHOW_PIC_DURATION) * time.Millisecond, randomize: false},
-			{mode: self.modeEmitter, duration: time.Duration(SHOW_DEFAULT_DURATION) * time.Millisecond, randomize: true},
-			{mode: self.modePicture, duration: time.Duration(SHOW_PIC_DURATION) * time.Millisecond, randomize: false},
-			{mode: self.modeGradient, duration: time.Duration(SHOW_DEFAULT_DURATION) * time.Millisecond, randomize: true},
+			// {mode: self.modeEmitter, duration: time.Duration(SHOW_DEFAULT_DURATION) * time.Millisecond, randomize: true},
+			// {mode: self.modePicture, duration: time.Duration(SHOW_PIC_DURATION) * time.Millisecond, randomize: false},
+			// {mode: self.modeGradient, duration: time.Duration(SHOW_DEFAULT_DURATION) * time.Millisecond, randomize: true},
 
 			// {mode: self.modePicture, durationMs: SHOW_PIC_DURATION, randomize: false},
 			// {mode: self.modeSpectrum, durationMs: SHOW_DEFAULT_DURATION, randomize: true},
