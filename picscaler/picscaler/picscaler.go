@@ -42,6 +42,8 @@ func FilenameGoComform(filename string) string {
 	filename = RemoveFileExtension(filename)
 	filename = strings.ReplaceAll(filename, " ", "_")
 	filename = strings.ReplaceAll(filename, "-", "_")
+	filename = strings.ReplaceAll(filename, "(", "_")
+	filename = strings.ReplaceAll(filename, ")", "_")
 	return filename
 }
 
