@@ -5,7 +5,8 @@ __debug_bin
 **/logs/**
 **/temp/**
 **/build/**
-.vscode/
+# .vscode/
 db
 poi/gen/*.tiff
 mode/gen_picture
+.vscode/sftp.json

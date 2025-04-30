@@ -1,0 +1,49 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Go",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/main.go",
+      "env": {},
+      "args": [
+        "-gpio_button=GPIO17",
+        "-led_count=20",
+        "-led_rows=2",
+        "-reverse_rows=0,1",
+        "-path2frontend=''",
+        "-log_level='debug'",
+        "-direct_start",
+      ]
+    },
+    {
+      "name": "Go poi",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/main.go",
+      "env": {},
+      "args": [
+        "-gpio_button=GPIO17",
+        "-led_count=58",
+        "-path2frontend=\"\"",
+        "-log_level=\"debug\"",
+        "-direct_start",
+        "-fps=0",
+        "-address=127.0.0.1",
+      ]
+    },
+    {
+      "name": "Angular",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:4200",
+      "webRoot": "${workspaceFolder}/frontend"
+  },
+  ]
+}
