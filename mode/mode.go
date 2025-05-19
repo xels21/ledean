@@ -89,6 +89,7 @@ func (self *ModeSuper) Activate() {
 				for {
 					now = time.Now()
 					deltaTimeNs = min(100 /*ms*/ *1000 /*us*/ *1000 /*ns*/, max(1, now.Sub(self.lastUpdateTime).Nanoseconds()))
+					// log.Debugf("deltaTimeNs: %d", deltaTimeNs)
 					self.lastUpdateTime = now
 					select {
 					case <-self.cExit:

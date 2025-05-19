@@ -85,7 +85,8 @@ func NewModePicture(dbdriver *dbdriver.DbDriver, display *display.Display, isRan
 
 func (self *ModePicture) Default() {
 	parameter := ModePictureParameter{
-		PictureColumnUs:          2500,
+		//  deltaTimeNs: 4 732 650 ~ 5ms
+		PictureColumnUs:          3000,
 		PictureChangeIntervallMs: 6000,
 		Brightness:               0.1,
 	}
@@ -126,14 +127,15 @@ func (self *ModePicture) updateCurrentPic() {
 }
 
 func (self *ModePicture) calcDisplayFinal(picProgressPerStep float64, colProgressPerStep float64) {
+	// log.Debugf("calcDisplayFinal picProgressPerStep: %f colProgressPerStep: %f", picProgressPerStep, colProgressPerStep)
 	self.picProgress += picProgressPerStep
-	if self.picProgress > 1.0 {
+	for self.picProgress > 1.0 {
 		self.picProgress -= 1.0
 		self.picIndex = (self.picIndex + 1) % (uint8(len(picture.Pics)))
 		self.updateCurrentPic()
 	}
 	self.colProgress += colProgressPerStep
-	if self.colProgress > 1.0 {
+	for self.colProgress > 1.0 {
 		self.colProgress -= 1.0
 		self.colIndex = (self.colIndex + 1) % (uint32(len(self.currentPic)) - 1)
 	}
