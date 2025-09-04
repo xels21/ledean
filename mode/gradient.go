@@ -116,11 +116,11 @@ func (self *ModeGradient) SetParameter(parm ModeGradientParameter) {
 }
 
 func (self *ModeGradientPosition) StepForward(percentStep float64) {
-	self.hueCurrent720 = self.hueFrom720 + self.hueDistance*self.percent/100
+	self.hueCurrent720 = self.hueFrom720 + self.hueDistance*self.percent
 
 	self.percent += percentStep
-	if self.percent > 100 {
-		self.percent -= 100
+	if self.percent > 1.0 {
+		self.percent -= 1.0
 		self.hueFrom720 = self.hueTo720
 		self.randomizeWoFrom()
 	}
@@ -132,13 +132,13 @@ func (self *ModeGradientPosition) randomizeWoFrom() {
 }
 
 func (self *ModeGradientPosition) Randomize() {
-	self.percent = self.rand.Float64() * 100.0
+	self.percent = self.rand.Float64()
 	self.hueFrom720 = self.rand.Float64() * 720.0
 	self.randomizeWoFrom()
 }
 
 func (self *ModeGradient) getPercentStep(timeNs float64) float64 {
-	return 100 / (float64(self.parameter.RoundTimeMs) / 1000) * (timeNs / 1000 / 1000 / 1000)
+	return (timeNs / 1_000_000) / float64(self.parameter.RoundTimeMs)
 }
 
 func (self *ModeGradient) postSetParameter() {

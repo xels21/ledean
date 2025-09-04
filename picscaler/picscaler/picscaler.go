@@ -49,10 +49,13 @@ func FilenameGoComform(filename string) string {
 
 func (self *PicScaler) CreateController() {
 	output, err := os.Create(filepath.Join(self.outDir, "pics_"+self.name+".go"))
-	defer output.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer output.Close()
+
+	fmt.Fprint(output, "//go:build poi\n")
+	fmt.Fprint(output, "// +build poi\n\n")
 
 	fmt.Fprint(output, "package "+self.name+"\n\n")
 	if !self.asBytes {
@@ -73,6 +76,39 @@ func (self *PicScaler) CreateController() {
 			fmt.Fprint(output, "\n\t"+"&"+self.name+"_"+picGo+",")
 		}
 	}
+	fmt.Fprint(output, "\n}\n")
+	self.createControlleStub()
+}
+
+func (self *PicScaler) createControlleStub() {
+	output, err := os.Create(filepath.Join(self.outDir, "pics_"+self.name+"_stub.go"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer output.Close()
+
+	fmt.Fprint(output, "//go:!build poi\n")
+	fmt.Fprint(output, "// -build poi\n\n")
+
+	fmt.Fprint(output, "package "+self.name+"\n\n")
+	// if !self.asBytes {
+	// 	fmt.Fprint(output, "import \"image\"\n\n")
+	// }
+	fmt.Fprint(output, "var PixelCount = 0\n\n")
+
+	if self.asBytes {
+		fmt.Fprint(output, "var Pics = [][]string{")
+	} else {
+		fmt.Fprint(output, "var Pics = []*image.NRGBA{")
+	}
+	// for _, picName := range self.picNames {
+	// 	picGo := FilenameGoComform(picName)
+	// 	if self.asBytes {
+	// 		fmt.Fprint(output, "\n\t"+self.name+"_"+picGo+",")
+	// 	} else {
+	// 		fmt.Fprint(output, "\n\t"+"&"+self.name+"_"+picGo+",")
+	// 	}
+	// }
 	fmt.Fprint(output, "\n}\n")
 }
 
@@ -229,18 +265,22 @@ func (self *PicScaler) ConvertToGo(resized *image.NRGBA, picName string) {
 	}
 	defer output.Close()
 
-	fmt.Fprint(output, "package "+self.name+"\n\n")
+	fmt.Fprint(output, "//go:build poi\n")
+	fmt.Fprint(output, "// +build poi\n\n")
+
+	fmt.Fprint(output, "package "+self.name+"\n")
 	if !self.asBytes {
 		fmt.Fprint(output, `
-		import (
-			"image"
-		)
-	`)
+import (
+	"image"
+)
+`)
 	}
-	fmt.Fprint(output, "var ", self.name, "_", picGo, " = ")
+	fmt.Fprint(output, "\nvar ", self.name, "_", picGo, " = ")
 	if self.asBytes {
 		fmt.Fprint(output, NRGBAToStringArray(resized))
 	} else {
 		fmt.Fprint(output, NRGBAToGo(resized))
 	}
+	fmt.Fprint(output, "\n")
 }

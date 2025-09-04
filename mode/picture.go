@@ -71,7 +71,12 @@ func NewModePicture(dbdriver *dbdriver.DbDriver, display *display.Display, isRan
 	}
 	self.ModeSuper = *NewModeSuper(dbdriver, display, "ModePicture", RenderTypeDynamic, self.calcDisplay, self.calcDisplayDelta, isRandDeterministic)
 
-	self.picIndex = uint8(self.rand.Uint32() % uint32(len(picture.Pics)))
+	picCount := uint32(len(picture.Pics))
+	if picCount == 0 {
+		log.Warn("No pictures found in pics_picture.go, please generate them with picscaler")
+		return nil
+	}
+	self.picIndex = uint8(self.rand.Uint32() % picCount)
 	err := dbdriver.Read(self.GetName(), "parameter", &self.parameter)
 	if err != nil {
 		// self.Randomize()
@@ -88,7 +93,8 @@ func (self *ModePicture) Default() {
 		//  deltaTimeNs: 4 732 650 ~ 5ms
 		PictureColumnUs:          3000,
 		PictureChangeIntervallMs: 6000,
-		Brightness:               0.1,
+		// Brightness:               0.1, //for small poi
+		Brightness: 0.06, //for big poi
 	}
 	self.SetParameter(parameter)
 }

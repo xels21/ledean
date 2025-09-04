@@ -36,11 +36,11 @@ func (self *ModeSpectrumPosition) StepForward(factorPercentStep float64, offsetP
 
 }
 
-func (self *ModeSpectrumPosition) getFactorPercentStep(timeUs float64) float64 {
-	return 1.0 / float64(self.parm.FacRoundTimeMs) * timeUs / 1000.0 /*ms*/
+func (self *ModeSpectrumPosition) getFactorPercentStep(timeNs float64) float64 {
+	return (timeNs / 1_000_000) / float64(self.parm.FacRoundTimeMs)
 }
-func (self *ModeSpectrumPosition) getOffsetPercentStep(timeUs float64) float64 {
-	return 1.0 / float64(self.parm.OffRoundTimeMs) * timeUs / 1000.0 /*us*/ / 1000.0 /*ms*/
+func (self *ModeSpectrumPosition) getOffsetPercentStep(timeNs float64) float64 {
+	return (timeNs / 1_000_000) / float64(self.parm.OffRoundTimeMs)
 }
 
 func (self *ModeSpectrumPosition) postSetParameter() {
