@@ -4,6 +4,8 @@
 package log
 
 import (
+	"runtime"
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -60,6 +62,11 @@ func Info(args ...interface{}) {
 	log.Info(args...)
 }
 
+// Infof logs a formatted message at level Info on the standard logger.
+func Infof(format string, args ...interface{}) {
+	log.Infof(format, args...)
+}
+
 // Warn logs a message at level Warn on the standard logger.
 func Warn(args ...interface{}) {
 	log.Warn(args...)
@@ -91,4 +98,10 @@ func Fatal(args ...interface{}) {
 
 func Fatalf(format string, args ...interface{}) {
 	log.Fatalf(format, args...)
+}
+
+func PrintHeapUsage() {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	log.Printf("heap alloc=%d sys=%d", m.Alloc, m.Sys)
 }

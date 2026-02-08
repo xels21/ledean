@@ -10,5 +10,5 @@ import (
 type Client struct{}
 
 func (self *Client) SendCmd(cmd Cmd) {
-	log.Error("Not possible with tinygo yet")
+	log.Error("Not possible with tinygo yet: client_stub - SendCmd")
 }

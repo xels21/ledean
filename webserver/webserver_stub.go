@@ -10,5 +10,5 @@ import (
 )
 
 func Start(addr string, port int, path2Frontend string, modeController *mode.ModeController, hub *websocket.Hub) {
-	log.Error("Not possible with tinygo yet")
+	log.Error("Not possible with tinygo yet: webserver Start")
 }

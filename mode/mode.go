@@ -4,7 +4,7 @@ package mode
 import (
 	"ledean/dbdriver"
 	"ledean/display"
-	"math/rand"
+	"ledean/helper"
 	"time"
 
 	"ledean/log"
@@ -37,7 +37,7 @@ type ModeSuper struct {
 	calcDisplayDelta func(deltaTimeNs int64)
 	cExit            chan bool
 	lastUpdateTime   time.Time
-	rand             *rand.Rand
+	rand             *helper.Rand
 }
 
 func NewModeSuper(dbdriver *dbdriver.DbDriver, display *display.Display, name string, renderType RenderType, calcDisplay func(), calcDisplayDelta func(deltaTimeNs int64), isRandDeterministic bool) *ModeSuper {
@@ -50,9 +50,9 @@ func NewModeSuper(dbdriver *dbdriver.DbDriver, display *display.Display, name st
 		calcDisplayDelta: calcDisplayDelta,
 	}
 	if isRandDeterministic {
-		self.rand = rand.New(rand.NewSource(0))
+		self.rand = helper.NewRand(1)
 	} else {
-		self.rand = rand.New(rand.NewSource(time.Now().UnixNano()))
+		self.rand = helper.NewRand(uint64(time.Now().UnixNano()))
 	}
 
 	if self.renderType == RenderTypeDynamic {

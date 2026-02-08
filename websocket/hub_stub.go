@@ -12,31 +12,31 @@ type Hub struct {
 }
 
 func NewHub() *Hub {
-	log.Error("Not possible with tinygo yet")
+	log.Error("Not possible with tinygo yet: Hub")
 	return nil
 }
 
 func (self *Hub) GetCmdButtonChannel() *chan CmdButton {
-	log.Error("Not possible with tinygo yet")
+	log.Error("Not possible with tinygo yet: GetCmdButtonChannel")
 	return nil
 }
 func (self *Hub) GetCmdModeActionChannel() *chan CmdModeAction {
-	log.Error("Not possible with tinygo yet")
+	log.Error("Not possible with tinygo yet: GetCmdModeActionChannel")
 	return nil
 }
 func (self *Hub) GetCmdModeChannel() *chan CmdMode {
-	log.Error("Not possible with tinygo yet")
+	log.Error("Not possible with tinygo yet: GetCmdModeChannel")
 	return nil
 }
 
 func (self *Hub) AppendInitClientCb(cb func(*Client)) {
-	log.Error("Not possible with tinygo yet")
+	log.Error("Not possible with tinygo yet: AppendInitClientCb")
 }
 
 func (self *Hub) Run() {
-	log.Error("Not possible with tinygo yet")
+	log.Error("Not possible with tinygo yet: Run")
 }
 
 func (self *Hub) Boradcast(cmd Cmd) {
-	log.Error("Not possible with tinygo yet")
+	log.Error("Not possible with tinygo yet: Boradcast")
 }

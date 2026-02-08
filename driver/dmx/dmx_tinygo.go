@@ -6,68 +6,88 @@ package dmx
 import (
 	"ledean/log"
 	"machine"
+	"runtime"
 	"time"
 )
 
 const (
-	dmxBaud     = 250000
-	dmxChannels = 512 // DMX512 standard - will work also with less
-	startCode   = 0x00
+	dmxBaud    = 250000
+	startCode  = 0x00
+	maxDmxRead = 512 // max channel index to accept from wire
+	// pollLoopsPerUs is a rough busy-wait calibration for ESP32-C3.
+	// It avoids time.Now/After in interrupt-sensitive paths.
+	pollLoopsPerUs = 8
+	// maxListeners is the maximum number of per-channel callbacks.
+	// 16 covers the 8 currently used and leaves room for growth.
+	maxListeners = 16
 )
 
+// dmxListener is a compact per-channel callback entry.
+type dmxListener struct {
+	chn      uint16
+	prevVal  byte
+	callback func(value byte)
+}
+
 type Dmx struct {
-	// 	pin machine.Pin
-	frame        [dmxChannels]byte
-	prevFrame    [dmxChannels]byte
-	chnListeners [dmxChannels][]func(value byte)
-	rxPin        machine.Pin
-	dmx          *machine.UART
+	rxPin         machine.Pin
+	dmx           *machine.UART
+	listeners     [maxListeners]dmxListener
+	listenerCount uint8
+	maxChn        uint16 // highest registered channel (for early exit)
 }
 
 func NewDmx() *Dmx {
 	self := Dmx{
-		frame:     [dmxChannels]byte{},
-		prevFrame: [dmxChannels]byte{},
-		rxPin:     machine.GPIO20,
-		dmx:       machine.UART1,
+		rxPin: machine.GPIO20,
+		dmx:   machine.UART1,
 	}
-	log.Debug("Initializing DMX adapter on GPIO20 (UART1 RX)")
-
-	// Configure GPIO20 as input first (for break detection)
-	self.rxPin.Configure(machine.PinConfig{Mode: machine.PinInputPullup})
-
-	// Configure UART1 on the same pin for frame data
-	self.dmx.Configure(machine.UARTConfig{
-		BaudRate: dmxBaud,
-		RX:       self.rxPin,
-		TX:       machine.NoPin,
-	})
-
-	// Drain any buffered bytes from UART startup
-	self.drainUART()
-
-	log.Debug("UART configured. Waiting for DMX...")
+	log.Debug("DMX adapter created (UART config deferred to Run)")
 	return &self
 }
 
-func (self *Dmx) GetFrame() [dmxChannels]byte {
-	return self.frame
-}
-
 func (self *Dmx) AddChnListener(chn int, callback func(value byte)) {
-	if chn < 0 || chn >= dmxChannels {
-		log.Warningf("DMX: invalid channel %d (valid range 0-%d)", chn, dmxChannels-1)
+	if chn < 0 || chn >= maxDmxRead {
+		log.Warningf("DMX: invalid channel %d (valid range 0-%d)", chn, maxDmxRead-1)
 		return
 	}
 	if callback == nil {
 		log.Warning("DMX: nil listener callback ignored")
 		return
 	}
-	idx := chn
-	self.chnListeners[idx] = append(self.chnListeners[idx], callback)
+	if self.listenerCount >= maxListeners {
+		log.Warning("DMX: max listeners reached, ignoring")
+		return
+	}
+	self.listeners[self.listenerCount] = dmxListener{
+		chn:      uint16(chn),
+		callback: callback,
+	}
+	self.listenerCount++
+	if uint16(chn) > self.maxChn {
+		self.maxChn = uint16(chn)
+	}
 }
 
 func (self *Dmx) Run() {
+	// Configure GPIO and UART here (not in NewDmx) so that UART RX interrupts
+	// don't fire during the allocation-heavy init phase.
+	self.rxPin.Configure(machine.PinConfig{Mode: machine.PinInputPullup})
+	self.dmx.Configure(machine.UARTConfig{
+		BaudRate: dmxBaud,
+		RX:       self.rxPin,
+		TX:       machine.NoPin,
+	})
+
+	// Disable ALL UART interrupts. At 250 kbaud the RX-FIFO-full interrupt
+	// fires every ~44 µs, which collides with GC/alloc in other goroutines
+	// and causes "heap alloc in interrupt" panics on the ESP32-C3.
+	// We poll the hardware FIFO directly instead.
+	self.dmx.Bus.INT_ENA.Set(0)
+
+	self.drainUART()
+	log.Debug("DMX UART configured (polling mode). Listening...")
+
 	for {
 		// STEP 1: Detect DMX break via GPIO pin polling.
 		// CRITICAL: drain UART buffer in every wait loop to prevent
@@ -88,31 +108,40 @@ func (self *Dmx) Run() {
 			continue
 		}
 		if sc != startCode {
-			log.Debugf("Invalid DMX start code: 0x%02X", sc)
+			// Avoid formatting/logging in tight loop to prevent allocations.
 			continue
 		}
 
-		// STEP 4: Read channel data via UART
-		received := 0
-		for received < dmxChannels {
+		// STEP 4: Read channel data via UART and notify listeners inline.
+		// DMX512 channels are 1-based: the first data byte after the start
+		// code is channel 1. Read up to maxChn channels, then stop.
+		chn := uint16(0)
+		for chn <= self.maxChn {
 			b, ok := self.readByteUART(1 * time.Millisecond)
 			if !ok {
 				break // inter-byte timeout = end of this frame's data
 			}
-			self.frame[received] = b
-			received++
+			self.notifyListeners(chn, b)
+			chn++
 		}
-		log.Debugf("Received DMX frame: %d channels", received)
-
-		self.checkChanges(received)
 	}
 }
 
-// drainUART reads and discards all bytes currently in the UART buffer.
-// Must be called frequently during GPIO polling loops to prevent overflow.
+// notifyListeners checks all registered listeners for the given channel
+// and fires callbacks only when the value has changed.
+func (self *Dmx) notifyListeners(chn uint16, value byte) {
+	for i := uint8(0); i < self.listenerCount; i++ {
+		if self.listeners[i].chn == chn && self.listeners[i].prevVal != value {
+			self.listeners[i].prevVal = value
+			self.listeners[i].callback(value)
+		}
+	}
+}
+
+// drainUART reads and discards all bytes in the UART hardware FIFO.
 func (self *Dmx) drainUART() {
-	for self.dmx.Buffered() > 0 {
-		self.dmx.ReadByte()
+	for self.dmx.Bus.GetSTATUS_RXFIFO_CNT() > 0 {
+		self.dmx.Bus.GetFIFO_RXFIFO_RD_BYTE()
 	}
 }
 
@@ -120,31 +149,29 @@ func (self *Dmx) drainUART() {
 // Drains UART buffer in every polling loop to prevent interrupt panic.
 func (self *Dmx) detectBreak() (time.Duration, bool) {
 	// Wait for line HIGH (idle state)
-	deadline := time.Now().Add(200 * time.Millisecond)
-	for !self.rxPin.Get() {
-		self.drainUART()
-		if time.Now().After(deadline) {
-			return 0, false
-		}
+	if !self.waitForPinState(true, 200*time.Millisecond) {
+		return 0, false
 	}
 
 	// Wait for line to go LOW (break start)
-	deadline = time.Now().Add(200 * time.Millisecond)
-	for self.rxPin.Get() {
-		self.drainUART()
-		if time.Now().After(deadline) {
-			return 0, false
-		}
+	if !self.waitForPinState(false, 200*time.Millisecond) {
+		return 0, false
 	}
 
-	// Measure LOW duration (break length)
-	start := time.Now()
+	// Measure LOW duration (break length) with a bounded loop.
+	maxLoops := loopsForTimeout(1 * time.Millisecond)
+	loops := 0
 	for !self.rxPin.Get() {
-		if time.Since(start) > time.Millisecond {
+		loops++
+		if loops >= maxLoops {
 			break
 		}
 	}
-	dur := time.Since(start)
+	if loops == 0 {
+		return 0, false
+	}
+	durUs := loops / pollLoopsPerUs
+	dur := time.Duration(durUs) * time.Microsecond
 
 	// Valid DMX break: 88µs min (use 80µs margin), 1ms max
 	if dur < 80*time.Microsecond || dur > time.Millisecond {
@@ -153,40 +180,50 @@ func (self *Dmx) detectBreak() (time.Duration, bool) {
 	return dur, true
 }
 
-// readByteUART reads one byte from UART with a timeout.
+// readByteUART reads one byte from the UART hardware FIFO with a timeout.
+// Uses direct register polling (no interrupts).
 func (self *Dmx) readByteUART(timeout time.Duration) (byte, bool) {
-	deadline := time.Now().Add(timeout)
-	for self.dmx.Buffered() == 0 {
-		if time.Now().After(deadline) {
+	loops := loopsForTimeout(timeout)
+	yieldCounter := 0
+	for self.dmx.Bus.GetSTATUS_RXFIFO_CNT() == 0 {
+		loops--
+		if loops <= 0 {
 			return 0, false
 		}
+		yieldCounter++
+		if yieldCounter >= 1000 {
+			yieldCounter = 0
+			runtime.Gosched()
+		}
 	}
-	b, err := self.dmx.ReadByte()
-	if err != nil {
-		return 0, false
-	}
-	return b, true
+	return byte(self.dmx.Bus.GetFIFO_RXFIFO_RD_BYTE() & 0xFF), true
 }
 
-func (self *Dmx) checkChanges(length int) {
-	changedChannels := []int{}
+func loopsForTimeout(timeout time.Duration) int {
+	if timeout <= 0 {
+		return 1
+	}
+	us := int(timeout / time.Microsecond)
+	if us < 1 {
+		us = 1
+	}
+	return us * pollLoopsPerUs
+}
 
-	for i := 0; i < length; i++ {
-		if self.frame[i] != self.prevFrame[i] {
-			changedChannels = append(changedChannels, i+1) // DMX channels are 1-indexed
-			if len(self.chnListeners[i]) > 0 {
-				value := self.frame[i]
-				for _, callback := range self.chnListeners[i] {
-					callback(value)
-				}
-			}
-			self.prevFrame[i] = self.frame[i]
+func (self *Dmx) waitForPinState(state bool, timeout time.Duration) bool {
+	loops := loopsForTimeout(timeout)
+	yieldCounter := 0
+	for self.rxPin.Get() != state {
+		self.drainUART()
+		loops--
+		if loops <= 0 {
+			return false
+		}
+		yieldCounter++
+		if yieldCounter >= 1000 {
+			yieldCounter = 0
+			runtime.Gosched()
 		}
 	}
-
-	for _, chn := range changedChannels {
-		for _, cb := range self.chnListeners[chn] {
-			cb(self.frame[chn])
-		}
-	}
+	return true
 }

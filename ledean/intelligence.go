@@ -34,12 +34,15 @@ func Run(parm *Parameter) *LEDeanInstance {
 	parm.Check()
 	log.SetLogger(parm.LogLevel)
 
+	driver.Init()
+	self.dmx = dmx.NewDmx()
+
+	// time.Sleep(1000 * time.Millisecond) //wait a bit for the DMX driver to be ready
+
 	self.dbdriver, err = dbdriver.NewDbDriver(parm.Path2DB)
 	if err != nil {
 		log.Fatal("Error while trying to make a new DB: ", err)
 	}
-
-	driver.Init()
 
 	if !parm.NoGui {
 		self.hub = websocket.NewHub()
@@ -48,8 +51,6 @@ func Run(parm *Parameter) *LEDeanInstance {
 	self.button = button.NewButton(self.dbdriver, parm.GpioButton, parm.PressLongMs, parm.PressDoubleTimeout, self.hub)
 
 	self.display = display.NewDisplay(parm.LedCount, parm.LedRows, parm.GpioLedData, parm.ReverseRows, parm.Fps, color.OrderStr2int(parm.LedOrder), display.LedDeviceStr2int(parm.LedDevice), self.hub)
-
-	self.dmx = dmx.NewDmx()
 
 	self.modeController = mode.NewModeController(self.dbdriver, self.display, self.button, self.hub, self.dmx, parm.DmxOffset, parm.IsShowMode)
 
@@ -60,13 +61,19 @@ func Run(parm *Parameter) *LEDeanInstance {
 
 	if parm.DirectStart { //&& !parm.IsShowMode {
 		self.modeController.Start()
-		// self.modeController.NextMode()
 	}
 
-	const TEST_MODE = false
+	if self.dmx != nil {
+		go self.dmx.Run()
+	}
+
+	const TEST_MODE = true
+	// const TEST_MODE = false
 	if TEST_MODE {
 		for {
+			log.Info("hit")
 			time.Sleep(3 * time.Second)
+			log.Info("hit")
 			self.modeController.NextMode()
 		}
 	}

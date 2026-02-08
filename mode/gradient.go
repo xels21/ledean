@@ -4,8 +4,8 @@ import (
 	"ledean/color"
 	"ledean/dbdriver"
 	"ledean/display"
+	"ledean/helper"
 	"ledean/json"
-	"math/rand"
 )
 
 type ModeGradientPosition struct {
@@ -15,7 +15,7 @@ type ModeGradientPosition struct {
 	hueDistance   float64
 	pPercentStep  *float64
 	percent       float64
-	rand          *rand.Rand
+	rand          *helper.Rand
 }
 
 type ModeGradient struct {

@@ -4,9 +4,9 @@ import (
 	"ledean/color"
 	"ledean/dbdriver"
 	"ledean/display"
+	"ledean/helper"
 	"ledean/json"
 	"math"
-	"math/rand"
 	"time"
 )
 
@@ -19,6 +19,7 @@ type ModeSpectrumPosition struct {
 	offsetPercent     float64
 	offsetPercentStep float64
 	parm              *ModeSpectrumParameterPosition
+	rand              *helper.Rand
 }
 
 func (self *ModeSpectrumPosition) StepForward(factorPercentStep float64, offsetPercentStep float64) {
@@ -46,8 +47,13 @@ func (self *ModeSpectrumPosition) getOffsetPercentStep(timeNs float64) float64 {
 func (self *ModeSpectrumPosition) postSetParameter() {
 	self.factorPercentStep = self.getFactorPercentStep(float64(self.refreshIntervalNs))
 	self.offsetPercentStep = self.getOffsetPercentStep(float64(self.refreshIntervalNs))
-	self.factorPercent = rand.Float64()
-	self.offsetPercent = rand.Float64()
+	if self.rand != nil {
+		self.factorPercent = self.rand.Float64()
+		self.offsetPercent = self.rand.Float64()
+	} else {
+		self.factorPercent = 0
+		self.offsetPercent = 0
+	}
 }
 
 type ModeSpectrum struct {
@@ -214,6 +220,7 @@ func (self *ModeSpectrum) postSetParameter() {
 	for i := range self.positions {
 		self.positions[i].parm = &self.parameter.Positions[i]
 		self.positions[i].refreshIntervalNs = self.display.GetRefreshIntervalNs()
+		self.positions[i].rand = self.rand
 		self.positions[i].postSetParameter()
 	}
 

@@ -527,11 +527,11 @@ func (self *ModeController) DmxParameterChange6(value byte) { self.DmxParameterC
 func (self *ModeController) DmxParameterChange7(value byte) { self.DmxParameterChangeX(7, value) }
 
 func (self *ModeController) DmxParameterChangeX(chn int, value byte) {
-	log.Info("DMX parameter change: chn=%d, value=%d", chn, value)
+	log.Infof("DMX parameter '%d' changed: %d", chn, value)
 }
 
 func (self *ModeController) DmxModeChange(value byte) {
-	log.Info("DMX mode change: %d", value)
+	log.Infof("DMX mode change: %d", value)
 }
 
 func (self *ModeController) registerEvents() {

@@ -188,6 +188,68 @@ func (self *DisplayBase) leds2Buffer() {
 	}
 }
 
+func (self *DisplayBase) _leds2Buffer() {
+	needed := len(self.leds) * 3
+	if cap(self.buffer) < needed {
+		self.buffer = make([]byte, needed)
+	} else {
+		self.buffer = self.buffer[:needed]
+	}
+	idx := 0
+	switch self.order {
+	case color.SPI_ORDER_BGR:
+		for i := range self.leds {
+			led := self.leds[i]
+			self.buffer[idx] = led.B
+			self.buffer[idx+1] = led.G
+			self.buffer[idx+2] = led.R
+			idx += 3
+		}
+	case color.SPI_ORDER_BRG:
+		for i := range self.leds {
+			led := self.leds[i]
+			self.buffer[idx] = led.B
+			self.buffer[idx+1] = led.R
+			self.buffer[idx+2] = led.G
+			idx += 3
+		}
+	case color.SPI_ORDER_GRB:
+		for i := range self.leds {
+			led := self.leds[i]
+			self.buffer[idx] = led.G
+			self.buffer[idx+1] = led.R
+			self.buffer[idx+2] = led.B
+			idx += 3
+		}
+	case color.SPI_ORDER_GBR:
+		for i := range self.leds {
+			led := self.leds[i]
+			self.buffer[idx] = led.G
+			self.buffer[idx+1] = led.B
+			self.buffer[idx+2] = led.R
+			idx += 3
+		}
+	case color.SPI_ORDER_RBG:
+		for i := range self.leds {
+			led := self.leds[i]
+			self.buffer[idx] = led.R
+			self.buffer[idx+1] = led.B
+			self.buffer[idx+2] = led.G
+			idx += 3
+		}
+	case color.SPI_ORDER_RGB:
+		fallthrough
+	default:
+		for i := range self.leds {
+			led := self.leds[i]
+			self.buffer[idx] = led.R
+			self.buffer[idx+1] = led.G
+			self.buffer[idx+2] = led.B
+			idx += 3
+		}
+	}
+}
+
 func (self *DisplayBase) Clear() {
 	self.AllSolid(color.RGB{R: 0, G: 0, B: 0})
 	self.ForceLedsChanged() //due to start stop

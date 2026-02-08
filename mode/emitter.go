@@ -4,9 +4,9 @@ import (
 	"ledean/color"
 	"ledean/dbdriver"
 	"ledean/display"
+	"ledean/helper"
 	"ledean/json"
 	"math"
-	"math/rand"
 )
 
 type EmitStyle string
@@ -32,7 +32,7 @@ type ModeEmit struct {
 	ImpactPer         float64
 	ProgressPer       float64
 	ProgressPerStep   float64
-	rand              *rand.Rand
+	rand              *helper.Rand
 }
 
 func (self *ModeEmit) addPulseToLeds(leds []color.HSV) {
