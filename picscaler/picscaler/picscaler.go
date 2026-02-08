@@ -87,8 +87,8 @@ func (self *PicScaler) createControlleStub() {
 	}
 	defer output.Close()
 
-	fmt.Fprint(output, "//go:!build poi\n")
-	fmt.Fprint(output, "// -build poi\n\n")
+	fmt.Fprint(output, "//go:build !poi\n")
+	fmt.Fprint(output, "// +build !poi\n\n")
 
 	fmt.Fprint(output, "package "+self.name+"\n\n")
 	// if !self.asBytes {

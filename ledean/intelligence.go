@@ -6,6 +6,7 @@ import (
 	"ledean/display"
 	"ledean/driver"
 	"ledean/driver/button"
+	"ledean/driver/dmx"
 	"ledean/mode"
 	"ledean/webserver"
 	"ledean/websocket"
@@ -20,6 +21,7 @@ type LEDeanInstance struct {
 	modeController *mode.ModeController
 	button         *button.Button
 	hub            *websocket.Hub
+	dmx            *dmx.Dmx
 }
 
 func (self *LEDeanInstance) GetModeController() *mode.ModeController {
@@ -47,7 +49,9 @@ func Run(parm *Parameter) *LEDeanInstance {
 
 	self.display = display.NewDisplay(parm.LedCount, parm.LedRows, parm.GpioLedData, parm.ReverseRows, parm.Fps, color.OrderStr2int(parm.LedOrder), display.LedDeviceStr2int(parm.LedDevice), self.hub)
 
-	self.modeController = mode.NewModeController(self.dbdriver, self.display, self.button, self.hub, parm.IsShowMode)
+	self.dmx = dmx.NewDmx()
+
+	self.modeController = mode.NewModeController(self.dbdriver, self.display, self.button, self.hub, self.dmx, parm.DmxOffset, parm.IsShowMode)
 
 	if !parm.NoGui {
 		go self.hub.Run()

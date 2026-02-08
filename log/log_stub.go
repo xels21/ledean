@@ -42,6 +42,12 @@ func Info(args ...interface{}) {
 	log.Print(args...)
 }
 
+// Info logs a message at level Info on the standard logger.
+func Infof(format string, args ...interface{}) {
+	// log.Debugf(format, args...)
+	log.Printf(format, args...)
+}
+
 // Warn logs a message at level Warn on the standard logger.
 func Warn(args ...interface{}) {
 	// log.Warn(args...)

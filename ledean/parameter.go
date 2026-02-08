@@ -28,6 +28,7 @@ type Parameter struct {
 	NoGui              bool   `json:"noGui"`
 	LedOrder           string `json:"ledOrder"`
 	LedDevice          string `json:"ledDevice"`
+	DmxOffset          int    `json:"dmxOffset"`
 
 	// PathToDB       string
 	// Pw             string
@@ -73,6 +74,7 @@ For RPi (using SPI):
 	flag.StringVar(&parm.ReverseRows, "reverse_rows", "0", "defines, which rows should be reversed (e.g. if second row is reversed: 0,1,0,0")
 	flag.StringVar(&parm.LedOrder, "led_order", "RGB", "order of LED for SPI. e.g.: BGR|BRG|GRB|RGB")
 	flag.StringVar(&parm.LedDevice, "led_device", "WS2812", "LED device protocol type: WS2812 | APA102")
+	flag.IntVar(&parm.DmxOffset, "dmx_offset", 0, "DMX channel offset for mode/parameter changes")
 	// pathToDB := flag.String("db", "../db", "Path to database folder")
 	// pw := flag.String("pw", "", "Generate pw for user management")
 	// pathToFrontEnd := flag.String("frontend", "../FrontRbc", "Path to frontend folder.\n"+

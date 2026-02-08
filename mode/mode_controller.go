@@ -5,6 +5,7 @@ import (
 	"ledean/dbdriver"
 	"ledean/display"
 	"ledean/driver/button"
+	"ledean/driver/dmx"
 	"ledean/json"
 	"ledean/websocket"
 	"time"
@@ -28,6 +29,8 @@ type ModeController struct {
 	display               *display.Display
 	hub                   *websocket.Hub
 	button                *button.Button
+	dmx                   *dmx.Dmx
+	dmxOffset             int
 	active                bool
 	modes                 []Mode
 	modesIndex            uint8
@@ -53,13 +56,15 @@ const SHOW_PIC_DURATION = 6000
 // const SHOW_PIC_DURATION = 2000
 const SHOW_DEFAULT_DURATION = 3000
 
-func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, button *button.Button, hub *websocket.Hub, show_mode bool) *ModeController {
+func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, button *button.Button, hub *websocket.Hub, dmx *dmx.Dmx, dmxOffset int, show_mode bool) *ModeController {
 	// show_mode should make randomness deterministic
 	self := ModeController{
 		dbdriver:              dbdriver,
 		display:               display,
 		button:                button,
 		hub:                   hub,
+		dmx:                   dmx,
+		dmxOffset:             dmxOffset,
 		active:                false,
 		modePicture:           NewModePicture(dbdriver, display, show_mode),
 		modeSolid:             NewModeSolid(dbdriver, display, show_mode),
@@ -512,10 +517,37 @@ func (self *ModeController) PlayPause() {
 	}
 }
 
+func (self *ModeController) DmxParameterChange0(value byte) { self.DmxParameterChangeX(0, value) }
+func (self *ModeController) DmxParameterChange1(value byte) { self.DmxParameterChangeX(1, value) }
+func (self *ModeController) DmxParameterChange2(value byte) { self.DmxParameterChangeX(2, value) }
+func (self *ModeController) DmxParameterChange3(value byte) { self.DmxParameterChangeX(3, value) }
+func (self *ModeController) DmxParameterChange4(value byte) { self.DmxParameterChangeX(4, value) }
+func (self *ModeController) DmxParameterChange5(value byte) { self.DmxParameterChangeX(5, value) }
+func (self *ModeController) DmxParameterChange6(value byte) { self.DmxParameterChangeX(6, value) }
+func (self *ModeController) DmxParameterChange7(value byte) { self.DmxParameterChangeX(7, value) }
+
+func (self *ModeController) DmxParameterChangeX(chn int, value byte) {
+	log.Info("DMX parameter change: chn=%d, value=%d", chn, value)
+}
+
+func (self *ModeController) DmxModeChange(value byte) {
+	log.Info("DMX mode change: %d", value)
+}
+
 func (self *ModeController) registerEvents() {
 	if self.button != nil {
 		self.button.AddCbPressSingle(self.NextMode)
 		self.button.AddCbPressDouble(self.Randomize)
 		self.button.AddCbPressLong(self.StartStop)
+	}
+	if self.dmx != nil {
+		self.dmx.AddChnListener(self.dmxOffset, self.DmxModeChange)
+		self.dmx.AddChnListener(self.dmxOffset+1, self.DmxParameterChange0)
+		self.dmx.AddChnListener(self.dmxOffset+2, self.DmxParameterChange1)
+		self.dmx.AddChnListener(self.dmxOffset+3, self.DmxParameterChange2)
+		self.dmx.AddChnListener(self.dmxOffset+4, self.DmxParameterChange3)
+		self.dmx.AddChnListener(self.dmxOffset+5, self.DmxParameterChange4)
+		self.dmx.AddChnListener(self.dmxOffset+6, self.DmxParameterChange5)
+		self.dmx.AddChnListener(self.dmxOffset+7, self.DmxParameterChange6)
 	}
 }
