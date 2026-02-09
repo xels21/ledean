@@ -36,6 +36,7 @@ func Run(parm *Parameter) *LEDeanInstance {
 
 	driver.Init()
 	self.dmx = dmx.NewDmx()
+	// self.dmx = nil
 
 	// time.Sleep(1000 * time.Millisecond) //wait a bit for the DMX driver to be ready
 
@@ -67,10 +68,11 @@ func Run(parm *Parameter) *LEDeanInstance {
 		go self.dmx.Run()
 	}
 
-	const TEST_MODE = true
-	// const TEST_MODE = false
+	// const TEST_MODE = true
+	const TEST_MODE = false
 	if TEST_MODE {
 		for {
+			// Somehow not working on ESP32
 			log.Info("hit")
 			time.Sleep(3 * time.Second)
 			log.Info("hit")

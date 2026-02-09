@@ -15,7 +15,7 @@ func main() {
 	//ESP32 REICHI
 	// os.Args = []string{"tinygo_stub", "-gpio_led_data=23", "-gpio_button=22", "-led_count=50", "-direct_start"}
 	//ESP32 BABSTADT
-	os.Args = []string{"tinygo_stub", "-gpio_led_data=0", "-led_count=50", "-direct_start", "-no_gui"}
+	os.Args = []string{"tinygo_stub", "-gpio_led_data=0", "-led_count=50", "-no_gui", "-fps=10"}
 	// os.Args = []string{"tinygo_stub", "-gpio_led_data=23", "-gpio_button=22", "-led_count=50", "-direct_start", "-no_gui"}
 	//Arduino Nano
 	// os.Args = []string{"tinygo_stub", "-gpio_led_data=2", "-gpio_button=22", "-led_count=50", "-direct_start"}
@@ -35,7 +35,8 @@ func injectFavMode(pLedean *ledean.LEDeanInstance) {
 	modeSpectrum.SetParameter(mode.ModeSpectrumParameter{
 		HueFrom720: 147.5,
 		HueTo720:   308.6,
-		Brightness: 0.75,
+		// Brightness: 0.75,
+		Brightness: 0.2,
 		Positions: [2]mode.ModeSpectrumParameterPosition{
 			{
 				FacFrom:        2.0816143975048464,

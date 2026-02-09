@@ -97,6 +97,8 @@ func (self *Dmx) Run() {
 			continue
 		}
 
+		log.Debug("DMX break detected")
+
 		// STEP 2: Break detected! We're in MAB (Mark After Break).
 		// Flush UART - the break generated garbage bytes.
 		self.drainUART()

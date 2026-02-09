@@ -2,7 +2,7 @@ module ledean
 
 // go 1.24
 // go 1.22.12
-go 1.22.6
+go 1.24.0
 
 require (
 	github.com/disintegration/imaging v1.6.2
@@ -10,13 +10,15 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/rs/cors v1.11.1
 	github.com/sdomino/scribble v0.0.0-20230717151034-b95d4df19aa8
-	github.com/sirupsen/logrus v1.9.3
+	github.com/sirupsen/logrus v1.9.4
 	github.com/stretchr/testify v1.10.0
 	periph.io/x/conn/v3 v3.7.2
-	periph.io/x/devices/v3 v3.7.3
-	periph.io/x/host/v3 v3.8.3
-	tinygo.org/x/drivers v0.29.0
+	periph.io/x/devices/v3 v3.7.4
+	periph.io/x/host/v3 v3.8.5
+	tinygo.org/x/drivers v0.34.0
 )
+
+// replace tinygo.org/x/drivers => ./third_party/tinygo-drivers
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -25,10 +27,10 @@ require (
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	golang.org/x/image v0.23.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/sys v0.41.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 // replace tinygo.org/x/drivers => github.com/xels21/tinygo-drivers v0.0.0-20240721163709-8002ea880704
-replace tinygo.org/x/drivers => github.com/xels21/tinygo-drivers v0.0.0-20250220124013-10bcaf83bd03
+// replace tinygo.org/x/drivers => github.com/xels21/tinygo-drivers v0.0.0-20250220124013-10bcaf83bd03
