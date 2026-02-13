@@ -35,6 +35,7 @@ type Dmx struct {
 	listeners     [maxListeners]dmxListener
 	listenerCount uint8
 	maxChn        uint16 // highest registered channel (for early exit)
+	channels      [maxDmxRead]byte
 }
 
 func NewDmx() *Dmx {
@@ -70,6 +71,73 @@ func (self *Dmx) AddChnListener(chn int, callback func(value byte)) {
 }
 
 func (self *Dmx) Run() {
+	// Configure GPIO and UART here (not in NewDmx) so that UART RX interrupts
+	// don't fire during the allocation-heavy init phase.
+	// self.rxPin.Configure(machine.PinConfig{Mode: machine.PinInputPullup})
+	self.dmx.Configure(machine.UARTConfig{
+		BaudRate: dmxBaud,
+		RX:       self.rxPin,
+		TX:       machine.NoPin,
+	})
+
+	self.rxPin.Configure(machine.PinConfig{Mode: machine.PinInputPullup})
+
+	var err error
+	var chn uint16
+	var b byte
+	var t int
+	for {
+		self.waitForBreak()
+		// log.Debug("DMX break detected")
+
+		// self.flushUART()
+
+		// MAB ~48us
+		for t = 4000; t > 0; t-- {
+			b, err = self.dmx.ReadByte()
+			if err == nil {
+				break
+			}
+		}
+		if t == 0 {
+			log.Debug("DMX: no start code after MAB, restarting wait loop")
+			continue
+		}
+		if b != startCode {
+			log.Debugf("DMX: invalid start code 0x%02X (expected 0x%02X) - %d", b, startCode, t)
+			continue
+		}
+
+		chn = 0
+		for {
+
+			for t = 100; t > 0; t-- {
+				b, err = self.dmx.ReadByte()
+				if err == nil {
+					break
+				}
+			}
+			if t == 0 {
+				// log.Debug("DMX: inter-byte timeout, end of frame")
+				break
+			}
+
+			if self.channels[chn] != b {
+				log.Debugf("DMX chn %d: %d -> %d", chn, self.channels[chn], b)
+				// log.Debugf("DMX chn %d: %d -> %d", chn, self.channels[chn], b)
+				self.channels[chn] = b
+				self.notifyListeners(chn, b)
+			}
+			chn++
+			if chn >= maxDmxRead {
+				log.Debugf("DMX: reached max channel %d, stopping read", maxDmxRead-1)
+				break
+			}
+		}
+	}
+}
+
+func (self *Dmx) _Run() {
 	// Configure GPIO and UART here (not in NewDmx) so that UART RX interrupts
 	// don't fire during the allocation-heavy init phase.
 	self.rxPin.Configure(machine.PinConfig{Mode: machine.PinInputPullup})
@@ -140,10 +208,55 @@ func (self *Dmx) notifyListeners(chn uint16, value byte) {
 	}
 }
 
+func (self *Dmx) flushUART() {
+	for _, err := self.dmx.ReadByte(); err == nil; _, err = self.dmx.ReadByte() {
+	}
+}
+
 // drainUART reads and discards all bytes in the UART hardware FIFO.
 func (self *Dmx) drainUART() {
 	for self.dmx.Bus.GetSTATUS_RXFIFO_CNT() > 0 {
 		self.dmx.Bus.GetFIFO_RXFIFO_RD_BYTE()
+	}
+}
+
+const (
+	// Break time ~ 88us
+	expectedMinLowTime  = 7
+	expectedMinHighTime = 200
+)
+
+// better "wait before break"
+func (self *Dmx) waitForBreak() {
+	lowTime := 0
+	for {
+		lowTime = 0
+		self.flushUART()
+		for self.rxPin.Get() == true {
+			lowTime++
+		}
+		if lowTime >= expectedMinHighTime {
+			self.flushUART()
+
+			// log.Debug("DMX break detected")
+			return
+		}
+	}
+}
+func (self *Dmx) _waitForBreak() {
+	lowTime := 0
+	for {
+		lowTime = 0
+		self.flushUART()
+		for self.rxPin.Get() == false {
+			lowTime++
+		}
+		if lowTime >= expectedMinLowTime {
+			self.flushUART()
+
+			// log.Debug("DMX break detected")
+			return
+		}
 	}
 }
 
@@ -214,18 +327,18 @@ func loopsForTimeout(timeout time.Duration) int {
 
 func (self *Dmx) waitForPinState(state bool, timeout time.Duration) bool {
 	loops := loopsForTimeout(timeout)
-	yieldCounter := 0
+	// yieldCounter := 0
 	for self.rxPin.Get() != state {
-		self.drainUART()
+		// self.drainUART()
 		loops--
 		if loops <= 0 {
 			return false
 		}
-		yieldCounter++
-		if yieldCounter >= 1000 {
-			yieldCounter = 0
-			runtime.Gosched()
-		}
+		// yieldCounter++
+		// if yieldCounter >= 1000 {
+		// yieldCounter = 0
+		// runtime.Gosched()
+		// }
 	}
 	return true
 }

@@ -4,7 +4,8 @@
 package log
 
 import (
-	"log"
+	"fmt"
+	// "log" -> not wokring with uart due to heap allocations, so we use fmt.Print instead and disable log output via SetLogger
 )
 
 func SetLogger(logLevelStr string) error {
@@ -15,72 +16,76 @@ func SetLogger(logLevelStr string) error {
 func Trace(args ...interface{}) {
 	// log.Trace(args...)
 	if false {
-		log.Print(args...)
+		fmt.Println(args...)
 	}
 }
 
 // Debug logs a message at level Debug on the standard logger.
 func Debug(args ...interface{}) {
 	// log.Debug(args...)
-	log.Print(args...)
+	fmt.Println(args...)
 }
 
 // Debugf logs a message at level Debug on the standard logger.
 func Debugf(format string, args ...interface{}) {
 	// log.Debugf(format, args...)
-	log.Printf(format, args...)
+	fmt.Printf(format, args...)
+	fmt.Println()
 }
 
 // Print logs a message at level Info on the standard logger.
 func Print(args ...interface{}) {
-	log.Print(args...)
+	fmt.Println(args...)
 }
 
 // Info logs a message at level Info on the standard logger.
 func Info(args ...interface{}) {
 	// log.Info(args...)
-	log.Print(args...)
+	fmt.Println(args...)
 }
 
 // Info logs a message at level Info on the standard logger.
 func Infof(format string, args ...interface{}) {
 	// log.Debugf(format, args...)
-	log.Printf(format, args...)
+	fmt.Printf(format, args...)
+	fmt.Println()
 }
 
 // Warn logs a message at level Warn on the standard logger.
 func Warn(args ...interface{}) {
 	// log.Warn(args...)
-	log.Print(args...)
+	fmt.Println(args...)
 }
 
 // Warning logs a message at level Warn on the standard logger.
 func Warning(args ...interface{}) {
 	// log.Warning(args...)
-	log.Print(args...)
+	fmt.Println(args...)
 }
 
 func Warningf(format string, args ...interface{}) {
 	// log.Warning(args...)
-	log.Printf(format, args...)
+	fmt.Printf(format, args...)
+	fmt.Println()
 }
 
 // Error logs a message at level Error on the standard logger.
 func Error(args ...interface{}) {
 	// log.Error(args...)
-	log.Print(args...)
+	fmt.Println(args...)
 }
 
 // Panic logs a message at level Panic on the standard logger.
 func Panic(args ...interface{}) {
-	log.Panic(args...)
+	fmt.Println(args...)
 }
 
 // Fatal logs a message at level Fatal on the standard logger then the process will exit with status set to 1.
 func Fatal(args ...interface{}) {
-	log.Fatal(args...)
+	fmt.Println(args...)
 }
 
 func Fatalf(format string, args ...interface{}) {
-	log.Fatalf(format, args...)
+	fmt.Printf(format, args...)
+	fmt.Println()
 }
