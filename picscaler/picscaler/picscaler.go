@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/disintegration/imaging"
+	_ "golang.org/x/image/webp"
 )
 
 type PicScaler struct {
@@ -129,7 +130,7 @@ func (self *PicScaler) readInDir() {
 	self.picNames = make([]string, 0, len(entries))
 	for _, e := range entries {
 		switch filepath.Ext(e.Name()) {
-		case ".png", ".jpeg", ".jpg", ".bmp", ".gif":
+		case ".png", ".jpeg", ".jpg", ".bmp", ".gif", ".webp":
 			// if strings.HasPrefix(e.Name(), "_") {
 			// continue
 			// }

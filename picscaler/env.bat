@@ -1,6 +1,6 @@
 @ECHO OFF
 
-if "%COMPUTERNAME%" EQU "DESKTOP-DEAN" (
+if "%COMPUTERNAME%" EQU "DEANDESKTOP" (
   SET PIC_IN_FOLDER=D:\GDrive\Poi\pictures\active
 ) else if "%COMPUTERNAME%" EQU "ASUSTUF" (
   SET PIC_IN_FOLDER=X:\GDrive\Poi\pictures\active

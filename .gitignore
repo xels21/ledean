@@ -10,3 +10,4 @@ db
 poi/gen/*.tiff
 mode/gen_picture
 .vscode/sftp.json
+**/gen_gen

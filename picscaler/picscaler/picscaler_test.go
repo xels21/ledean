@@ -28,7 +28,7 @@ func TestPicScale(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	assert.Equal(t, 13, len(entries))
+	assert.Equal(t, 16, len(entries))
 	// assert.InDelta(t, expectedRgb.B, rgb.B, 1)
 }
 
