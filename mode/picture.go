@@ -33,6 +33,7 @@ type ModePictureParameter struct {
 	PictureColumnUs          uint32  `json:"pictureColumnUs"`
 	PictureChangeIntervallMs uint32  `json:"pictureChangeIntervallMs"`
 	Brightness               float64 `json:"brightness"`
+	PicIndex                 int8    `json:"picIndex"`
 	// PicturePath              string `json:"picturePath"`
 }
 
@@ -93,8 +94,9 @@ func (self *ModePicture) Default() {
 		//  deltaTimeNs: 4 732 650 ~ 5ms
 		PictureColumnUs:          3000,
 		PictureChangeIntervallMs: 6000,
-		// Brightness:               0.1, //for small poi
-		Brightness: 0.06, //for big poi
+		Brightness:               0.1, //for small poi
+		// Brightness: 0.06, //for big poi
+		PicIndex: 0,
 	}
 	self.SetParameter(parameter)
 }
@@ -198,6 +200,9 @@ func (self *ModePicture) postSetParameter() {
 	// self.poiPics[iPic].Pix[iPix] = uint8(float64(picture.PoiPics[iPic].Pix[iPix]) * self.parameter.Brightness)
 	// }
 	// }
+	if self.parameter.PicIndex >= 0 && self.parameter.PicIndex < int8(len(picture.Pics)) {
+		self.picIndex = uint8(self.parameter.PicIndex)
+	}
 	self.updateCurrentPic()
 	self.colProgressPerStep = self.getColProgressPerStep(float64(self.display.GetRefreshIntervalNs()))
 	self.picProgressPerStep = self.getPicProgressPerStep(float64(self.display.GetRefreshIntervalNs()))
@@ -217,6 +222,7 @@ func (self *ModePicture) Randomize() {
 		PictureColumnUs:          (self.rand.Uint32())%(self.limits.MaxPictureColumnUs-self.limits.MinPictureColumnUs) + self.limits.MinPictureColumnUs,
 		PictureChangeIntervallMs: (self.rand.Uint32())%(self.limits.MaxPictureChangeIntervallMs-self.limits.MinPictureChangeIntervallMs) + self.limits.MinPictureChangeIntervallMs,
 		Brightness:               self.rand.Float64()*(self.limits.MaxBrightness-self.limits.MinBrightness) + self.limits.MinBrightness,
+		PicIndex:                 int8(self.rand.Uint32() % uint32(len(picture.Pics))),
 	}
 	self.SetParameter(parameter)
 }
