@@ -2,5 +2,11 @@
   "[go]": {
     "editor.defaultFormatter": "golang.go"
   },
-  "go.formatOnSave": true
+  "go.formatOnSave": true,
+  "go.toolsEnvVars": {
+    "GOOS": "linux",
+    "GOARCH": "arm",
+    "GOROOT": "C:\\Users\\deanp\\AppData\\Local\\tinygo\\goroot-a1aa922207bfbbd0bab4a0cc33f4a640bd1069b1b833e07e34c2aa8ac6deeccb",
+    "GOFLAGS": "-tags=tinygo.riscv,baremetal,linux,arm,tinygo.riscv32,esp32c3,esp,xiao_esp32c3,tinygo,purego,osusergo,math_big_pure_go,gc.conservative,scheduler.tasks,serial.usb,tinygo.unicore"
+  }
 }

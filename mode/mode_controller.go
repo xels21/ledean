@@ -69,9 +69,11 @@ func NewModeController(dbdriver *dbdriver.DbDriver, display *display.Display, bu
 		modeEmitter:           NewModeEmitter(dbdriver, display, show_mode),
 		modeGradient:          NewModeGradient(dbdriver, display, show_mode),
 		modeSpectrum:          NewModeSpectrum(dbdriver, display, show_mode),
-		pCmdModeActionChannel: hub.GetCmdModeActionChannel(),
-		pCmdModeChannel:       hub.GetCmdModeChannel(),
 		showEntriesIndex:      0,
+	}
+	if hub != nil {
+		self.pCmdModeActionChannel = hub.GetCmdModeActionChannel()
+		self.pCmdModeChannel = hub.GetCmdModeChannel()
 	}
 	if show_mode {
 		// self.modes = []Mode{self.modePicture}
